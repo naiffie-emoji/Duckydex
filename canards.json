@@ -1,0 +1,20 @@
+[
+  {
+    "id": "duck001",
+    "name": "Canard Chapeauté",
+    "rarity": "Commun",
+    "image": "assets/duck001.png"
+  },
+  {
+    "id": "duck002",
+    "name": "Canard Ninja",
+    "rarity": "Rare",
+    "image": "assets/duck002.png"
+  },
+  {
+    "id": "duck003",
+    "name": "Canard Doré",
+    "rarity": "Légendaire",
+    "image": "assets/duck003.png"
+  }
+]

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Obtenir un Canard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f9ff;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #4dabf7;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    nav {
+      display: none;
+      flex-direction: column;
+      background-color: #4dabf7;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-top: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .burger {
+      font-size: 24px;
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+    }
+
+    .menu.open nav {
+      display: flex;
+    }
+
+    main {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    button {
+      padding: 15px 30px;
+      font-size: 18px;
+      background-color: #4dabf7;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background-color: #a5d8ff;
+      cursor: not-allowed;
+    }
+
+    #result {
+      margin-top: 30px;
+    }
+
+    .card {
+      display: inline-block;
+      border: 2px solid #ccc;
+      border-radius: 12px;
+      padding: 10px;
+      margin-top: 20px;
+      background: white;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .card img {
+      width: 150px;
+      height: 150px;
+      object-fit: contain;
+    }
+
+    .card h3 {
+      margin: 10px 0 5px;
+    }
+
+    .card span {
+      font-weight: bold;
+      color: #555;
+    }
+
+    @media (min-width: 600px) {
+      nav {
+        display: flex !important;
+        flex-direction: row;
+      }
+
+      nav a {
+        border: none;
+        padding: 0 15px;
+      }
+
+      .burger {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="menu">
+    <h1>DuckydexDex</h1>
+    <button class="burger" onclick="toggleMenu()">☰</button>
+    <nav>
+      <a href="index.html">Obtenir un Canard</a>
+      <a href="collection.html">Ma Collection</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Obtiens un nouveau canard !</h2>
+    <button id="claimButton" disabled>Chargement...</button>
+    <p id="timerText"></p>
+
+    <section id="result"></section>
+  </main>
+
+  <script>
+    function toggleMenu() {
+      document.querySelector('.menu').classList.toggle('open');
+    }
+  </script>
+
+  <script src="script.js"></script>
+</body>
+</html>
