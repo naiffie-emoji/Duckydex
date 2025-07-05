@@ -71,4 +71,10 @@
     "rarity": "Commun",
     "image": "assets/duck012.png"
     }
+    {
+    "id": "duck013",
+    "name": "Dimao",
+    "rarity": "Rare",
+    "image": "assets/duck013.png"
+    }
 ]
