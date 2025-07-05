@@ -8,7 +8,7 @@
   {
     "id": "duck002",
     "name": "Lucky duck",
-    "rarity": "Épique",
+    "rarity": "Rare",
     "image": "assets/duck002.png"
   },
   {
@@ -58,5 +58,11 @@
     "name": "Thomas",
     "rarity": "Épique",
     "image": "assets/duck010.png"
-    }
+    },
+    {
+    "id": "duck011",
+    "name": "Léalégende",
+    "rarity": "Épique",
+    "image": "assets/duck011.png"
+  }
 ]
