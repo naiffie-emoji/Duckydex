@@ -40,5 +40,11 @@
     "name": "Mérédith",
     "rarity": "Rare",
     "image": "assets/duck007.png"
+    },
+    {
+    "id": "duck008",
+    "name": "Ménagé",
+    "rarity": "Commun",
+    "image": "assets/duck008.png"
     }
 ]
