@@ -5,6 +5,15 @@ const result = document.getElementById("result");
 
 let canards = [];
 
+// Demande de permission pour notifications (au chargement)
+if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+  Notification.requestPermission().then(permission => {
+    if (permission === "granted") {
+      console.log("Notifications activées !");
+    }
+  });
+}
+
 fetch('canards.json')
   .then(response => response.json())
   .then(data => {
@@ -42,6 +51,11 @@ function enableButton() {
   button.textContent = "Obtenir un canard";
   timerText.textContent = "";
   button.onclick = claimDuck;
+
+  // 🔔 Envoie la notification si autorisée
+  if (Notification.permission === "granted") {
+    new Notification("🦆 Tu peux récupérer un nouveau canard !");
+  }
 }
 
 function updateTimer(ms) {
@@ -101,4 +115,4 @@ function showDuck(duck) {
       <span>${duck.rarity}</span>
     </div>
   `;
-}
+    }
