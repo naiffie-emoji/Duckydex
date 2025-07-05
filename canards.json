@@ -46,5 +46,17 @@
     "name": "Ménagé",
     "rarity": "Commun",
     "image": "assets/duck008.png"
+    },
+    {
+    "id": "duck009",
+    "name": "Rouge rubis",
+    "rarity": "Commun",
+    "image": "assets/duck009.png"
+    },
+    {
+    "id": "duck010",
+    "name": "Thomas",
+    "rarity": "Commun",
+    "image": "assets/duck010.png"
     }
 ]
