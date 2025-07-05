@@ -64,5 +64,11 @@
     "name": "Léalégende",
     "rarity": "Épique",
     "image": "assets/duck011.png"
-  }
+    },
+    {
+    "id": "duck012",
+    "name": "Donalduck",
+    "rarity": "Commun",
+    "image": "assets/duck012.png"
+    }
 ]
