@@ -1,19 +1,19 @@
 [
   {
     "id": "duck001",
-    "name": "Canard Chapeauté",
-    "rarity": "Commun",
+    "name": "The canard",
+    "rarity": "Légendaire",
     "image": "assets/duck001.png"
   },
   {
     "id": "duck002",
-    "name": "Canard Ninja",
-    "rarity": "Rare",
+    "name": "Lucky duck",
+    "rarity": "Épique",
     "image": "assets/duck002.png"
   },
   {
     "id": "duck003",
-    "name": "Canard Doré",
+    "name": "Aqua",
     "rarity": "Légendaire",
     "image": "assets/duck003.png"
   }
