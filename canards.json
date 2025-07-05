@@ -94,5 +94,11 @@
     "name": "Chaneton",
     "rarity": "Commun",
     "image": "assets/duck016.png"
+    },
+    {
+    "id": "duck017",
+    "name": "Axolume",
+    "rarity": "Commun",
+    "image": "assets/duck017.png"
     }
 ]
