@@ -88,6 +88,11 @@
     "name": "Canatak",
     "rarity": "Commun",
     "image": "assets/duck015.png"
+    },
+    {
+    "id": "duck016",
+    "name": "Chaneton",
+    "rarity": "Commun",
+    "image": "assets/duck016.png"
     }
-
 ]
