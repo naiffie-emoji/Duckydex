@@ -16,5 +16,11 @@
     "name": "Aqua",
     "rarity": "Légendaire",
     "image": "assets/duck003.png"
+  },
+  {
+    "id": "duck004",
+    "name": "Leoli",
+    "rarity": "Légendaire",
+    "image": "assets/duck004.png"
   }
 ]
