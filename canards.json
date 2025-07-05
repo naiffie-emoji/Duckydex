@@ -34,5 +34,11 @@
     "name": "Aqua",
     "rarity": "Commun",
     "image": "assets/duck006.png"
-  }
+  },
+    {
+    "id": "duck007",
+    "name": "Mérédith",
+    "rarity": "Rare",
+    "image": "assets/duck007.png"
+    }
 ]
