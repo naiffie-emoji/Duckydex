@@ -22,5 +22,17 @@
     "name": "Leoli",
     "rarity": "Commun",
     "image": "assets/duck004.png"
+  },
+  {
+    "id": "duck005",
+    "name": "Léachat",
+    "rarity": "Légendaire",
+    "image": "assets/duck005.png"
+  }, 
+  {
+    "id": "duck006",
+    "name": "Aqua",
+    "rarity": "Commun",
+    "image": "assets/duck006.png"
   }
 ]
