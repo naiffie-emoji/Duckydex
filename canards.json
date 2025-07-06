@@ -56,7 +56,7 @@
     {
     "id": "duck010",
     "name": "L'anta grognisme",
-    "rarity": "Épique",
+    "rarity": "Légendaire",
     "image": "assets/duck010.png"
     },
     {
@@ -100,5 +100,11 @@
     "name": "Axolume",
     "rarity": "Commun",
     "image": "assets/duck017.png"
+    },
+    {
+    "id": "duck018",
+    "name": "Angeline",
+    "rarity": "Épique",
+    "image": "assets/duck018.png"
     }
 ]
