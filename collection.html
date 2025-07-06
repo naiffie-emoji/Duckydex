@@ -48,7 +48,7 @@
 
     main {
       padding: 2rem;
-      padding-bottom: 6rem; /* pour ne pas masquer par le bouton */
+      padding-bottom: 6rem;
     }
 
     .toolbar {
@@ -126,6 +126,11 @@
       margin-top: 1rem;
     }
 
+    #levelSelectSection {
+      display: none;
+      margin-top: 2rem;
+    }
+
     @media (max-width: 600px) {
       nav {
         display: none;
@@ -170,6 +175,12 @@
 
     <div id="fightSection">
       <div id="qrcode"></div>
+
+      <div id="levelSelectSection">
+        <label for="levelSelect">Choisir un niveau :</label>
+        <select id="levelSelect"></select>
+        <button id="startCombatBtn">🚀 Lancer le combat</button>
+      </div>
     </div>
   </main>
 
@@ -185,11 +196,15 @@
     const sortSelect = document.getElementById("sortSelect");
     const fightBtn = document.getElementById("fightBtn");
     const qrcodeDiv = document.getElementById("qrcode");
+    const levelSelectSection = document.getElementById("levelSelectSection");
+    const levelSelect = document.getElementById("levelSelect");
+    const startCombatBtn = document.getElementById("startCombatBtn");
 
     const collection = JSON.parse(localStorage.getItem("collection") || "[]");
     let duckData = [];
     let selectedIds = [];
     let selectionMode = false;
+    let maxUnlockedLevel = parseInt(localStorage.getItem("pveMaxLevel") || "1");
 
     fetch("canards.json")
       .then(res => res.json())
@@ -254,36 +269,39 @@
         cardElement.classList.add("selected");
       }
 
-      // Génération du QR Code si 1 à 4 sélectionnés
-      if (selectedIds.length > 0) {
-        const ids = selectedIds.join(",");
-        const baseFightUrl = "https://naiffie-emoji.github.io/Duckydex/fight-join.html";
-        const url = `${baseFightUrl}?ids=${ids}`;
+      qrcodeDiv.innerHTML = "";
+    }
 
-        QRCode.toCanvas(document.createElement("canvas"), url, { width: 200 }, (err, canvas) => {
-          if (err) {
-            qrcodeDiv.innerHTML = "<p>Erreur QR Code</p>";
-            console.error(err);
-            return;
-          }
-          qrcodeDiv.innerHTML = "";
-          qrcodeDiv.appendChild(canvas);
-        });
-      } else {
-        qrcodeDiv.innerHTML = "";
+    function showLevelSelect() {
+      levelSelect.innerHTML = "";
+
+      for (let i = 1; i <= maxUnlockedLevel && i <= 30; i++) {
+        const option = document.createElement("option");
+        option.value = i;
+        option.textContent = "Niveau " + i;
+        levelSelect.appendChild(option);
       }
+
+      levelSelectSection.style.display = "block";
     }
 
     fightBtn.addEventListener("click", () => {
       if (!selectionMode) {
         selectionMode = true;
-        fightBtn.textContent = "✅ Confirmer";
+        fightBtn.textContent = "✅ Choisir un niveau";
         renderCollection();
       } else if (selectedIds.length > 0) {
-        // Confirmation finale — rien à faire ici, QR déjà généré
+        showLevelSelect();
         fightBtn.disabled = true;
-        fightBtn.textContent = "QR généré";
+        fightBtn.textContent = "Sélection...";
       }
+    });
+
+    startCombatBtn.addEventListener("click", () => {
+      const level = levelSelect.value;
+      if (!level || selectedIds.length === 0) return;
+      const url = `start-combat.html?ids=${selectedIds.join(",")}&level=${level}`;
+      window.location.href = url;
     });
   </script>
 </body>
