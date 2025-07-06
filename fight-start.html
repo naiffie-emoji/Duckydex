@@ -6,150 +6,22 @@
   <title>Combat - Duckydex</title>
   <link rel="icon" type="image/png" href="filet-canard.png" />
   <style>
-    body {
-      margin: 0;
-      font-family: sans-serif;
-      background: #f0f8ff;
-      color: #333;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      height: 100vh;
-      padding: 1rem;
-    }
-
-    #player1,
-    #player2 {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-      padding: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      max-width: 600px;
-      margin: 0 auto;
-      user-select: none;
-    }
-
-    #player1 {
-      justify-content: flex-start;
-      margin-bottom: auto;
-    }
-
-    #player2 {
-      justify-content: flex-start;
-      margin-top: auto;
-      flex-direction: row-reverse;
-    }
-
-    #player1 img,
-    #player2 img {
-      width: 120px;
-      height: 120px;
-      object-fit: contain;
-      border-radius: 12px;
-      background: #e6f7ff;
-    }
-
-    .info {
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .name {
-      font-weight: bold;
-      font-size: 1.3rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .hp-bar {
-      position: relative;
-      background: #ddd;
-      border-radius: 10px;
-      height: 20px;
-      width: 100%;
-      overflow: hidden;
-      margin-bottom: 0.5rem;
-    }
-
-    .hp-bar-inner {
-      background: #38d9a9;
-      height: 100%;
-      width: 100%;
-      transition: width 0.3s ease;
-    }
-
-    .hp-text {
-      position: absolute;
-      width: 100%;
-      text-align: center;
-      top: 0;
-      left: 0;
-      line-height: 20px;
-      font-weight: bold;
-      color: #333;
-      user-select: none;
-    }
-
-    .attack-container {
-      display: flex;
-      justify-content: center;
-      margin: 1rem 0;
-      gap: 2rem;
-    }
-
-    button.attack-btn {
-      background: #38d9a9;
-      border: none;
-      color: white;
-      padding: 1rem 2rem;
-      font-size: 1.2rem;
-      border-radius: 10px;
-      cursor: pointer;
-      user-select: none;
-      transition: background-color 0.3s;
-    }
-
-    button.attack-btn:disabled {
-      background: #a0d8cc;
-      cursor: not-allowed;
-    }
-
-    #message {
-      text-align: center;
-      font-weight: bold;
-      font-size: 1.2rem;
-      margin: 1rem 0;
-      min-height: 1.5em;
-      user-select: none;
-    }
-
-    /* Zone centrale pour tapotage */
-    #tap-area {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 250px;
-      height: 250px;
-      background: #38d9a9;
-      border-radius: 30px;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 1.8rem;
-      font-weight: bold;
-      user-select: none;
-      cursor: pointer;
-      box-shadow: 0 0 15px #38d9a9aa;
-      text-align: center;
-      padding: 1rem;
-      z-index: 1000;
-    }
+    /* même style que dans ton code initial, inchangé */
+    body { margin: 0; font-family: sans-serif; background: #f0f8ff; color: #333; display: flex; flex-direction: column; justify-content: space-between; height: 100vh; padding: 1rem; }
+    #player1, #player2 { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); padding: 1rem; display: flex; align-items: center; gap: 1rem; max-width: 600px; margin: 0 auto; user-select: none; }
+    #player1 { justify-content: flex-start; margin-bottom: auto; }
+    #player2 { justify-content: flex-start; margin-top: auto; flex-direction: row-reverse; }
+    #player1 img, #player2 img { width: 120px; height: 120px; object-fit: contain; border-radius: 12px; background: #e6f7ff; }
+    .info { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+    .name { font-weight: bold; font-size: 1.3rem; margin-bottom: 0.5rem; }
+    .hp-bar { position: relative; background: #ddd; border-radius: 10px; height: 20px; width: 100%; overflow: hidden; margin-bottom: 0.5rem; }
+    .hp-bar-inner { background: #38d9a9; height: 100%; width: 100%; transition: width 0.3s ease; }
+    .hp-text { position: absolute; width: 100%; text-align: center; top: 0; left: 0; line-height: 20px; font-weight: bold; color: #333; user-select: none; }
+    .attack-container { display: flex; justify-content: center; margin: 1rem 0; gap: 2rem; }
+    button.attack-btn { background: #38d9a9; border: none; color: white; padding: 1rem 2rem; font-size: 1.2rem; border-radius: 10px; cursor: pointer; user-select: none; transition: background-color 0.3s; }
+    button.attack-btn:disabled { background: #a0d8cc; cursor: not-allowed; }
+    #message { text-align: center; font-weight: bold; font-size: 1.2rem; margin: 1rem 0; min-height: 1.5em; user-select: none; }
+    #tap-area { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 250px; height: 250px; background: #38d9a9; border-radius: 30px; display: none; align-items: center; justify-content: center; color: white; font-size: 1.8rem; font-weight: bold; user-select: none; cursor: pointer; box-shadow: 0 0 15px #38d9a9aa; text-align: center; padding: 1rem; z-index: 1000; }
   </style>
 </head>
 <body>
@@ -157,14 +29,8 @@
     <img src="" alt="Monture joueur 1" id="p1-img" />
     <div class="info">
       <div class="name" id="p1-name"></div>
-      <div
-        class="hp-bar"
-        role="progressbar"
-        aria-valuemin="0"
-        aria-valuemax="100"
-        aria-valuenow="100"
-      >
-        <div class="hp-bar-inner" id="p1-hp-bar" style="width: 100%"></div>
+      <div class="hp-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+        <div class="hp-bar-inner" id="p1-hp-bar"></div>
         <div class="hp-text" id="p1-hp-text">100 / 100</div>
       </div>
     </div>
@@ -177,62 +43,29 @@
     <button class="attack-btn" id="p2-attack-btn" disabled>Attaquer</button>
     <div class="info">
       <div class="name" id="p2-name"></div>
-      <div
-        class="hp-bar"
-        role="progressbar"
-        aria-valuemin="0"
-        aria-valuemax="100"
-        aria-valuenow="100"
-      >
-        <div class="hp-bar-inner" id="p2-hp-bar" style="width: 100%"></div>
+      <div class="hp-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+        <div class="hp-bar-inner" id="p2-hp-bar"></div>
         <div class="hp-text" id="p2-hp-text">100 / 100</div>
       </div>
     </div>
     <img src="" alt="Monture joueur 2" id="p2-img" />
   </div>
 
-  <div id="tap-area" aria-label="Zone de tapotage" role="button" tabindex="0">
-    <!-- Texte dynamique ici -->
-  </div>
+  <div id="tap-area" aria-label="Zone de tapotage" role="button" tabindex="0"></div>
 
   <script>
-    // Récupérer les équipes dans l'URL
     const urlParams = new URLSearchParams(window.location.search);
-    const ids1 = (urlParams.get("ids1") || "")
-      .split(",")
-      .filter((id) => id.trim());
-    const ids2 = (urlParams.get("ids2") || "")
-      .split(",")
-      .filter((id) => id.trim());
+    const ids1 = (urlParams.get("ids1") || "").split(",").filter((id) => id.trim());
+    const ids2 = (urlParams.get("ids2") || "").split(",").filter((id) => id.trim());
+    const isBotGame = urlParams.get("bot") === "1";
 
-    // Données canards (on doit charger canards.json)
-    let duckData = [];
-
-    // Montures des joueurs (objets)
-    let team1 = [];
-    let team2 = [];
-
-    // Index monture en cours pour chaque joueur
-    let currentIndex1 = 0;
-    let currentIndex2 = 0;
-
-    // PV max / actu par joueur (varient selon monture)
-    let maxHp1 = 0;
-    let maxHp2 = 0;
-    let hp1 = 0;
-    let hp2 = 0;
-
-    // Tap counts durant attaque
+    let duckData = [], team1 = [], team2 = [];
+    let currentIndex1 = 0, currentIndex2 = 0;
+    let maxHp1 = 0, maxHp2 = 0, hp1 = 0, hp2 = 0;
     let tapCount = 0;
-
-    // Qui attaque : '1' ou '2'
     let currentTurn = null;
+    let attackTimer = null, countdownTimer = null;
 
-    // Timer attaque et compte à rebours
-    let attackTimer = null;
-    let countdownTimer = null;
-
-    // Éléments DOM
     const p1Img = document.getElementById("p1-img");
     const p1Name = document.getElementById("p1-name");
     const p1HpBar = document.getElementById("p1-hp-bar");
@@ -248,45 +81,33 @@
     const messageDiv = document.getElementById("message");
     const tapArea = document.getElementById("tap-area");
 
-    // Fonction qui retourne les HP max selon la rareté
     function getHpMaxByRarity(rarity) {
       switch (rarity.toLowerCase()) {
-        case "commun":
-          return 10;
-        case "rare":
-          return 20;
-        case "épique":
-          return 30;
+        case "commun": return 10;
+        case "rare": return 20;
+        case "épique": return 30;
         case "legendaire":
-        case "légendaire":
-          return 40;
-        default:
-          return 10; // par défaut Commun
+        case "légendaire": return 40;
+        default: return 10;
       }
     }
 
-    // Charger canards.json puis initialiser combat
     fetch("canards.json")
       .then((res) => res.json())
       .then((data) => {
         duckData = data;
-
         team1 = ids1.map((id) => duckData.find((d) => d.id === id)).filter(Boolean);
         team2 = ids2.map((id) => duckData.find((d) => d.id === id)).filter(Boolean);
-
         if (team1.length === 0 || team2.length === 0) {
           alert("Erreur : équipe invalide.");
           window.location.href = "index.html";
           return;
         }
 
-        // Init montures et PV selon rareté
         currentIndex1 = 0;
         currentIndex2 = 0;
-
         maxHp1 = getHpMaxByRarity(team1[currentIndex1].rarity);
         hp1 = maxHp1;
-
         maxHp2 = getHpMaxByRarity(team2[currentIndex2].rarity);
         hp2 = maxHp2;
 
@@ -298,57 +119,47 @@
         window.location.href = "index.html";
       });
 
-    // Met à jour l'affichage montures, PV, boutons
     function updateUI() {
-      // Joueur 1
       const m1 = team1[currentIndex1];
       p1Img.src = m1.image;
-      p1Img.alt = m1.name;
       p1Name.textContent = m1.name;
       updateHpBar(p1HpBar, p1HpText, hp1, maxHp1);
 
-      // Joueur 2
       const m2 = team2[currentIndex2];
       p2Img.src = m2.image;
-      p2Img.alt = m2.name;
       p2Name.textContent = m2.name;
       updateHpBar(p2HpBar, p2HpText, hp2, maxHp2);
 
-      // Désactiver les boutons au début de l'update
       p1AttackBtn.disabled = true;
       p2AttackBtn.disabled = true;
 
-      // Message
       if (!messageDiv.textContent.startsWith("Le joueur")) {
         messageDiv.textContent = `Tour du joueur ${currentTurn}`;
       }
     }
 
-    // Met à jour la barre de PV (avec max HP dynamique)
     function updateHpBar(barElem, textElem, hp, maxHp) {
       let width = (hp / maxHp) * 100;
-      if (width < 0) width = 0;
-      barElem.style.width = width + "%";
+      barElem.style.width = Math.max(0, width) + "%";
       textElem.textContent = `${hp} / ${maxHp}`;
       barElem.parentElement.setAttribute("aria-valuenow", hp);
       barElem.parentElement.setAttribute("aria-valuemax", maxHp);
     }
 
-    // Détermine aléatoirement qui commence et active le bouton attaque
     function startTurnRandom() {
       currentTurn = Math.random() < 0.5 ? "1" : "2";
       messageDiv.textContent = `Le joueur ${currentTurn} commence !`;
-
       setTimeout(() => {
         enableAttackBtn();
       }, 1500);
     }
 
-    // Active le bouton "Attaquer" du joueur courant
     function enableAttackBtn() {
       if (currentTurn === "1") {
         p1AttackBtn.disabled = false;
         p2AttackBtn.disabled = true;
+      } else if (isBotGame) {
+        simulateBotAttack();
       } else {
         p1AttackBtn.disabled = true;
         p2AttackBtn.disabled = false;
@@ -356,19 +167,13 @@
       messageDiv.textContent = `Tour du joueur ${currentTurn}`;
     }
 
-    // Gestion clic sur bouton attaque
     function onAttackBtnClick() {
-      // Désactiver bouton pour éviter spam
       p1AttackBtn.disabled = true;
       p2AttackBtn.disabled = true;
-
-      // Lancer compte à rebours 3-2-1 puis attaque 5s
       let countdown = 3;
       tapCount = 0;
-
       tapArea.style.display = "flex";
       tapArea.textContent = `Joueur ${currentTurn}, préparez-vous... ${countdown}`;
-
       countdownTimer = setInterval(() => {
         countdown--;
         if (countdown > 0) {
@@ -380,17 +185,13 @@
       }, 1000);
     }
 
-    // Phase tapotage 5 secondes
     function startTappingPhase() {
       let timeLeft = 5;
       tapArea.textContent = `Joueur ${currentTurn}, tapotez ici !\nTemps restant : ${timeLeft}s`;
-
-      // Listener tapotage (sur zone centrale)
       function tapHandler() {
         tapCount++;
       }
       tapArea.addEventListener("click", tapHandler);
-
       attackTimer = setInterval(() => {
         timeLeft--;
         if (timeLeft > 0) {
@@ -399,15 +200,22 @@
           clearInterval(attackTimer);
           tapArea.removeEventListener("click", tapHandler);
           tapArea.style.display = "none";
-
-          const damage = Math.floor(tapCount / 5); // 5 taps = 1 PV dégâts
-
+          const damage = Math.floor(tapCount / 5);
           applyDamage(damage);
         }
       }, 1000);
     }
 
-    // Applique les dégâts à la monture adverse, gère mort et changement monture
+    function simulateBotAttack() {
+      messageDiv.textContent = "Le bot se prépare à attaquer...";
+      setTimeout(() => {
+        const fakeTaps = Math.floor(Math.random() * (100 - 25 + 1)) + 25;
+        const damage = Math.floor(fakeTaps / 5);
+        messageDiv.textContent = `Le bot attaque avec ${damage} dégât(s) !`;
+        setTimeout(() => applyDamage(damage), 1000);
+      }, 2000);
+    }
+
     function applyDamage(damage) {
       if (damage === 0) {
         messageDiv.textContent = `Pas assez de tapotements pour infliger des dégâts.`;
@@ -416,66 +224,43 @@
       }
 
       if (currentTurn === "1") {
-        hp2 -= damage;
-        if (hp2 < 0) hp2 = 0;
+        hp2 = Math.max(0, hp2 - damage);
       } else {
-        hp1 -= damage;
-        if (hp1 < 0) hp1 = 0;
+        hp1 = Math.max(0, hp1 - damage);
       }
 
       updateUI();
 
-      // Vérifier si monture adverse est morte, changer monture ou fin de partie
       if (currentTurn === "1" && hp2 <= 0) {
         currentIndex2++;
-        if (currentIndex2 >= team2.length) {
-          // Joueur 1 gagne
-          endGame(1);
-          return;
-        } else {
-          maxHp2 = getHpMaxByRarity(team2[currentIndex2].rarity);
-          hp2 = maxHp2;
-          messageDiv.textContent = "Joueur 2 change de monture !";
-          updateUI();
-        }
+        if (currentIndex2 >= team2.length) return endGame(1);
+        maxHp2 = getHpMaxByRarity(team2[currentIndex2].rarity);
+        hp2 = maxHp2;
+        messageDiv.textContent = "Joueur 2 change de monture !";
+        updateUI();
       } else if (currentTurn === "2" && hp1 <= 0) {
         currentIndex1++;
-        if (currentIndex1 >= team1.length) {
-          // Joueur 2 gagne
-          endGame(2);
-          return;
-        } else {
-          maxHp1 = getHpMaxByRarity(team1[currentIndex1].rarity);
-          hp1 = maxHp1;
-          messageDiv.textContent = "Joueur 1 change de monture !";
-          updateUI();
-        }
+        if (currentIndex1 >= team1.length) return endGame(2);
+        maxHp1 = getHpMaxByRarity(team1[currentIndex1].rarity);
+        hp1 = maxHp1;
+        messageDiv.textContent = "Joueur 1 change de monture !";
+        updateUI();
       }
 
-      // Changer de tour
       currentTurn = currentTurn === "1" ? "2" : "1";
-
-      // Petit délai avant d'activer le bouton d'attaque suivant
-      setTimeout(() => {
-        messageDiv.textContent = `Tour du joueur ${currentTurn}`;
-        enableAttackBtn();
-      }, 2000);
+      setTimeout(() => enableAttackBtn(), 2000);
     }
 
-    // Fin de partie
     function endGame(winner) {
       p1AttackBtn.disabled = true;
       p2AttackBtn.disabled = true;
       tapArea.style.display = "none";
       messageDiv.textContent = `Le joueur ${winner} a gagné le combat ! Redirection...`;
-
-      // Retour à index.html après 3s
       setTimeout(() => {
         window.location.href = "index.html";
       }, 3000);
     }
 
-    // Événements boutons attaque
     p1AttackBtn.addEventListener("click", () => {
       if (currentTurn === "1") onAttackBtnClick();
     });
