@@ -7,13 +7,13 @@
   <link rel="icon" type="image/png" href="filet-canard.png">
   <style>
     body {
-      margin: 0; 
-      font-family: sans-serif; 
-      background: #f0f8ff; 
+      margin: 0;
+      font-family: sans-serif;
+      background: #f0f8ff;
       color: #333;
-      display: flex; 
-      flex-direction: column; 
-      align-items: center; 
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       padding: 1rem;
     }
 
@@ -69,7 +69,7 @@
       width: 100%;
     }
 
-    #launchFight {
+    #launchFight, #launchVsBot {
       padding: 10px 20px;
       font-size: 1.1rem;
       background: #38d9a9;
@@ -79,9 +79,10 @@
       cursor: pointer;
       max-width: 600px;
       width: 100%;
+      margin-top: 0.5rem;
     }
 
-    #launchFight:disabled {
+    #launchFight:disabled, #launchVsBot:disabled {
       background: #a0d8cc;
       cursor: not-allowed;
     }
@@ -121,11 +122,11 @@
   <div id="myDuckList">Chargement de votre collection...</div>
 
   <button id="launchFight" disabled>Lancer le combat</button>
+  <button id="launchVsBot" disabled>Jouer contre un bot 🤖</button>
 
   <div id="errorMsg"></div>
 
   <script>
-    // Récupérer les IDs du joueur 1 dans l'URL
     const urlParams = new URLSearchParams(window.location.search);
     const idsJoueur1 = urlParams.get("ids") || "";
     const duckIdsJ1 = idsJoueur1.split(",").filter(id => id.trim() !== "");
@@ -133,12 +134,12 @@
     const duckListDiv = document.getElementById("duckList");
     const myDuckListDiv = document.getElementById("myDuckList");
     const launchFightBtn = document.getElementById("launchFight");
+    const launchVsBotBtn = document.getElementById("launchVsBot");
     const errorMsg = document.getElementById("errorMsg");
 
     let duckData = [];
     let selectedIdsJ2 = [];
 
-    // Charger les données des canards
     fetch("canards.json")
       .then(res => res.json())
       .then(data => {
@@ -150,9 +151,9 @@
         duckListDiv.innerHTML = "<p>Erreur de chargement des données.</p>";
         myDuckListDiv.innerHTML = "<p>Erreur de chargement des données.</p>";
         launchFightBtn.disabled = true;
+        launchVsBotBtn.disabled = true;
       });
 
-    // Afficher les canards du joueur 1 (adversaire)
     function displayDucksJ1() {
       duckListDiv.innerHTML = "";
       if (duckIdsJ1.length === 0) {
@@ -176,19 +177,20 @@
       });
     }
 
-    // Afficher la collection du joueur 2 (toi), stockée dans localStorage
     function displayMyDucks() {
       myDuckListDiv.innerHTML = "";
       const collection = JSON.parse(localStorage.getItem("collection") || "[]");
       if (collection.length === 0) {
         myDuckListDiv.innerHTML = "<p>Vous n'avez aucun canard dans votre collection.</p>";
         launchFightBtn.disabled = true;
+        launchVsBotBtn.disabled = true;
         return;
       }
       const ducks = collection.map(id => duckData.find(d => d.id === id)).filter(Boolean);
       if (ducks.length === 0) {
         myDuckListDiv.innerHTML = "<p>Votre collection ne contient aucun canard valide.</p>";
         launchFightBtn.disabled = true;
+        launchVsBotBtn.disabled = true;
         return;
       }
       ducks.forEach(duck => {
@@ -205,11 +207,9 @@
       });
     }
 
-    // Sélection des canards du joueur 2
     function toggleSelectJ2(id, cardElement) {
       const index = selectedIdsJ2.indexOf(id);
       if (index >= 0) {
-        // Désélectionner
         selectedIdsJ2.splice(index, 1);
         cardElement.classList.remove("selected");
       } else {
@@ -217,26 +217,31 @@
           alert("Vous ne pouvez sélectionner que 4 canards maximum.");
           return;
         }
-        // Sélectionner
         selectedIdsJ2.push(id);
         cardElement.classList.add("selected");
       }
-      launchFightBtn.disabled = selectedIdsJ2.length === 0;
+      const enabled = selectedIdsJ2.length > 0;
+      launchFightBtn.disabled = !enabled;
+      launchVsBotBtn.disabled = !enabled;
       errorMsg.textContent = "";
     }
 
-    // Bouton lancer le combat
     launchFightBtn.addEventListener("click", () => {
       if (selectedIdsJ2.length === 0) {
         errorMsg.textContent = "Veuillez sélectionner au moins un canard.";
         return;
       }
-      errorMsg.textContent = "";
-
-      // Construire l'URL vers fight-start.html avec les deux équipes
-      // ids1 = équipe joueur 1, ids2 = équipe joueur 2
       const urlFight = `https://naiffie-emoji.github.io/Duckydex/fight-start.html?ids1=${duckIdsJ1.join(",")}&ids2=${selectedIdsJ2.join(",")}`;
       window.location.href = urlFight;
+    });
+
+    launchVsBotBtn.addEventListener("click", () => {
+      if (selectedIdsJ2.length === 0) {
+        errorMsg.textContent = "Veuillez sélectionner au moins un canard.";
+        return;
+      }
+      const urlFightBot = `https://naiffie-emoji.github.io/Duckydex/fight-start.html?ids1=${duckIdsJ1.join(",")}&ids2=${selectedIdsJ2.join(",")}&vsBot=1`;
+      window.location.href = urlFightBot;
     });
   </script>
 </body>
