@@ -198,10 +198,11 @@
     let currentIndex1 = 0;
     let currentIndex2 = 0;
 
-    // PV max / actu
-    const MAX_HP = 100;
-    let hp1 = MAX_HP;
-    let hp2 = MAX_HP;
+    // PV max et actu (varie selon rareté)
+    let maxHp1 = 10;
+    let maxHp2 = 10;
+    let hp1 = maxHp1;
+    let hp2 = maxHp2;
 
     // Tap counts durant attaque
     let tapCount = 0;
@@ -229,6 +230,17 @@
     const messageDiv = document.getElementById("message");
     const tapArea = document.getElementById("tap-area");
 
+    // Fonction pour récupérer PV max selon rareté
+    function getMaxHp(rarity) {
+      switch(rarity) {
+        case "Commun": return 10;
+        case "Rare": return 20;
+        case "Épique": return 30;
+        case "Légendaire": return 40;
+        default: return 10;
+      }
+    }
+
     // Charger canards.json puis initialiser combat
     fetch("canards.json").then(res => res.json()).then(data => {
       duckData = data;
@@ -242,11 +254,14 @@
         return;
       }
 
-      // Init montures et PV
       currentIndex1 = 0;
       currentIndex2 = 0;
-      hp1 = MAX_HP;
-      hp2 = MAX_HP;
+
+      maxHp1 = getMaxHp(team1[currentIndex1].rarity);
+      maxHp2 = getMaxHp(team2[currentIndex2].rarity);
+
+      hp1 = maxHp1;
+      hp2 = maxHp2;
 
       updateUI();
       startTurnRandom();
@@ -257,174 +272,163 @@
 
     // Met à jour l'affichage montures, PV, boutons
     function updateUI() {
-      // Joueur 1
       const m1 = team1[currentIndex1];
+      const m2 = team2[currentIndex2];
+
+      // Joueur 1
       p1Img.src = m1.image;
       p1Img.alt = m1.name;
       p1Name.textContent = m1.name;
-      updateHpBar(p1HpBar, p1HpText, hp1);
+      updateHpBar(p1HpBar, p1HpText, hp1, maxHp1);
 
       // Joueur 2
-      const m2 = team2[currentIndex2];
       p2Img.src = m2.image;
       p2Img.alt = m2.name;
       p2Name.textContent = m2.name;
-      updateHpBar(p2HpBar, p2HpText, hp2);
+      updateHpBar(p2HpBar, p2HpText, hp2, maxHp2);
 
-      // Désactiver les boutons au début de l'update
-      p1AttackBtn.disabled = true;
-      p2AttackBtn.disabled = true;
-
-      // Message
-      messageDiv.textContent = `Tour du joueur ${currentTurn}`;
+      // Boutons activés seulement au tour
+      p1AttackBtn.disabled = currentTurn !== 1;
+      p2AttackBtn.disabled = currentTurn !== 2;
     }
 
-    // Met à jour la barre de PV
-    function updateHpBar(barElem, textElem, hp) {
-      let width = (hp / MAX_HP) * 100;
-      if (width < 0) width = 0;
-      barElem.style.width = width + "%";
-      textElem.textContent = `${hp} / ${MAX_HP}`;
-      barElem.parentElement.setAttribute("aria-valuenow", hp);
+    // Met à jour barre HP et texte
+    function updateHpBar(barElem, textElem, currentHp, maxHp) {
+      const ratio = Math.max(0, currentHp) / maxHp;
+      barElem.style.width = (ratio * 100) + "%";
+      textElem.textContent = `${Math.max(0, currentHp)} / ${maxHp}`;
+      barElem.parentElement.setAttribute("aria-valuenow", Math.max(0, currentHp));
     }
 
-    // Détermine aléatoirement qui commence et active le bouton attaque
+    // Commence un tour aléatoire (1 ou 2)
     function startTurnRandom() {
-      currentTurn = Math.random() < 0.5 ? '1' : '2';
-      messageDiv.textContent = `Le joueur ${currentTurn} commence !`;
+      currentTurn = Math.random() < 0.5 ? 1 : 2;
+      messageDiv.textContent = `C'est au joueur ${currentTurn} de commencer !`;
 
+      // Attendre 2 sec puis démarrer attaque
       setTimeout(() => {
-        enableAttackBtn();
-      }, 1500);
+        startCountdown();
+      }, 2000);
     }
 
-    // Active le bouton "Attaquer" du joueur courant
-    function enableAttackBtn() {
-      if(currentTurn === '1') {
-        p1AttackBtn.disabled = false;
-        p2AttackBtn.disabled = true;
-      } else {
-        p1AttackBtn.disabled = true;
-        p2AttackBtn.disabled = false;
-      }
-      messageDiv.textContent = `Joueur ${currentTurn}, cliquez sur "Attaquer" pour commencer !`;
-    }
-
-    // Quand on clique sur "Attaquer"
-    function onAttackBtnClick() {
-      // Désactiver boutons
-      p1AttackBtn.disabled = true;
-      p2AttackBtn.disabled = true;
-
-      // Démarrer compte à rebours au centre
+    // Compte à rebours 3, 2, 1, Go !
+    function startCountdown() {
       let count = 3;
-      tapArea.style.display = "flex";
-      tapArea.textContent = `Joueur ${currentTurn}, tapote ici dans ${count}...`;
-      messageDiv.textContent = "";
+      messageDiv.textContent = `Préparez-vous... ${count}`;
 
       countdownTimer = setInterval(() => {
         count--;
         if(count > 0) {
-          tapArea.textContent = `Joueur ${currentTurn}, tapote ici dans ${count}...`;
+          messageDiv.textContent = `Préparez-vous... ${count}`;
         } else {
           clearInterval(countdownTimer);
-          tapArea.textContent = "GO ! Tapote ici !";
-          startTapPhase();
+          messageDiv.textContent = "GO ! Tapez au centre !";
+          showTapArea();
+          startAttack();
         }
       }, 1000);
     }
 
-    // Démarre la phase de tap pendant 5 secondes
-    function startTapPhase() {
+    // Affiche la zone de tapotage
+    function showTapArea() {
+      tapArea.style.display = "flex";
+      tapArea.textContent = "Tapez ici rapidement !";
+      tapCount = 0;
+      tapArea.focus();
+    }
+
+    // Cache la zone de tapotage
+    function hideTapArea() {
+      tapArea.style.display = "none";
+      tapCount = 0;
+    }
+
+    // Démarre l'attaque avec limite de temps 5 sec
+    function startAttack() {
+      // Empêche clic sur boutons pendant attaque
+      p1AttackBtn.disabled = true;
+      p2AttackBtn.disabled = true;
+
       tapCount = 0;
 
-      // Ajouter écouteur tap sur zone centrale
-      tapArea.addEventListener("click", countTap);
-      tapArea.addEventListener("keydown", keyTap);
+      // Écouteur tap sur zone centrale
+      tapArea.addEventListener("click", tapHandler);
+      tapArea.addEventListener("keydown", keyHandler);
 
+      // Après 5 sec, fin attaque
       attackTimer = setTimeout(() => {
-        endTapPhase();
+        endAttack();
       }, 5000);
     }
 
-    // Compteur de tap
-    function countTap() {
+    // Gestion tap clic
+    function tapHandler() {
       tapCount++;
+      tapArea.textContent = `Taps : ${tapCount}`;
     }
 
-    // Permet aussi tap via barre espace ou entrée pour accessibilité
-    function keyTap(e) {
-      if(e.key === " " || e.key === "Enter") {
+    // Gestion tap clavier (Enter / Space)
+    function keyHandler(e) {
+      if(e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        tapCount++;
+        tapHandler();
       }
     }
 
-    // Fin de la phase de tap
-    function endTapPhase() {
-      // Retirer écouteurs
-      tapArea.removeEventListener("click", countTap);
-      tapArea.removeEventListener("keydown", keyTap);
+    // Fin de l'attaque
+    function endAttack() {
+      tapArea.removeEventListener("click", tapHandler);
+      tapArea.removeEventListener("keydown", keyHandler);
+      hideTapArea();
 
-      tapArea.style.display = "none";
+      // Calcul des dégâts (tapCount * 1)
+      const damage = tapCount;
 
-      // Calculer dégâts
-      const damage = Math.floor(tapCount / 10) * 2;
-      messageDiv.textContent = `Le joueur ${currentTurn} inflige ${damage} PV de dégâts !`;
-
-      // Appliquer dégâts
-      if(currentTurn === '1') {
+      if(currentTurn === 1) {
         hp2 -= damage;
-        if(hp2 < 0) hp2 = 0;
+        if(hp2 <= 0) {
+          hp2 = 0;
+          updateHpBar(p2HpBar, p2HpText, hp2, maxHp2);
+          messageDiv.textContent = `Joueur 1 a gagné !`;
+          disableAll();
+          return;
+        }
       } else {
         hp1 -= damage;
-        if(hp1 < 0) hp1 = 0;
+        if(hp1 <= 0) {
+          hp1 = 0;
+          updateHpBar(p1HpBar, p1HpText, hp1, maxHp1);
+          messageDiv.textContent = `Joueur 2 a gagné !`;
+          disableAll();
+          return;
+        }
       }
 
       updateUI();
 
-      // Vérifier si monture morte
-      if(hp1 === 0) {
-        currentIndex1++;
-        if(currentIndex1 >= team1.length) {
-          alert("Le joueur 2 a gagné !");
-          window.location.href = "index.html";
-          return;
-        }
-        hp1 = MAX_HP;
-        messageDiv.textContent = "Monture joueur 1 suivante !";
-        updateUI();
-      }
+      // Changer de tour
+      currentTurn = currentTurn === 1 ? 2 : 1;
+      messageDiv.textContent = `Au joueur ${currentTurn} de jouer. Préparez-vous...`;
 
-      if(hp2 === 0) {
-        currentIndex2++;
-        if(currentIndex2 >= team2.length) {
-          alert("Le joueur 1 a gagné !");
-          window.location.href = "index.html";
-          return;
-        }
-        hp2 = MAX_HP;
-        messageDiv.textContent = "Monture joueur 2 suivante !";
-        updateUI();
-      }
-
-      // Passer au joueur suivant
-      currentTurn = currentTurn === '1' ? '2' : '1';
-
-      // Après 1.5s, autoriser le joueur suivant à attaquer
+      // Lancer nouveau compte à rebours pour le tour suivant
       setTimeout(() => {
-        enableAttackBtn();
-      }, 1500);
+        startCountdown();
+      }, 2000);
     }
 
-    // Événements boutons attaquer
-    p1AttackBtn.addEventListener("click", () => {
-      if(currentTurn === '1') onAttackBtnClick();
-    });
+    // Désactive boutons
+    function disableAll() {
+      p1AttackBtn.disabled = true;
+      p2AttackBtn.disabled = true;
+      hideTapArea();
+    }
 
-    p2AttackBtn.addEventListener("click", () => {
-      if(currentTurn === '2') onAttackBtnClick();
-    });
+    // Initialement, les boutons d'attaque ne font rien (on fait tout via tap area)
+    p1AttackBtn.addEventListener("click", e => e.preventDefault());
+    p2AttackBtn.addEventListener("click", e => e.preventDefault());
+
+    // Ajout accessibilité: activer tap-area avec clavier
+    tapArea.addEventListener("keydown", keyHandler);
   </script>
 </body>
 </html>
