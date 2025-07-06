@@ -8,10 +8,10 @@
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
-      overflow: hidden;
       font-family: sans-serif;
       background: #e3f2fd;
+      overflow: hidden;
+      height: 100%;
     }
 
     body {
@@ -19,7 +19,6 @@
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
-      padding: 1rem;
     }
 
     .fighter {
@@ -32,6 +31,7 @@
       padding: 1rem;
       border-radius: 12px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      margin: 0.5rem 0;
     }
 
     .fighter-info {
@@ -39,21 +39,29 @@
       text-align: left;
     }
 
+    .reverse .fighter-info {
+      text-align: right;
+    }
+
     .fighter img {
-      width: 120px;
-      height: 120px;
+      width: 100px;
+      height: 100px;
       object-fit: contain;
     }
 
+    .fighter.reverse {
+      flex-direction: row-reverse;
+    }
+
     .fighter-name {
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       font-weight: bold;
       margin-bottom: 0.5rem;
     }
 
     .health-bar {
       width: 100%;
-      height: 20px;
+      height: 18px;
       background: #ddd;
       border-radius: 10px;
       overflow: hidden;
@@ -74,6 +82,7 @@
     }
 
     #spamClickZone {
+      display: none;
       background: #fce4ec;
       padding: 2rem;
       border-radius: 12px;
@@ -95,10 +104,15 @@
       border-radius: 12px;
       cursor: pointer;
     }
+
+    #commencerBtn:disabled {
+      background: #faa;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
-  <div id="enemyZone" class="fighter">
+  <div id="enemyZone" class="fighter reverse">
     <div class="fighter-info">
       <div class="fighter-name" id="enemyName">Ennemi</div>
       <div class="health-bar"><div id="enemyHP" class="health-fill"></div></div>
@@ -111,15 +125,15 @@
   <div id="spamClickZone">
     <p id="clickPhase">Cliquez le plus vite possible !</p>
     <p>Clicks : <span id="clickCount">0</span></p>
-    <button id="commencerBtn">Commencer</button>
+    <button id="commencerBtn" disabled>Commencer</button>
   </div>
 
   <div id="playerZone" class="fighter">
+    <img id="playerImg" src="" alt="joueur">
     <div class="fighter-info">
       <div class="fighter-name" id="playerName">Toi</div>
       <div class="health-bar"><div id="playerHP" class="health-fill"></div></div>
     </div>
-    <img id="playerImg" src="" alt="joueur">
   </div>
 
   <script>
@@ -148,6 +162,7 @@
     const spamZone = document.getElementById("spamClickZone");
     const clickCountSpan = document.getElementById("clickCount");
     const commencerBtn = document.getElementById("commencerBtn");
+
     const playerNameEl = document.getElementById("playerName");
     const enemyNameEl = document.getElementById("enemyName");
 
@@ -196,6 +211,8 @@
         if (playerHP <= 0) {
           playerIndex++;
           setTimeout(startBattle, 1000);
+        } else {
+          commencerBtn.disabled = false;
         }
       });
     }
@@ -216,6 +233,7 @@
     }
 
     commencerBtn.addEventListener("click", () => {
+      commencerBtn.disabled = true;
       countdownTimer(3, "Prépare-toi dans ", () => {
         startClickPhase();
       });
@@ -224,6 +242,8 @@
     function startClickPhase() {
       let clicks = 0;
       clickCountSpan.textContent = "0";
+      spamZone.style.display = "block";
+
       function clickHandler() {
         clicks++;
         clickCountSpan.textContent = clicks;
@@ -233,6 +253,8 @@
 
       setTimeout(() => {
         spamZone.removeEventListener("click", clickHandler);
+        spamZone.style.display = "none";
+
         const dmg = Math.floor(clicks / 7);
         enemyHP -= dmg;
         if (enemyHP < 0) enemyHP = 0;
@@ -248,12 +270,15 @@
     }
 
     function endBattle() {
-      let wonLevels = JSON.parse(localStorage.getItem("wonLevels") || "[]");
-      if (!wonLevels.includes(level)) {
-        wonLevels.push(level);
-        localStorage.setItem("wonLevels", JSON.stringify(wonLevels));
+      const lastLevel = parseInt(localStorage.getItem("pveLevel") || "1");
+      if (playerIndex < playerTeam.length) {
+        if (level === lastLevel) {
+          localStorage.setItem("pveLevel", level + 1);
+        }
       }
-      window.location.href = "index.html";
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 1000);
     }
   </script>
 </body>
