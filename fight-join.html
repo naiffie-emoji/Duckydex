@@ -154,7 +154,6 @@
         if (isBot) {
           // Si on joue contre un bot, on ne propose pas de sélection J2
           myDuckListDiv.innerHTML = "<p>Vous jouez contre un bot. L'équipe adverse est déjà définie.</p>";
-          launchVsBotBtn.disabled = true;
           launchFightBtn.disabled = false; // Autorise lancer le combat
         } else if (duckIdsJ2FromURL.length > 0) {
           // Si ids2 est présent dans l'URL, on bloque la sélection J2 (partie déjà définie)
@@ -255,15 +254,27 @@
       window.location.href = urlFight;
     });
 
-    launchVsBotBtn.addEventListener("click", () => {
-      if (selectedIdsJ2.length === 0) {
-        errorMsg.textContent = "Veuillez sélectionner au moins un canard.";
-        return;
-      }
-      // Utilisation du paramètre bot=1 selon ton exemple
-      const urlFightBot = `https://naiffie-emoji.github.io/Duckydex/fight-start.html?ids1=${duckIdsJ1.join(",")}&ids2=${selectedIdsJ2.join(",")}&bot=1`;
-      window.location.href = urlFightBot;
-    });
+launchVsBotBtn.addEventListener("click", () => {
+  if (selectedIdsJ2.length === 0) {
+    errorMsg.textContent = "Veuillez sélectionner au moins un canard.";
+    return;
+  }
+  // Utilisation du paramètre bot=1 selon ton exemple
+  const urlFightBot = `https://naiffie-emoji.github.io/Duckydex/fight-start.html?ids1=${duckIdsJ1.join(",")}&ids2=${selectedIdsJ2.join(",")}&bot=1`;
+  window.location.href = urlFightBot;
+});
+
+launchFightBtn.addEventListener("click", () => {
+  if (selectedIdsJ2.length === 0) {
+    errorMsg.textContent = "Veuillez sélectionner au moins un canard.";
+    return;
+  }
+  let urlFight = `https://naiffie-emoji.github.io/Duckydex/fight-start.html?ids1=${duckIdsJ1.join(",")}&ids2=${selectedIdsJ2.join(",")}`;
+  if (isBot) {
+    urlFight += "&bot=1";
+  }
+  window.location.href = urlFight;
+});
   </script>
 </body>
 </html>
