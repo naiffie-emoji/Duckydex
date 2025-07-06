@@ -104,7 +104,13 @@
     {
     "id": "duck018",
     "name": "Angeline",
-    "rarity": "Épique",
+    "rarity": "Rare",
     "image": "assets/duck018.png"
-    }
+    },
+    {
+    "id": "duck019",
+    "name": "Evily",
+    "rarity": "Rare",
+    "image": "assets/duck019.png"
+  }
 ]
