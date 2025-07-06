@@ -34,12 +34,22 @@
       box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
     }
 
+    .fighter img {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+    }
+
     .info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
       flex: 1;
     }
 
     .info h2 {
-      margin: 0 0 0.5rem;
+      margin: 0;
+      font-size: 1.2rem;
     }
 
     .health-bar {
@@ -48,6 +58,7 @@
       background: #ddd;
       border-radius: 10px;
       overflow: hidden;
+      margin-top: 0.5rem;
     }
 
     .health-fill {
@@ -57,21 +68,25 @@
       transition: width 0.3s;
     }
 
-    .fighter img {
-      width: 100px;
-      height: 100px;
-      object-fit: contain;
-      margin-left: 1rem;
-    }
-
-    .fighter.player img {
-      order: 0;
-      margin-left: 0;
+    /* Adversaire */
+    .fighter.enemy .info {
+      order: 1;
+      text-align: left;
       margin-right: 1rem;
     }
 
+    .fighter.enemy img {
+      order: 2;
+    }
+
+    /* Joueur */
     .fighter.player {
-      flex-direction: row-reverse;
+      flex-direction: row;
+    }
+
+    .fighter.player .info {
+      margin-left: 1rem;
+      text-align: left;
     }
 
     #attackBtn {
@@ -112,17 +127,14 @@
 
       .info {
         width: 100%;
-      }
-
-      .fighter.player {
-        flex-direction: column;
+        margin: 0;
       }
     }
   </style>
 </head>
 <body>
   <!-- Ennemi -->
-  <div id="enemyZone" class="fighter">
+  <div id="enemyZone" class="fighter enemy">
     <div class="info">
       <h2 id="enemyName">Ennemi</h2>
       <div class="health-bar"><div id="enemyHP" class="health-fill"></div></div>
