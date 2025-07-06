@@ -48,10 +48,15 @@
 
     main {
       padding: 2rem;
+      padding-bottom: 6rem; /* pour ne pas masquer par le bouton */
     }
 
     .toolbar {
       margin-bottom: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem;
     }
 
     select {
@@ -71,12 +76,54 @@
       padding: 1rem;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
       text-align: center;
+      cursor: default;
+      user-select: none;
+      border: 2px solid transparent;
+      transition: border-color 0.3s;
     }
 
     .card img {
       width: 100px;
       height: 100px;
       object-fit: contain;
+    }
+
+    .card.selectable {
+      cursor: pointer;
+    }
+
+    .card.selected {
+      border-color: #38d9a9;
+      background-color: #e0f7f1;
+    }
+
+    #fightSection {
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    #fightBtn {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      padding: 12px 24px;
+      background: #fa5252;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      z-index: 1000;
+    }
+
+    #fightBtn:disabled {
+      background: #faa;
+      cursor: not-allowed;
+    }
+
+    #qrcode {
+      margin-top: 1rem;
     }
 
     @media (max-width: 600px) {
@@ -120,8 +167,15 @@
     </div>
 
     <div class="collection" id="collection"></div>
+
+    <div id="fightSection">
+      <div id="qrcode"></div>
+    </div>
   </main>
 
+  <button id="fightBtn">⚔️ Combattre</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script>
     function toggleMenu() {
       document.getElementById("menu").classList.toggle("active");
@@ -129,9 +183,13 @@
 
     const collectionContainer = document.getElementById("collection");
     const sortSelect = document.getElementById("sortSelect");
+    const fightBtn = document.getElementById("fightBtn");
+    const qrcodeDiv = document.getElementById("qrcode");
 
     const collection = JSON.parse(localStorage.getItem("collection") || "[]");
     let duckData = [];
+    let selectedIds = [];
+    let selectionMode = false;
 
     fetch("canards.json")
       .then(res => res.json())
@@ -140,6 +198,7 @@
 
         if (collection.length === 0) {
           collectionContainer.innerHTML = "<p>Aucun canard pour le moment !</p>";
+          fightBtn.disabled = true;
         } else {
           renderCollection();
         }
@@ -154,7 +213,7 @@
 
       const ducks = collection
         .map(id => duckData.find(d => d.id === id))
-        .filter(Boolean); // Évite les erreurs si un id ne correspond à rien
+        .filter(Boolean);
 
       const sortBy = sortSelect.value;
 
@@ -168,14 +227,64 @@
       ducks.forEach(duck => {
         const card = document.createElement("div");
         card.className = "card";
+        card.dataset.id = duck.id;
         card.innerHTML = `
           <img src="${duck.image}" alt="${duck.name}">
           <h3>${duck.name}</h3>
           <p>${duck.rarity}</p>
         `;
+
+        if (selectionMode) {
+          card.classList.add("selectable");
+          card.addEventListener("click", () => toggleSelect(duck.id, card));
+        }
+
         collectionContainer.appendChild(card);
       });
     }
+
+    function toggleSelect(id, cardElement) {
+      const index = selectedIds.indexOf(id);
+      if (index >= 0) {
+        selectedIds.splice(index, 1);
+        cardElement.classList.remove("selected");
+      } else {
+        if (selectedIds.length >= 4) return;
+        selectedIds.push(id);
+        cardElement.classList.add("selected");
+      }
+
+      // Génération du QR Code si 1 à 4 sélectionnés
+      if (selectedIds.length > 0) {
+        const ids = selectedIds.join(",");
+        const baseFightUrl = "https://naiffie-emoji.github.io/Duckydex/fight-join.html";
+        const url = `${baseFightUrl}?ids=${ids}`;
+
+        QRCode.toCanvas(document.createElement("canvas"), url, { width: 200 }, (err, canvas) => {
+          if (err) {
+            qrcodeDiv.innerHTML = "<p>Erreur QR Code</p>";
+            console.error(err);
+            return;
+          }
+          qrcodeDiv.innerHTML = "";
+          qrcodeDiv.appendChild(canvas);
+        });
+      } else {
+        qrcodeDiv.innerHTML = "";
+      }
+    }
+
+    fightBtn.addEventListener("click", () => {
+      if (!selectionMode) {
+        selectionMode = true;
+        fightBtn.textContent = "✅ Confirmer";
+        renderCollection();
+      } else if (selectedIds.length > 0) {
+        // Confirmation finale — rien à faire ici, QR déjà généré
+        fightBtn.disabled = true;
+        fightBtn.textContent = "QR généré";
+      }
+    });
   </script>
 </body>
 </html>
