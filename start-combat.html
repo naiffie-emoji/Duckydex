@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="fr">
+<!DOCTYPE html><html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -14,421 +13,126 @@
       justify-content: space-between;
       align-items: center;
       padding: 10px 0;
-    }
+    }.fighter {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 600px;
+  background: white;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  padding: 15px 20px;
+  margin: 0.5rem 0;
+  gap: 15px;
+}
 
-    .fighter {
-      display: flex;
-      align-items: center;
-      width: 100%;
-      max-width: 600px;
-      background: white;
-      box-shadow: 0 0 8px rgba(0,0,0,0.1);
-      border-radius: 12px;
-      padding: 15px 20px;
-      margin: 0.5rem 0;
-      gap: 15px;
-    }
+.fighter.enemy {
+  flex-direction: row;
+}
 
-    /* Ennemi : image à droite */
-    .fighter.enemy {
-      flex-direction: row;
-    }
+.fighter.player {
+  flex-direction: row-reverse;
+}
 
-    /* Joueur : image à gauche */
-    .fighter.player {
-      flex-direction: row-reverse;
-    }
+.fighter img {
+  width: 110px;
+  height: 110px;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 0 6px rgba(0,0,0,0.15);
+  flex-shrink: 0;
+}
 
-    /* Image */
-    .fighter img {
-      width: 110px;
-      height: 110px;
-      object-fit: contain;
-      border-radius: 12px;
-      box-shadow: 0 0 6px rgba(0,0,0,0.15);
-      flex-shrink: 0;
-    }
+.info {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 
-    /* Info : nom + barre vie + bouton */
-    .info {
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
+.info h2 {
+  margin: 0 0 8px 0;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: #1e293b;
+  user-select: none;
+}
 
-    .info h2 {
-      margin: 0 0 8px 0;
-      font-weight: 700;
-      font-size: 1.5rem;
-      color: #1e293b;
-      user-select: none;
-    }
+.health-bar {
+  width: 100%;
+  height: 22px;
+  background: #ddd;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+  margin-bottom: 12px;
+}
 
-    .health-bar {
-      width: 100%;
-      height: 22px;
-      background: #ddd;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
-      margin-bottom: 12px;
-    }
+.health-fill {
+  height: 100%;
+  background: #4caf50;
+  width: 100%;
+  transition: width 0.3s ease;
+  box-shadow: inset 0 -2px 5px rgba(0,0,0,0.2);
+}
 
-    .health-fill {
-      height: 100%;
-      background: #4caf50;
-      width: 100%;
-      transition: width 0.3s ease;
-      box-shadow: inset 0 -2px 5px rgba(0,0,0,0.2);
-    }
+.fighter.player #attackBtn {
+  align-self: flex-start;
+  padding: 10px 28px;
+  font-size: 1.1rem;
+  background: #fa5252;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
 
-    /* Bouton attaque sous la barre vie uniquement pour le joueur */
-    .fighter.player #attackBtn {
-      align-self: flex-start;
-      padding: 10px 28px;
-      font-size: 1.1rem;
-      background: #fa5252;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      user-select: none;
-      transition: background-color 0.2s;
-    }
+.fighter.player #attackBtn:disabled {
+  background: #faa;
+  cursor: not-allowed;
+}
 
-    .fighter.player #attackBtn:disabled {
-      background: #faa;
-      cursor: not-allowed;
-    }
+#countdown {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #ef4444;
+  margin: 8px 0;
+  user-select: none;
+}
 
-    /* Timer et zone clic */
-    #countdown {
-      font-size: 2.2rem;
-      font-weight: 700;
-      color: #ef4444;
-      margin: 8px 0;
-      user-select: none;
-    }
+#spamClickZone {
+  display: none;
+  background: #fce4ec;
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+  user-select: none;
+  max-width: 400px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  margin-bottom: 10px;
+}
 
-    #spamClickZone {
-      display: none;
-      background: #fce4ec;
-      padding: 15px;
-      border-radius: 12px;
-      text-align: center;
-      user-select: none;
-      max-width: 400px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.1);
-      margin-bottom: 10px;
-    }
+#spamClickZone p {
+  margin: 8px 0;
+  font-weight: 600;
+  color: #db2777;
+}
 
-    #spamClickZone p {
-      margin: 8px 0;
-      font-weight: 600;
-      color: #db2777;
-    }
+#clickCount {
+  font-size: 1.4rem;
+  color: #b91c1c;
+}
 
-    #clickCount {
-      font-size: 1.4rem;
-      color: #b91c1c;
-    }
+@media (max-width: 500px) {
+  .fighter {
+    flex-direction: column !important;
+    align-items: center;
+    padding: 15px 15px;
+    gap: 10px;
+    max-width: 90vw;
+  }
+}
 
-    /* Responsive */
-    @media (max-width: 500px) {
-      .fighter {
-        flex-direction: column !important;
-        align-items: center;
-        padding: 15px 15px;
-        gap: 10px;
-        max-width: 90vw;
-      }
-
-      .fighter img {
-        width: 90px;
-        height: 90px;
-      }
-
-      .info h2 {
-        font-size: 1.3rem;
-        text-align: center;
-        margin-bottom: 6px;
-      }
-
-      .fighter.player #attackBtn {
-        align-self: center;
-      }
-    }
   </style>
-</head>
-<body>
-  <!-- Ennemi -->
-  <div id="enemyZone" class="fighter enemy">
-    <div class="info">
-      <h2 id="enemyName">Ennemi</h2>
-      <div class="health-bar"><div id="enemyHP" class="health-fill"></div></div>
-    </div>
-    <img id="enemyImg" src="" alt="Ennemi">
-  </div>
-
-  <!-- Timer et zone clic -->
-  <div id="countdown"></div>
-  <div id="spamClickZone">
-    <p>Cliquez le plus vite possible !</p>
-    <p>Clicks : <span id="clickCount">0</span></p>
-  </div>
-
-  <!-- Joueur -->
-  <div id="playerZone" class="fighter player">
-    <img id="playerImg" src="" alt="Joueur">
-    <div class="info">
-      <h2 id="playerName">Toi</h2>
-      <div class="health-bar"><div id="playerHP" class="health-fill"></div></div>
-      <button id="attackBtn" disabled>Attaquer</button>
-    </div>
-  </div>
-
-  <script>
-    // Récupération des paramètres URL (ids du joueur + niveau)
-    const params = new URLSearchParams(window.location.search);
-    const playerIds = params.get("ids")?.split(",") || [];
-    const level = parseInt(params.get("level")) || 1;
-
-    // Constantes de PV par rareté
-    const HP_BY_RARITY = {
-      "Commun": 10,
-      "Rare": 20,
-      "Épique": 30,
-      "Légendaire": 40,
-    };
-
-    let duckData = [];
-    let pveData = [];
-
-    // Variables état du combat
-    let playerTeam = [];
-    let enemyTeam = [];
-    let currentPlayerIndex = 0;
-    let currentEnemyIndex = 0;
-    let playerHP = 0;
-    let enemyHP = 0;
-
-    // DOM elements
-    const enemyNameEl = document.getElementById("enemyName");
-    const enemyImgEl = document.getElementById("enemyImg");
-    const enemyHPEl = document.getElementById("enemyHP");
-    const playerNameEl = document.getElementById("playerName");
-    const playerImgEl = document.getElementById("playerImg");
-    const playerHPEl = document.getElementById("playerHP");
-    const attackBtn = document.getElementById("attackBtn");
-    const countdownEl = document.getElementById("countdown");
-    const spamClickZone = document.getElementById("spamClickZone");
-    const clickCountEl = document.getElementById("clickCount");
-
-    let spamClicks = 0;
-    let spamTimeout = null;
-    let countdownInterval = null;
-
-    // Charge les données
-    Promise.all([
-      fetch("canards.json").then(r => r.json()),
-      fetch("pve.json").then(r => r.json()),
-    ]).then(([ducks, pve]) => {
-      duckData = ducks;
-      pveData = pve;
-      setupFight();
-    }).catch(err => {
-      alert("Erreur de chargement des données.");
-      console.error(err);
-    });
-
-    function setupFight() {
-      // Récupérer l'équipe joueur depuis IDs (depuis canards.json)
-      playerTeam = playerIds.map(id => duckData.find(d => d.id === id)).filter(Boolean);
-
-      if (playerTeam.length === 0) {
-        alert("Aucune monture sélectionnée.");
-        window.location.href = "index.html";
-        return;
-      }
-
-      // Récupérer l'équipe ennemie pour le niveau
-      const levelData = pveData.find(l => l.level === level);
-      if (!levelData) {
-        alert("Niveau inconnu.");
-        window.location.href = "index.html";
-        return;
-      }
-
-      enemyTeam = levelData.enemies.map(id => duckData.find(d => d.id === id)).filter(Boolean);
-
-      if (enemyTeam.length === 0) {
-        alert("Équipe ennemie vide.");
-        window.location.href = "index.html";
-        return;
-      }
-
-      currentPlayerIndex = 0;
-      currentEnemyIndex = 0;
-
-      initPlayerFighter();
-      initEnemyFighter();
-
-      attackBtn.disabled = true;
-      countdownEl.textContent = "Début du combat...";
-      spamClickZone.style.display = "none";
-
-      // L'IA commence le combat
-      setTimeout(() => enemyTurn(), 1000);
-    }
-
-    function initPlayerFighter() {
-      const fighter = playerTeam[currentPlayerIndex];
-      playerNameEl.textContent = fighter.name;
-      playerImgEl.src = fighter.image;
-      playerHP = HP_BY_RARITY[fighter.rarity] || 10;
-      updateHealthBar(playerHPEl, playerHP, playerHP);
-    }
-
-    function initEnemyFighter() {
-      const fighter = enemyTeam[currentEnemyIndex];
-      enemyNameEl.textContent = fighter.name;
-      enemyImgEl.src = fighter.image;
-      enemyHP = HP_BY_RARITY[fighter.rarity] || 10;
-      updateHealthBar(enemyHPEl, enemyHP, enemyHP);
-    }
-
-    function updateHealthBar(barElement, current, max) {
-      const percent = Math.max(0, (current / max) * 100);
-      barElement.style.width = percent + "%";
-
-      if (percent > 60) {
-        barElement.style.backgroundColor = "#4caf50"; // vert
-      } else if (percent > 30) {
-        barElement.style.backgroundColor = "#f59e0b"; // orange
-      } else {
-        barElement.style.backgroundColor = "#ef4444"; // rouge
-      }
-    }
-
-    // Tour de l'IA (ennemi attaque joueur)
-    function enemyTurn() {
-      countdownEl.textContent = "L'ennemi attaque dans 5s";
-      let timeLeft = 5;
-      countdownEl.textContent = `Attaque IA dans ${timeLeft}s`;
-      countdownInterval = setInterval(() => {
-        timeLeft--;
-        if (timeLeft <= 0) {
-          clearInterval(countdownInterval);
-          countdownEl.textContent = "L'ennemi attaque !";
-          enemyAttack();
-        } else {
-          countdownEl.textContent = `Attaque IA dans ${timeLeft}s`;
-        }
-      }, 1000);
-    }
-
-    function enemyAttack() {
-      const damage = Math.floor(Math.random() * 3) + 1; // 1 à 3 dégâts
-      playerHP -= damage;
-      if (playerHP < 0) playerHP = 0;
-      updateHealthBar(playerHPEl, playerHP, HP_BY_RARITY[playerTeam[currentPlayerIndex].rarity]);
-
-      if (playerHP <= 0) {
-        // Monture joueur morte
-        currentPlayerIndex++;
-        if (currentPlayerIndex >= playerTeam.length) {
-          // Défaite
-          alert("Vous avez perdu !");
-          window.location.href = "index.html";
-          return;
-        }
-        initPlayerFighter();
-        // Ensuite c'est au joueur d'attaquer
-        startPlayerTurn();
-      } else {
-        // Sinon, tour joueur
-        startPlayerTurn();
-      }
-    }
-
-    function startPlayerTurn() {
-      countdownEl.textContent = "À vous d'attaquer !";
-      attackBtn.disabled = false;
-      spamClicks = 0;
-      clickCountEl.textContent = spamClicks;
-      spamClickZone.style.display = "none";
-      attackBtn.textContent = "Attaquer";
-
-      attackBtn.onclick = () => {
-        attackBtn.disabled = true;
-        launchPlayerAttackSequence();
-      };
-    }
-
-    function launchPlayerAttackSequence() {
-      let countdown = 3;
-      countdownEl.textContent = `Attaque dans ${countdown}s`;
-      spamClickZone.style.display = "none";
-
-      const countdownTimer = setInterval(() => {
-        countdown--;
-        if (countdown <= 0) {
-          clearInterval(countdownTimer);
-          startSpamClickPhase();
-        } else {
-          countdownEl.textContent = `Attaque dans ${countdown}s`;
-        }
-      }, 1000);
-    }
-
-    function startSpamClickPhase() {
-      countdownEl.textContent = "Spam clic ! (5 secondes)";
-      spamClicks = 0;
-      clickCountEl.textContent = spamClicks;
-      spamClickZone.style.display = "block";
-
-      // Ajoute gestion clic sur la zone centrale
-      spamClickZone.onclick = () => {
-        spamClicks++;
-        clickCountEl.textContent = spamClicks;
-      };
-
-      // Compte à rebours 5 secondes pour spam clic
-      setTimeout(() => {
-        spamClickZone.style.display = "none";
-        spamClickZone.onclick = null;
-        processPlayerDamage();
-      }, 5000);
-    }
-
-    function processPlayerDamage() {
-      // 7 clics = 1 dégât
-      const damage = Math.floor(spamClicks / 7);
-      if (damage <= 0) {
-        countdownEl.textContent = "Attaque ratée !";
-      } else {
-        countdownEl.textContent = `Vous infligez ${damage} dégâts !`;
-        enemyHP -= damage;
-        if (enemyHP < 0) enemyHP = 0;
-        updateHealthBar(enemyHPEl, enemyHP, HP_BY_RARITY[enemyTeam[currentEnemyIndex].rarity]);
-      }
-
-      if (enemyHP <= 0) {
-        currentEnemyIndex++;
-        if (currentEnemyIndex >= enemyTeam.length) {
-          alert("Victoire ! Vous avez gagné le combat !");
-          window.location.href = "index.html";
-          return;
-        }
-        initEnemyFighter();
-        // L'IA attaque
-        setTimeout(enemyTurn, 1500);
-      } else {
-        // L'IA attaque
-        setTimeout(enemyTurn, 1500);
-      }
-    }
-  </script>
-</body>
-</html>
