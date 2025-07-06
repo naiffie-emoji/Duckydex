@@ -19,32 +19,23 @@
 
     .fighter {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      width: 90%;
-      max-width: 500px;
-      margin: 1rem auto;
-      background: white;
+      align-items: center;
+      width: 100%;
+      max-width: 600px;
+      margin: 1rem 0;
+      background: #fff;
       padding: 1rem;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      border-radius: 10px;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
     }
 
-    .fighter-info {
+    .info {
       flex: 1;
-      text-align: left;
     }
 
-    .fighter img {
-      width: 120px;
-      height: 120px;
-      object-fit: contain;
-    }
-
-    .fighter-name {
-      font-size: 1.2rem;
-      font-weight: bold;
-      margin-bottom: 0.5rem;
+    .info h2 {
+      margin: 0 0 0.5rem;
     }
 
     .health-bar {
@@ -62,6 +53,13 @@
       transition: width 0.3s;
     }
 
+    .fighter img {
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      margin-left: 1rem;
+    }
+
     #countdown {
       font-size: 2rem;
       font-weight: bold;
@@ -72,37 +70,43 @@
     #spamClickZone {
       display: none;
       background: #fce4ec;
-      padding: 2rem;
-      border-radius: 12px;
+      padding: 1rem;
+      border-radius: 8px;
       text-align: center;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
 
-    #spamClickZone p {
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
-    }
-
-    #commencerBtn {
-      padding: 12px 24px;
-      font-size: 1.2rem;
+    #attackBtn {
+      padding: 10px 20px;
+      font-size: 1.1rem;
+      margin-top: 1rem;
       background: #fa5252;
       color: white;
       border: none;
-      border-radius: 12px;
+      border-radius: 8px;
       cursor: pointer;
     }
 
-    #commencerBtn:disabled {
-      background: #faa;
-      cursor: not-allowed;
+    @media (max-width: 500px) {
+      .fighter {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+
+      .fighter img {
+        margin: 1rem 0 0 0;
+      }
+
+      .info {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
   <div id="enemyZone" class="fighter">
-    <div class="fighter-info">
-      <div class="fighter-name" id="enemyName">Ennemi</div>
+    <div class="info">
+      <h2 id="enemyName">Ennemi</h2>
       <div class="health-bar"><div id="enemyHP" class="health-fill"></div></div>
     </div>
     <img id="enemyImg" src="" alt="ennemi">
@@ -111,15 +115,15 @@
   <div id="countdown"></div>
 
   <div id="spamClickZone">
-    <p id="clickPhase">Cliquez le plus vite possible !</p>
+    <p>Cliquez le plus vite possible !</p>
     <p>Clicks : <span id="clickCount">0</span></p>
-    <button id="commencerBtn" disabled>Commencer</button>
   </div>
 
   <div id="playerZone" class="fighter">
-    <div class="fighter-info">
-      <div class="fighter-name" id="playerName">Toi</div>
+    <div class="info">
+      <h2 id="playerName">Toi</h2>
       <div class="health-bar"><div id="playerHP" class="health-fill"></div></div>
+      <button id="attackBtn" disabled>Attaquer</button>
     </div>
     <img id="playerImg" src="" alt="joueur">
   </div>
@@ -146,13 +150,12 @@
     const enemyImg = document.getElementById("enemyImg");
     const playerHPBar = document.getElementById("playerHP");
     const enemyHPBar = document.getElementById("enemyHP");
+    const playerName = document.getElementById("playerName");
+    const enemyName = document.getElementById("enemyName");
     const countdown = document.getElementById("countdown");
+    const attackBtn = document.getElementById("attackBtn");
     const spamZone = document.getElementById("spamClickZone");
     const clickCountSpan = document.getElementById("clickCount");
-    const commencerBtn = document.getElementById("commencerBtn");
-
-    const playerNameEl = document.getElementById("playerName");
-    const enemyNameEl = document.getElementById("enemyName");
 
     fetch("canards.json")
       .then(res => res.json())
@@ -178,8 +181,8 @@
 
       playerImg.src = currentPlayer.image;
       enemyImg.src = currentEnemy.image;
-      playerNameEl.textContent = currentPlayer.name;
-      enemyNameEl.textContent = currentEnemy.name;
+      playerName.textContent = currentPlayer.name;
+      enemyName.textContent = currentEnemy.name;
 
       updateHPBars();
       setTimeout(startEnemyTurn, 1000);
@@ -200,7 +203,7 @@
           playerIndex++;
           setTimeout(startBattle, 1000);
         } else {
-          commencerBtn.disabled = false;
+          attackBtn.disabled = false;
         }
       });
     }
@@ -220,8 +223,8 @@
       }, 1000);
     }
 
-    commencerBtn.addEventListener("click", () => {
-      commencerBtn.disabled = true;
+    attackBtn.addEventListener("click", () => {
+      attackBtn.disabled = true;
       countdownTimer(3, "Prépare-toi dans ", () => {
         startClickPhase();
       });
