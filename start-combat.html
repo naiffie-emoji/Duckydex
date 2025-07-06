@@ -17,14 +17,14 @@
     body {
       display: flex;
       flex-direction: column;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
     }
 
     .fighter {
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: center;
       width: 100%;
       max-width: 600px;
       margin: 0.5rem;
@@ -34,22 +34,24 @@
       box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
     }
 
-    .fighter img {
+    .fighter .img-container {
       width: 100px;
       height: 100px;
+      margin: 0 1rem;
+    }
+
+    .fighter img {
+      width: 100%;
+      height: 100%;
       object-fit: contain;
     }
 
-    .info {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
+    .fighter .info {
       flex: 1;
     }
 
     .info h2 {
-      margin: 0;
-      font-size: 1.2rem;
+      margin: 0 0 0.5rem;
     }
 
     .health-bar {
@@ -58,7 +60,6 @@
       background: #ddd;
       border-radius: 10px;
       overflow: hidden;
-      margin-top: 0.5rem;
     }
 
     .health-fill {
@@ -68,25 +69,8 @@
       transition: width 0.3s;
     }
 
-    /* Adversaire */
-    .fighter.enemy .info {
-      order: 1;
-      text-align: left;
-      margin-right: 1rem;
-    }
-
-    .fighter.enemy img {
-      order: 2;
-    }
-
-    /* Joueur */
     .fighter.player {
-      flex-direction: row;
-    }
-
-    .fighter.player .info {
-      margin-left: 1rem;
-      text-align: left;
+      flex-direction: row-reverse;
     }
 
     #attackBtn {
@@ -117,29 +101,32 @@
 
     @media (max-width: 500px) {
       .fighter {
-        flex-direction: column;
+        flex-direction: column !important;
         text-align: center;
       }
 
-      .fighter img {
-        margin: 1rem 0 0 0;
+      .fighter .img-container {
+        margin: 0 auto;
       }
 
-      .info {
+      .fighter .info {
         width: 100%;
-        margin: 0;
+      }
+
+      #attackBtn {
+        width: 100%;
       }
     }
   </style>
 </head>
 <body>
   <!-- Ennemi -->
-  <div id="enemyZone" class="fighter enemy">
+  <div id="enemyZone" class="fighter">
+    <div class="img-container"><img id="enemyImg" src="" alt="ennemi"></div>
     <div class="info">
       <h2 id="enemyName">Ennemi</h2>
       <div class="health-bar"><div id="enemyHP" class="health-fill"></div></div>
     </div>
-    <img id="enemyImg" src="" alt="ennemi">
   </div>
 
   <!-- Timer et zone de clic -->
@@ -151,7 +138,7 @@
 
   <!-- Joueur -->
   <div id="playerZone" class="fighter player">
-    <img id="playerImg" src="" alt="joueur">
+    <div class="img-container"><img id="playerImg" src="" alt="joueur"></div>
     <div class="info">
       <h2 id="playerName">Toi</h2>
       <div class="health-bar"><div id="playerHP" class="health-fill"></div></div>
