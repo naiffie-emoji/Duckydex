@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rejoindre un Combat</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f0f8ff;
+      margin: 0;
+      padding: 1rem;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 1rem;
+    }
+    .collection {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 1rem;
+      max-width: 600px;
+      margin: 0 auto 2rem;
+    }
+    .card {
+      background: white;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      cursor: pointer;
+    }
+    .card.selected {
+      border: 3px solid #4dabf7;
+      box-shadow: 0 0 10px #4dabf7;
+    }
+    .card img {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+    }
+    button {
+      background: #4dabf7;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Rejoins le combat !</h1>
+  <p>Sélectionne 1 à 4 canards pour former ton équipe</p>
+
+  <div class="collection" id="collection"></div>
+
+  <button id="fightBtn" disabled>Combattre</button>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const player1 = urlParams.get("player1");
+
+    if (!player1) {
+      alert("Lien invalide : aucune équipe du joueur 1.");
+      window.location.href = "index.html";
+    }
+
+    const collection = JSON.parse(localStorage.getItem("collection") || "[]");
+    if (collection.length === 0) {
+      alert("Tu n'as aucune monture pour combattre.");
+      window.location.href = "index.html";
+    }
+
+    const collectionContainer = document.getElementById("collection");
+    const fightBtn = document.getElementById("fightBtn");
+
+    let duckData = [];
+    let selectedIds = [];
+
+    fetch("canards.json")
+      .then(res => res.json())
+      .then(data => {
+        duckData = data;
+        renderCollection();
+      })
+      .catch(err => {
+        console.error("Erreur de chargement :", err);
+        collectionContainer.innerHTML = "<p>Erreur de chargement des canards.</p>";
+      });
+
+    function renderCollection() {
+      const ducks = collection.map(id => duckData.find(d => d.id === id)).filter(Boolean);
+      collectionContainer.innerHTML = "";
+
+      ducks.forEach(duck => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.dataset.id = duck.id;
+        card.innerHTML = `
+          <img src="${duck.image}" alt="${duck.name}">
+          <h4>${duck.name}</h4>
+          <p>${duck.rarity}</p>
+        `;
+        card.addEventListener("click", () => toggleSelect(card));
+        collectionContainer.appendChild(card);
+      });
+    }
+
+    function toggleSelect(card) {
+      const id = card.dataset.id;
+      const index = selectedIds.indexOf(id);
+
+      if (index !== -1) {
+        selectedIds.splice(index, 1);
+        card.classList.remove("selected");
+      } else {
+        if (selectedIds.length >= 4) {
+          alert("Tu ne peux sélectionner que 4 canards max !");
+          return;
+        }
+        selectedIds.push(id);
+        card.classList.add("selected");
+      }
+
+      fightBtn.disabled = selectedIds.length === 0;
+    }
+
+    fightBtn.addEventListener("click", () => {
+      const url = `fight-battle.html?player1=${player1}&player2=${selectedIds.join(",")}`;
+      window.location.href = url;
+    });
+  </script>
+
+</body>
+</html>
