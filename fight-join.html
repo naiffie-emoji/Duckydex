@@ -6,6 +6,7 @@
   <title>Rejoindre un Combat - Duckydex</title>
   <link rel="icon" type="image/png" href="filet-canard.png">
   <style>
+    /* Styles inchangés */
     body {
       margin: 0;
       font-family: sans-serif;
@@ -128,8 +129,12 @@
 
   <script>
     const urlParams = new URLSearchParams(window.location.search);
-    const idsJoueur1 = urlParams.get("ids") || "";
-    const duckIdsJ1 = idsJoueur1.split(",").filter(id => id.trim() !== "");
+
+    // On récupère les IDs des joueurs dans les bons paramètres
+    const duckIdsJ1 = (urlParams.get("ids1") || "").split(",").filter(id => id.trim() !== "");
+    // Optionnel : ids2 peut être dans l'URL, si oui on peut préremplir ou désactiver sélection
+    const duckIdsJ2FromURL = (urlParams.get("ids2") || "").split(",").filter(id => id.trim() !== "");
+    const isBot = urlParams.get("bot") === "1";
 
     const duckListDiv = document.getElementById("duckList");
     const myDuckListDiv = document.getElementById("myDuckList");
@@ -145,7 +150,21 @@
       .then(data => {
         duckData = data;
         displayDucksJ1();
-        displayMyDucks();
+
+        if (isBot) {
+          // Si on joue contre un bot, on ne propose pas de sélection J2
+          myDuckListDiv.innerHTML = "<p>Vous jouez contre un bot. L'équipe adverse est déjà définie.</p>";
+          launchVsBotBtn.disabled = true;
+          launchFightBtn.disabled = false; // Autorise lancer le combat
+        } else if (duckIdsJ2FromURL.length > 0) {
+          // Si ids2 est présent dans l'URL, on bloque la sélection J2 (partie déjà définie)
+          myDuckListDiv.innerHTML = "<p>Votre équipe est déjà définie dans l'URL.</p>";
+          selectedIdsJ2 = duckIdsJ2FromURL;
+          launchFightBtn.disabled = false;
+          launchVsBotBtn.disabled = true;
+        } else {
+          displayMyDucks();
+        }
       })
       .catch(() => {
         duckListDiv.innerHTML = "<p>Erreur de chargement des données.</p>";
@@ -231,6 +250,7 @@
         errorMsg.textContent = "Veuillez sélectionner au moins un canard.";
         return;
       }
+      // Pas de bot dans URL ici
       const urlFight = `https://naiffie-emoji.github.io/Duckydex/fight-start.html?ids1=${duckIdsJ1.join(",")}&ids2=${selectedIdsJ2.join(",")}`;
       window.location.href = urlFight;
     });
@@ -240,7 +260,8 @@
         errorMsg.textContent = "Veuillez sélectionner au moins un canard.";
         return;
       }
-      const urlFightBot = `https://naiffie-emoji.github.io/Duckydex/fight-start.html?ids1=${duckIdsJ1.join(",")}&ids2=${selectedIdsJ2.join(",")}&vsBot=1`;
+      // Utilisation du paramètre bot=1 selon ton exemple
+      const urlFightBot = `https://naiffie-emoji.github.io/Duckydex/fight-start.html?ids1=${duckIdsJ1.join(",")}&ids2=${selectedIdsJ2.join(",")}&bot=1`;
       window.location.href = urlFightBot;
     });
   </script>
