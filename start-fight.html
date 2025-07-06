@@ -18,21 +18,40 @@
     }
 
     .fighter {
-      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 90%;
+      max-width: 500px;
+      margin: 1rem auto;
+      background: white;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .fighter-info {
+      flex: 1;
+      text-align: left;
     }
 
     .fighter img {
-      width: 150px;
-      height: 150px;
+      width: 120px;
+      height: 120px;
       object-fit: contain;
     }
 
+    .fighter-name {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
     .health-bar {
-      width: 150px;
+      width: 100%;
       height: 20px;
       background: #ddd;
       border-radius: 10px;
-      margin: 0.5rem auto;
       overflow: hidden;
     }
 
@@ -53,55 +72,56 @@
     #spamClickZone {
       display: none;
       background: #fce4ec;
-      padding: 1rem;
-      border-radius: 8px;
+      padding: 2rem;
+      border-radius: 12px;
       text-align: center;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
 
-    #attackBtn {
-      padding: 10px 20px;
+    #spamClickZone p {
       font-size: 1.2rem;
-      margin-top: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    #commencerBtn {
+      padding: 12px 24px;
+      font-size: 1.2rem;
       background: #fa5252;
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 12px;
       cursor: pointer;
     }
 
-    #enemyZone, #playerZone {
-      width: 100%;
-      max-width: 500px;
-    }
-
-    #enemyZone {
-      margin-top: 2rem;
-    }
-
-    #playerZone {
-      margin-bottom: 2rem;
+    #commencerBtn:disabled {
+      background: #faa;
+      cursor: not-allowed;
     }
   </style>
 </head>
 <body>
   <div id="enemyZone" class="fighter">
-    <h2>Ennemi</h2>
+    <div class="fighter-info">
+      <div class="fighter-name" id="enemyName">Ennemi</div>
+      <div class="health-bar"><div id="enemyHP" class="health-fill"></div></div>
+    </div>
     <img id="enemyImg" src="" alt="ennemi">
-    <div class="health-bar"><div id="enemyHP" class="health-fill"></div></div>
   </div>
 
   <div id="countdown"></div>
 
   <div id="spamClickZone">
-    <p>Cliquez le plus vite possible !</p>
+    <p id="clickPhase">Cliquez le plus vite possible !</p>
     <p>Clicks : <span id="clickCount">0</span></p>
+    <button id="commencerBtn" disabled>Commencer</button>
   </div>
 
   <div id="playerZone" class="fighter">
-    <h2>Toi</h2>
+    <div class="fighter-info">
+      <div class="fighter-name" id="playerName">Toi</div>
+      <div class="health-bar"><div id="playerHP" class="health-fill"></div></div>
+    </div>
     <img id="playerImg" src="" alt="joueur">
-    <div class="health-bar"><div id="playerHP" class="health-fill"></div></div>
-    <button id="attackBtn" disabled>Attaquer</button>
   </div>
 
   <script>
@@ -127,9 +147,12 @@
     const playerHPBar = document.getElementById("playerHP");
     const enemyHPBar = document.getElementById("enemyHP");
     const countdown = document.getElementById("countdown");
-    const attackBtn = document.getElementById("attackBtn");
     const spamZone = document.getElementById("spamClickZone");
     const clickCountSpan = document.getElementById("clickCount");
+    const commencerBtn = document.getElementById("commencerBtn");
+
+    const playerNameEl = document.getElementById("playerName");
+    const enemyNameEl = document.getElementById("enemyName");
 
     fetch("canards.json")
       .then(res => res.json())
@@ -155,6 +178,8 @@
 
       playerImg.src = currentPlayer.image;
       enemyImg.src = currentEnemy.image;
+      playerNameEl.textContent = currentPlayer.name;
+      enemyNameEl.textContent = currentEnemy.name;
 
       updateHPBars();
       setTimeout(startEnemyTurn, 1000);
@@ -175,7 +200,7 @@
           playerIndex++;
           setTimeout(startBattle, 1000);
         } else {
-          attackBtn.disabled = false;
+          commencerBtn.disabled = false;
         }
       });
     }
@@ -195,8 +220,8 @@
       }, 1000);
     }
 
-    attackBtn.addEventListener("click", () => {
-      attackBtn.disabled = true;
+    commencerBtn.addEventListener("click", () => {
+      commencerBtn.disabled = true;
       countdownTimer(3, "Prépare-toi dans ", () => {
         startClickPhase();
       });
