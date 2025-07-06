@@ -2,140 +2,162 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Rejoindre un Combat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rejoindre le Combat</title>
   <style>
     body {
       font-family: sans-serif;
-      background-color: #f0f8ff;
-      margin: 0;
       padding: 1rem;
-      text-align: center;
+      background: #f8f9fa;
     }
-    h1 {
-      margin-bottom: 1rem;
+    h1, h2 {
+      color: #333;
     }
-    .collection {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-      gap: 1rem;
-      max-width: 600px;
-      margin: 0 auto 2rem;
+    .team {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 2rem;
     }
     .card {
       background: white;
       padding: 1rem;
-      border-radius: 10px;
+      border-radius: 12px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 120px;
       cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: scale(1.05);
     }
     .card.selected {
-      border: 3px solid #4dabf7;
-      box-shadow: 0 0 10px #4dabf7;
+      border: 3px solid #38d9a9;
     }
     .card img {
-      width: 80px;
-      height: 80px;
+      width: 100px;
+      height: 100px;
       object-fit: contain;
     }
-    button {
-      background: #4dabf7;
+    #fightBtn {
+      display: block;
+      margin: 0 auto;
+      padding: 10px 20px;
+      font-size: 1.1rem;
+      background-color: #f03e3e;
       color: white;
       border: none;
-      padding: 10px 20px;
-      font-size: 1rem;
-      border-radius: 5px;
+      border-radius: 8px;
       cursor: pointer;
     }
-    button:disabled {
-      background: #ccc;
+    #fightBtn:disabled {
+      background-color: #ccc;
       cursor: not-allowed;
     }
   </style>
 </head>
 <body>
 
-  <h1>Rejoins le combat !</h1>
-  <p>Sélectionne 1 à 4 canards pour former ton équipe</p>
-
-  <div class="collection" id="collection"></div>
-
-  <button id="fightBtn" disabled>Combattre</button>
+  <h1>⚔️ Rejoindre un Combat</h1>
+  <div id="content">
+    <p>Chargement...</p>
+  </div>
 
   <script>
+    const content = document.getElementById("content");
     const urlParams = new URLSearchParams(window.location.search);
-    const player1 = urlParams.get("player1");
+    const idsParam = urlParams.get("ids");
 
-    if (!player1) {
-      alert("Lien invalide : aucune équipe du joueur 1.");
-      window.location.href = "index.html";
+    if (!idsParam) {
+      content.innerHTML = "<p>❌ Aucun joueur 1 détecté dans l’URL.</p>";
+    } else {
+      const player1Ids = idsParam.split(",");
+      fetch("canards.json")
+        .then(res => res.json())
+        .then(data => {
+          const duckData = data;
+
+          const getDuck = id => duckData.find(d => d.id === id);
+
+          const team1 = player1Ids.map(getDuck).filter(Boolean);
+
+          if (team1.length === 0) {
+            content.innerHTML = "<p>❌ Impossible de trouver les canards du joueur 1.</p>";
+            return;
+          }
+
+          // Rendu HTML
+          content.innerHTML = `
+            <h2>Équipe du Joueur 1</h2>
+            <div class="team" id="team1"></div>
+            <h2>Ton Équipe (Joueur 2)</h2>
+            <div class="team" id="team2"></div>
+            <button id="fightBtn" disabled>⚔️ Lancer le Combat</button>
+          `;
+
+          const team1Container = document.getElementById("team1");
+          const team2Container = document.getElementById("team2");
+          const fightBtn = document.getElementById("fightBtn");
+
+          // Affiche les canards du joueur 1
+          team1.forEach(duck => {
+            const card = document.createElement("div");
+            card.className = "card";
+            card.innerHTML = `
+              <img src="${duck.image}" alt="${duck.name}">
+              <h4>${duck.name}</h4>
+              <p>${duck.rarity}</p>
+            `;
+            team1Container.appendChild(card);
+          });
+
+          // Sélection du joueur 2
+          const collection = JSON.parse(localStorage.getItem("collection") || "[]");
+          const ownedDucks = collection.map(getDuck).filter(Boolean);
+          const selected = [];
+
+          if (ownedDucks.length === 0) {
+            team2Container.innerHTML = "<p>Tu n’as aucun canard 🥲</p>";
+            return;
+          }
+
+          ownedDucks.forEach(duck => {
+            const card = document.createElement("div");
+            card.className = "card";
+            card.innerHTML = `
+              <img src="${duck.image}" alt="${duck.name}">
+              <h4>${duck.name}</h4>
+              <p>${duck.rarity}</p>
+            `;
+            card.addEventListener("click", () => {
+              const index = selected.indexOf(duck.id);
+              if (index >= 0) {
+                selected.splice(index, 1);
+                card.classList.remove("selected");
+              } else if (selected.length < 4) {
+                selected.push(duck.id);
+                card.classList.add("selected");
+              }
+              fightBtn.disabled = selected.length === 0;
+            });
+            team2Container.appendChild(card);
+          });
+
+          fightBtn.addEventListener("click", () => {
+            const team2 = selected.map(getDuck).filter(Boolean);
+            alert(
+              `Combat lancé !\n\nJoueur 1 : ${team1.map(d => d.name).join(", ")}\n` +
+              `Joueur 2 : ${team2.map(d => d.name).join(", ")}`
+            );
+            // Tu peux ici rediriger vers un fichier fight.html ou démarrer une animation
+          });
+        })
+        .catch(err => {
+          console.error(err);
+          content.innerHTML = "<p>❌ Erreur de chargement des canards.</p>";
+        });
     }
-
-    const collection = JSON.parse(localStorage.getItem("collection") || "[]");
-    if (collection.length === 0) {
-      alert("Tu n'as aucune monture pour combattre.");
-      window.location.href = "index.html";
-    }
-
-    const collectionContainer = document.getElementById("collection");
-    const fightBtn = document.getElementById("fightBtn");
-
-    let duckData = [];
-    let selectedIds = [];
-
-    fetch("canards.json")
-      .then(res => res.json())
-      .then(data => {
-        duckData = data;
-        renderCollection();
-      })
-      .catch(err => {
-        console.error("Erreur de chargement :", err);
-        collectionContainer.innerHTML = "<p>Erreur de chargement des canards.</p>";
-      });
-
-    function renderCollection() {
-      const ducks = collection.map(id => duckData.find(d => d.id === id)).filter(Boolean);
-      collectionContainer.innerHTML = "";
-
-      ducks.forEach(duck => {
-        const card = document.createElement("div");
-        card.className = "card";
-        card.dataset.id = duck.id;
-        card.innerHTML = `
-          <img src="${duck.image}" alt="${duck.name}">
-          <h4>${duck.name}</h4>
-          <p>${duck.rarity}</p>
-        `;
-        card.addEventListener("click", () => toggleSelect(card));
-        collectionContainer.appendChild(card);
-      });
-    }
-
-    function toggleSelect(card) {
-      const id = card.dataset.id;
-      const index = selectedIds.indexOf(id);
-
-      if (index !== -1) {
-        selectedIds.splice(index, 1);
-        card.classList.remove("selected");
-      } else {
-        if (selectedIds.length >= 4) {
-          alert("Tu ne peux sélectionner que 4 canards max !");
-          return;
-        }
-        selectedIds.push(id);
-        card.classList.add("selected");
-      }
-
-      fightBtn.disabled = selectedIds.length === 0;
-    }
-
-    fightBtn.addEventListener("click", () => {
-      const url = `fight-battle.html?player1=${player1}&player2=${selectedIds.join(",")}`;
-      window.location.href = url;
-    });
   </script>
-
 </body>
 </html>
