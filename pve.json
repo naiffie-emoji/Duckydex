@@ -30,5 +30,5 @@
   { "level": 27, "enemies": ["duck004", "duck011", "duck014"] },
   { "level": 28, "enemies": ["duck003", "duck017", "duck019"] },
   { "level": 29, "enemies": ["duck009", "duck012", "duck011"] },
-  { "level": 30, "boss": true, "enemies": ["duck001"] }
+  { "level": 30, "boss": true, "enemies": ["duck005"] }
 ]
