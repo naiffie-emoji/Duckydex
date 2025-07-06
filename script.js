@@ -5,7 +5,7 @@ const result = document.getElementById("result");
 
 let canards = [];
 
-// Demande de permission pour notifications (au chargement)
+// 🔔 Notifications
 if (Notification.permission !== "granted" && Notification.permission !== "denied") {
   Notification.requestPermission().then(permission => {
     if (permission === "granted") {
@@ -14,6 +14,7 @@ if (Notification.permission !== "granted" && Notification.permission !== "denied
   });
 }
 
+// 🔁 Chargement initial
 fetch('canards.json')
   .then(response => response.json())
   .then(data => {
@@ -26,6 +27,15 @@ fetch('canards.json')
   });
 
 function checkCooldown() {
+  // 👉 Vérifie si une victoire PvE a "réinitialisé" le timer
+  const resetFromFight = localStorage.getItem("resetTimerFromFight");
+
+  if (resetFromFight === "true") {
+    localStorage.removeItem("resetTimerFromFight"); // consomme le reset
+    enableButton(); // débloque le bouton sans timer
+    return;
+  }
+
   const lastClaim = parseInt(localStorage.getItem("lastClaim")) || 0;
   const now = Date.now();
   const remaining = cooldownMs - (now - lastClaim);
@@ -52,7 +62,6 @@ function enableButton() {
   timerText.textContent = "";
   button.onclick = claimDuck;
 
-  // 🔔 Envoie la notification si autorisée
   if (Notification.permission === "granted") {
     new Notification("🦆 Tu peux récupérer un nouveau canard !");
   }
@@ -68,7 +77,6 @@ function updateTimer(ms) {
 }
 
 function claimDuck() {
-  // Étape 1 : pondération des raretés
   const rarityPool = [
     { rarity: "Légendaire", chance: 1 },
     { rarity: "Épique", chance: 4 },
@@ -88,7 +96,6 @@ function claimDuck() {
     }
   }
 
-  // Étape 2 : filtrer les canards par rareté
   const filtered = canards.filter(d => d.rarity === selectedRarity);
   if (filtered.length === 0) {
     alert(`Aucun canard disponible pour la rareté ${selectedRarity}`);
@@ -97,7 +104,6 @@ function claimDuck() {
 
   const duck = filtered[Math.floor(Math.random() * filtered.length)];
 
-  // Stockage local
   const collection = JSON.parse(localStorage.getItem("collection") || "[]");
   collection.push(duck.id);
   localStorage.setItem("collection", JSON.stringify(collection));
