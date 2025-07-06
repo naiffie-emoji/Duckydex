@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Combat DuckyDex</title>
   <style>
     html, body {
@@ -23,7 +23,7 @@
 
     .fighter {
       display: flex;
-      justify-content: flex-end; /* image à droite */
+      justify-content: space-between;
       align-items: center;
       width: 100%;
       max-width: 600px;
@@ -35,15 +35,12 @@
     }
 
     .info {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start; /* nom et barre à gauche */
       flex: 1;
-      margin-right: 1rem; /* espace entre info et image */
+      margin-right: 1rem; /* espace à droite avant l'image */
     }
 
     .info h2 {
-      margin: 0 0 0.4rem 0;
+      margin: 0 0 0.5rem;
     }
 
     .health-bar {
@@ -52,7 +49,6 @@
       background: #ddd;
       border-radius: 10px;
       overflow: hidden;
-      margin-bottom: 0.4rem;
     }
 
     .health-fill {
@@ -62,33 +58,26 @@
       transition: width 0.3s;
     }
 
-    .fighter.player .info {
-      align-items: flex-start;
-    }
-
     .fighter img {
       width: 100px;
       height: 100px;
       object-fit: contain;
-      order: 2; /* image à droite */
+      order: 2; /* Toujours à droite */
     }
 
-    /* Bouton attaquer sous la barre pour le joueur */
+    .fighter.player {
+      flex-direction: row; /* image à droite, infos à gauche */
+    }
+
     #attackBtn {
       padding: 10px 20px;
       font-size: 1.1rem;
+      margin-top: 0.5rem;
       background: #fa5252;
       color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      order: 1; /* bouton en dessous de la barre */
-      align-self: flex-start;
-    }
-
-    /* Pour l'ennemi, pas de bouton */
-    .fighter:not(.player) #attackBtn {
-      display: none;
     }
 
     #countdown {
@@ -104,10 +93,6 @@
       padding: 1rem;
       border-radius: 8px;
       text-align: center;
-      user-select: none;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
     }
 
     @media (max-width: 500px) {
@@ -118,17 +103,16 @@
 
       .info {
         margin: 0 0 1rem 0;
-        align-items: center;
+        width: 100%;
       }
 
       .fighter img {
         order: 0;
-        margin: 0;
+        margin: 0 auto;
       }
 
-      #attackBtn {
-        order: 2;
-        margin-top: 0.5rem;
+      .fighter.player {
+        flex-direction: column;
       }
     }
   </style>
@@ -140,7 +124,7 @@
       <h2 id="enemyName">Ennemi</h2>
       <div class="health-bar"><div id="enemyHP" class="health-fill"></div></div>
     </div>
-    <img id="enemyImg" src="" alt="ennemi" />
+    <img id="enemyImg" src="" alt="ennemi">
   </div>
 
   <!-- Timer et zone de clic -->
@@ -157,229 +141,144 @@
       <div class="health-bar"><div id="playerHP" class="health-fill"></div></div>
       <button id="attackBtn" disabled>Attaquer</button>
     </div>
-    <img id="playerImg" src="" alt="joueur" />
+    <img id="playerImg" src="" alt="joueur">
   </div>
 
   <script>
-    // Récupération des données URL (ids joueurs + niveau)
-    const params = new URLSearchParams(window.location.search);
-    const playerIds = params.get('ids') ? params.get('ids').split(',') : [];
-    const level = parseInt(params.get('level')) || 1;
+    const query = new URLSearchParams(window.location.search);
+    const playerIds = query.get("ids")?.split(",") || [];
+    const level = parseInt(query.get("level"));
 
-    // Chargement des données canards et PVE
-    let duckData = [];
-    let pveData = [];
+    let playerTeam = [], enemyTeam = [];
+    let playerIndex = 0, enemyIndex = 0;
 
-    // Variables d'état
-    let playerTeam = [];
-    let enemyTeam = [];
-    let playerIndex = 0;
-    let enemyIndex = 0;
-    let playerHP, enemyHP;
-    let playerMaxHP, enemyMaxHP;
-    let isPlayerTurn = false;
-    let countdownTimer;
-    let clickCount = 0;
-    let clickInterval;
-    let attackBtn = document.getElementById('attackBtn');
-    let countdownDiv = document.getElementById('countdown');
-    let spamClickZone = document.getElementById('spamClickZone');
-    let clickCountSpan = document.getElementById('clickCount');
+    const duckStats = {
+      "Commun": 10,
+      "Rare": 20,
+      "Épique": 30,
+      "Légendaire": 40
+    };
 
-    // Calcul des PV selon rareté
-    function getMaxHP(rarity) {
-      switch(rarity) {
-        case 'Commun': return 10;
-        case 'Rare': return 20;
-        case 'Épique': return 30;
-        case 'Légendaire': return 40;
-        default: return 10;
-      }
-    }
+    let currentPlayer, currentEnemy;
+    let playerHP = 0, enemyHP = 0;
 
-    // Mise à jour de la barre de vie
-    function updateHPBar(element, current, max) {
-      const ratio = current / max;
-      element.style.width = `${Math.max(0, ratio * 100)}%`;
-      if (ratio > 0.6) {
-        element.style.backgroundColor = '#4caf50'; // vert
-      } else if (ratio > 0.3) {
-        element.style.backgroundColor = '#ffb300'; // orange
-      } else {
-        element.style.backgroundColor = '#e53935'; // rouge
-      }
-    }
+    const playerImg = document.getElementById("playerImg");
+    const enemyImg = document.getElementById("enemyImg");
+    const playerHPBar = document.getElementById("playerHP");
+    const enemyHPBar = document.getElementById("enemyHP");
+    const playerName = document.getElementById("playerName");
+    const enemyName = document.getElementById("enemyName");
+    const countdown = document.getElementById("countdown");
+    const attackBtn = document.getElementById("attackBtn");
+    const spamZone = document.getElementById("spamClickZone");
+    const clickCountSpan = document.getElementById("clickCount");
 
-    // Affichage de la monture (joueur ou ennemi)
-    function displayFighter(fighter, isPlayer) {
-      const nameEl = isPlayer ? document.getElementById('playerName') : document.getElementById('enemyName');
-      const imgEl = isPlayer ? document.getElementById('playerImg') : document.getElementById('enemyImg');
-      const hpBarEl = isPlayer ? document.getElementById('playerHP') : document.getElementById('enemyHP');
-
-      nameEl.textContent = fighter.name;
-      imgEl.src = fighter.image;
-      imgEl.alt = fighter.name;
-      updateHPBar(hpBarEl, fighter.currentHP, fighter.maxHP);
-    }
-
-    // Passer à la monture suivante si possible, sinon fin du combat
-    function nextFighter(isPlayer) {
-      if (isPlayer) {
-        playerIndex++;
-        if (playerIndex >= playerTeam.length) {
-          alert("Vous avez perdu !");
-          window.location.href = "index.html";
-          return false;
-        }
-        playerHP = playerTeam[playerIndex].currentHP;
-        playerMaxHP = playerTeam[playerIndex].maxHP;
-        displayFighter(playerTeam[playerIndex], true);
-      } else {
-        enemyIndex++;
-        if (enemyIndex >= enemyTeam.length) {
-          alert("Victoire !");
-          window.location.href = "index.html";
-          return false;
-        }
-        enemyHP = enemyTeam[enemyIndex].currentHP;
-        enemyMaxHP = enemyTeam[enemyIndex].maxHP;
-        displayFighter(enemyTeam[enemyIndex], false);
-      }
-      return true;
-    }
-
-    // IA attaque
-    function enemyAttack() {
-      countdownDiv.textContent = "Attaque IA dans 5 secondes...";
-      let count = 5;
-      countdownDiv.textContent = count;
-      const interval = setInterval(() => {
-        count--;
-        countdownDiv.textContent = count > 0 ? count : "Attaque IA !";
-        if (count <= 0) {
-          clearInterval(interval);
-          // Dégâts aléatoires 1-3
-          const damage = Math.floor(Math.random() * 3) + 1;
-          playerHP -= damage;
-          if(playerHP < 0) playerHP = 0;
-          playerTeam[playerIndex].currentHP = playerHP;
-          updateHPBar(document.getElementById('playerHP'), playerHP, playerMaxHP);
-
-          if (playerHP === 0) {
-            if (!nextFighter(true)) return;
-          }
-          isPlayerTurn = true;
-          countdownDiv.textContent = "À vous de jouer !";
-          attackBtn.disabled = false;
-          spamClickZone.style.display = 'none';
-        }
-      }, 1000);
-    }
-
-    // Gestion du clic pendant l'attaque joueur
-    function startPlayerAttackPhase() {
-      attackBtn.disabled = true;
-      countdownDiv.textContent = "Préparez-vous... 3 secondes";
-      let count = 3;
-      const prepInterval = setInterval(() => {
-        count--;
-        countdownDiv.textContent = count > 0 ? count : "Cliquez vite !";
-        if (count <= 0) {
-          clearInterval(prepInterval);
-          clickCount = 0;
-          clickCountSpan.textContent = clickCount;
-          spamClickZone.style.display = 'block';
-
-          // Lancer la période de spam clic 5 secondes
-          setTimeout(() => {
-            spamClickZone.style.display = 'none';
-            // Calcul des dégâts
-            const dmg = Math.floor(clickCount / 7);
-            if (dmg > 0) {
-              enemyHP -= dmg;
-              if(enemyHP < 0) enemyHP = 0;
-              enemyTeam[enemyIndex].currentHP = enemyHP;
-              updateHPBar(document.getElementById('enemyHP'), enemyHP, enemyMaxHP);
-            }
-
-            if (enemyHP === 0) {
-              if (!nextFighter(false)) return;
-            }
-            // Relance le tour de l'IA
-            isPlayerTurn = false;
-            countdownDiv.textContent = "Tour de l'IA";
-            enemyAttack();
-          }, 5000);
-        }
-      }, 1000);
-    }
-
-    // Initialisation après chargement des données
-    Promise.all([
-      fetch('canards.json').then(r => r.json()),
-      fetch('pve.json').then(r => r.json())
-    ]).then(([ducks, pve]) => {
-      duckData = ducks;
-      pveData = pve;
-
-      // Construire équipe joueur depuis playerIds
-      playerTeam = playerIds.map(id => {
-        const duck = duckData.find(d => d.id === id);
-        return {
-          ...duck,
-          maxHP: getMaxHP(duck.rarity),
-          currentHP: getMaxHP(duck.rarity),
-        };
+    fetch("canards.json")
+      .then(res => res.json())
+      .then(allDucks => {
+        playerTeam = playerIds.map(id => allDucks.find(d => d.id === id));
+        return fetch("pve.json").then(res => res.json()).then(pveData => {
+          const levelData = pveData.find(l => l.level === level);
+          enemyTeam = levelData.enemies.map(id => allDucks.find(d => d.id === id));
+          startBattle();
+        });
       });
 
-      // Construire équipe ennemie depuis pve.json pour le niveau demandé
-      const lvlData = pveData.find(l => l.level === level);
-      if (!lvlData) {
-        alert("Niveau non trouvé.");
-        window.location.href = "index.html";
+    function startBattle() {
+      if (!playerTeam[playerIndex] || !enemyTeam[enemyIndex]) {
+        endBattle();
         return;
       }
 
-      enemyTeam = lvlData.enemies.map(id => {
-        const duck = duckData.find(d => d.id === id);
-        return {
-          ...duck,
-          maxHP: getMaxHP(duck.rarity),
-          currentHP: getMaxHP(duck.rarity),
-        };
+      currentPlayer = playerTeam[playerIndex];
+      currentEnemy = enemyTeam[enemyIndex];
+      playerHP = duckStats[currentPlayer.rarity];
+      enemyHP = duckStats[currentEnemy.rarity];
+
+      playerImg.src = currentPlayer.image;
+      enemyImg.src = currentEnemy.image;
+      playerName.textContent = currentPlayer.name;
+      enemyName.textContent = currentEnemy.name;
+
+      updateHPBars();
+      setTimeout(startEnemyTurn, 1000);
+    }
+
+    function updateHPBars() {
+      playerHPBar.style.width = `${(playerHP / duckStats[currentPlayer.rarity]) * 100}%`;
+      enemyHPBar.style.width = `${(enemyHP / duckStats[currentEnemy.rarity]) * 100}%`;
+    }
+
+    function startEnemyTurn() {
+      countdownTimer(5, "L'ennemi attaque dans ", () => {
+        const dmg = Math.floor(Math.random() * 3) + 1;
+        playerHP -= dmg;
+        if (playerHP < 0) playerHP = 0;
+        updateHPBars();
+        if (playerHP <= 0) {
+          playerIndex++;
+          setTimeout(startBattle, 1000);
+        } else {
+          attackBtn.disabled = false;
+        }
       });
+    }
 
-      // Initialisation indices et affichage premiers combattants
-      playerIndex = 0;
-      enemyIndex = 0;
-      playerHP = playerTeam[0].currentHP;
-      playerMaxHP = playerTeam[0].maxHP;
-      enemyHP = enemyTeam[0].currentHP;
-      enemyMaxHP = enemyTeam[0].maxHP;
+    function countdownTimer(seconds, text, callback) {
+      countdown.style.display = "block";
+      countdown.textContent = text + seconds + "s";
+      const interval = setInterval(() => {
+        seconds--;
+        if (seconds <= 0) {
+          clearInterval(interval);
+          countdown.style.display = "none";
+          callback();
+        } else {
+          countdown.textContent = text + seconds + "s";
+        }
+      }, 1000);
+    }
 
-      displayFighter(playerTeam[0], true);
-      displayFighter(enemyTeam[0], false);
-
-      // Début du combat - IA attaque en premier
-      isPlayerTurn = false;
+    attackBtn.addEventListener("click", () => {
       attackBtn.disabled = true;
-      enemyAttack();
-    }).catch(err => {
-      alert("Erreur chargement des données");
-      console.error(err);
+      countdownTimer(3, "Prépare-toi dans ", () => {
+        startClickPhase();
+      });
     });
 
-    attackBtn.addEventListener('click', () => {
-      if (!isPlayerTurn) return;
-      startPlayerAttackPhase();
-    });
+    function startClickPhase() {
+      let clicks = 0;
+      clickCountSpan.textContent = "0";
+      spamZone.style.display = "block";
 
-    // Compte les clics dans la zone spamClickZone
-    spamClickZone.addEventListener('click', () => {
-      if (!isPlayerTurn) return;
-      clickCount++;
-      clickCountSpan.textContent = clickCount;
-    });
+      function clickHandler() {
+        clicks++;
+        clickCountSpan.textContent = clicks;
+      }
+
+      spamZone.addEventListener("click", clickHandler);
+
+      setTimeout(() => {
+        spamZone.removeEventListener("click", clickHandler);
+        spamZone.style.display = "none";
+
+        const dmg = Math.floor(clicks / 7);
+        enemyHP -= dmg;
+        if (enemyHP < 0) enemyHP = 0;
+        updateHPBars();
+
+        if (enemyHP <= 0) {
+          enemyIndex++;
+          setTimeout(startBattle, 1000);
+        } else {
+          setTimeout(startEnemyTurn, 1000);
+        }
+      }, 5000);
+    }
+
+    function endBattle() {
+      window.location.href = "index.html";
+    }
   </script>
 </body>
 </html>
