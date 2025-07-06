@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Ma Collection de Canards</title>
   <link rel="icon" type="image/png" href="filet-canard.png" />
   <style>
@@ -12,7 +12,6 @@
       background: #f0f8ff;
       color: #333;
     }
-
     header {
       background-color: #4dabf7;
       color: white;
@@ -21,36 +20,30 @@
       justify-content: space-between;
       align-items: center;
     }
-
     .burger {
       display: none;
       flex-direction: column;
       gap: 4px;
       cursor: pointer;
     }
-
     .burger span {
       width: 25px;
       height: 3px;
       background: white;
     }
-
     nav {
       display: flex;
       gap: 1rem;
     }
-
     nav a {
       color: white;
       text-decoration: none;
       font-weight: bold;
     }
-
     main {
       padding: 2rem;
       padding-bottom: 6rem;
     }
-
     .toolbar {
       margin-bottom: 1rem;
       display: flex;
@@ -58,41 +51,39 @@
       align-items: center;
       gap: 1rem;
     }
-
     select {
       padding: 5px 10px;
       font-size: 1rem;
     }
-
     .collection {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 1rem;
     }
-
     .card {
       background: white;
       border-radius: 12px;
       padding: 1rem;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
       text-align: center;
-      cursor: default;
+      cursor: pointer;
       user-select: none;
       border: 2px solid transparent;
-      transition: border-color 0.3s;
+      transition: border-color 0.3s, background-color 0.3s;
     }
-
     .card img {
       width: 100px;
       height: 100px;
       object-fit: contain;
     }
-
+    .card.selected {
+      border-color: #38d9a9;
+      background-color: #e0f7f1;
+    }
     #fightSection {
       margin-top: 2rem;
       text-align: center;
     }
-
     #fightBtn {
       position: fixed;
       bottom: 1.5rem;
@@ -108,21 +99,17 @@
       z-index: 1000;
       transition: background-color 0.3s;
     }
-
     #fightBtn:disabled {
       background: #faa;
       cursor: not-allowed;
     }
-
     #qrcode {
       margin-top: 1rem;
     }
-
     #levelSelectSection {
       display: none;
       margin-top: 2rem;
     }
-
     @media (max-width: 600px) {
       nav {
         display: none;
@@ -130,11 +117,9 @@
         background-color: #4dabf7;
         padding: 1rem;
       }
-
       nav.active {
         display: flex;
       }
-
       .burger {
         display: flex;
       }
@@ -171,12 +156,12 @@
       <div id="levelSelectSection">
         <label for="levelSelect">Choisir un niveau :</label>
         <select id="levelSelect"></select>
-        <button id="startCombatBtn">🚀 Lancer le combat</button>
+        <button id="startCombatBtn" disabled>🚀 Lancer le combat</button>
       </div>
     </div>
   </main>
 
-  <button id="fightBtn">⚔️ Combattre</button>
+  <button id="fightBtn" disabled>⚔️ Combattre</button>
 
   <script>
     function toggleMenu() {
@@ -192,6 +177,7 @@
 
     const collection = JSON.parse(localStorage.getItem("collection") || "[]");
     let duckData = [];
+    let selectedIds = [];
 
     fetch("canards.json")
       .then(res => res.json())
@@ -203,17 +189,19 @@
           fightBtn.disabled = true;
         } else {
           renderCollection();
+          fightBtn.disabled = false;
         }
       })
       .catch(err => {
         collectionContainer.innerHTML = "<p>Erreur de chargement 😢</p>";
         console.error(err);
+        fightBtn.disabled = true;
       });
 
     function renderCollection() {
       collectionContainer.innerHTML = "";
 
-      const ducks = collection
+      let ducks = collection
         .map(id => duckData.find(d => d.id === id))
         .filter(Boolean);
 
@@ -236,8 +224,38 @@
           <p>${duck.rarity}</p>
         `;
 
+        // Ajout gestion sélection
+        card.addEventListener("click", () => toggleSelect(duck.id, card));
+
+        // Si déjà sélectionné, ajouter la classe
+        if (selectedIds.includes(duck.id)) {
+          card.classList.add("selected");
+        }
+
         collectionContainer.appendChild(card);
       });
+    }
+
+    function toggleSelect(id, cardElement) {
+      const index = selectedIds.indexOf(id);
+      if (index >= 0) {
+        // Désélectionner
+        selectedIds.splice(index, 1);
+        cardElement.classList.remove("selected");
+      } else {
+        // Sélectionner max 4
+        if (selectedIds.length >= 4) return;
+        selectedIds.push(id);
+        cardElement.classList.add("selected");
+      }
+      updateFightButtonState();
+      levelSelectSection.style.display = "none"; // cache la sélection niveau si elle était visible
+      startCombatBtn.disabled = true; // empêche lancer combat sans choisir niveau à nouveau
+    }
+
+    function updateFightButtonState() {
+      // Activé seulement si entre 1 et 4 canards sélectionnés
+      fightBtn.disabled = selectedIds.length === 0;
     }
 
     function showLevelSelect() {
@@ -251,22 +269,26 @@
       levelSelectSection.style.display = "block";
       fightBtn.disabled = true;
       fightBtn.textContent = "Sélection du niveau...";
+      startCombatBtn.disabled = selectedIds.length === 0;
     }
 
     fightBtn.addEventListener("click", () => {
-      if (collection.length === 0) {
-        alert("Tu n'as aucun canard dans ta collection !");
+      if (selectedIds.length === 0) {
+        alert("Sélectionne au moins un canard (max 4) pour combattre !");
         return;
       }
       showLevelSelect();
     });
 
+    levelSelect.addEventListener("change", () => {
+      startCombatBtn.disabled = false;
+    });
+
     startCombatBtn.addEventListener("click", () => {
       const level = levelSelect.value;
-      if (!level) return;
+      if (!level || selectedIds.length === 0) return;
 
-      // Envoie tous les canards de la collection dans le combat
-      const url = `start-combat.html?ids=${collection.join(",")}&level=${level}`;
+      const url = `start-combat.html?ids=${selectedIds.join(",")}&level=${level}`;
       window.location.href = url;
     });
   </script>
