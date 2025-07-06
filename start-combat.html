@@ -136,3 +136,195 @@
 }
 
   </style>
+</head>
+<body>
+  <div id="enemyZone" class="fighter enemy">
+    <div class="info">
+      <h2 id="enemyName">Ennemi</h2>
+      <div class="health-bar"><div id="enemyHP" class="health-fill"></div></div>
+    </div>
+    <img id="enemyImg" src="" alt="Ennemi">
+  </div>  <div id="countdown"></div>
+  <div id="spamClickZone">
+    <p>Cliquez le plus vite possible !</p>
+    <p>Clicks : <span id="clickCount">0</span></p>
+  </div>  <div id="playerZone" class="fighter player">
+    <img id="playerImg" src="" alt="Joueur">
+    <div class="info">
+      <h2 id="playerName">Toi</h2>
+      <div class="health-bar"><div id="playerHP" class="health-fill"></div></div>
+      <button id="attackBtn" disabled>Attaquer</button>
+    </div>
+  </div>  <script>
+    const params = new URLSearchParams(window.location.search);
+    const playerIds = params.get("ids")?.split(",") || [];
+    const level = parseInt(params.get("level")) || 1;
+
+    const HP_BY_RARITY = {
+      "Commun": 10,
+      "Rare": 20,
+      "Épique": 30,
+      "Légendaire": 40,
+    };
+
+    let duckData = [];
+    let pveData = [];
+
+    let playerTeam = [];
+    let enemyTeam = [];
+    let currentPlayerIndex = 0;
+    let currentEnemyIndex = 0;
+    let playerHP = 0;
+    let enemyHP = 0;
+
+    const enemyNameEl = document.getElementById("enemyName");
+    const enemyImgEl = document.getElementById("enemyImg");
+    const enemyHPEl = document.getElementById("enemyHP");
+    const playerNameEl = document.getElementById("playerName");
+    const playerImgEl = document.getElementById("playerImg");
+    const playerHPEl = document.getElementById("playerHP");
+    const attackBtn = document.getElementById("attackBtn");
+    const countdownEl = document.getElementById("countdown");
+    const spamClickZone = document.getElementById("spamClickZone");
+    const clickCountEl = document.getElementById("clickCount");
+
+    let spamClicks = 0;
+    let countdownInterval = null;
+
+    Promise.all([
+      fetch("canards.json").then(r => r.json()),
+      fetch("pve.json").then(r => r.json()),
+    ]).then(([ducks, pve]) => {
+      duckData = ducks;
+      pveData = pve;
+      setupFight();
+    }).catch(err => {
+      alert("Erreur de chargement des données.");
+      console.error(err);
+    });
+
+    function setupFight() {
+      playerTeam = playerIds.map(id => duckData.find(d => d.id === id)).filter(Boolean);
+      if (playerTeam.length === 0) return location.href = "index.html";
+      const levelData = pveData.find(l => l.level === level);
+      if (!levelData) return location.href = "index.html";
+      enemyTeam = levelData.enemies.map(id => duckData.find(d => d.id === id)).filter(Boolean);
+      if (enemyTeam.length === 0) return location.href = "index.html";
+
+      currentPlayerIndex = 0;
+      currentEnemyIndex = 0;
+
+      initPlayerFighter();
+      initEnemyFighter();
+      attackBtn.disabled = true;
+      countdownEl.textContent = "Début du combat...";
+      spamClickZone.style.display = "none";
+      setTimeout(() => enemyTurn(), 1000);
+    }
+
+    function initPlayerFighter() {
+      const f = playerTeam[currentPlayerIndex];
+      playerNameEl.textContent = f.name;
+      playerImgEl.src = f.image;
+      playerHP = HP_BY_RARITY[f.rarity] || 10;
+      updateHealthBar(playerHPEl, playerHP, playerHP);
+    }
+
+    function initEnemyFighter() {
+      const f = enemyTeam[currentEnemyIndex];
+      enemyNameEl.textContent = f.name;
+      enemyImgEl.src = f.image;
+      enemyHP = HP_BY_RARITY[f.rarity] || 10;
+      updateHealthBar(enemyHPEl, enemyHP, enemyHP);
+    }
+
+    function updateHealthBar(el, cur, max) {
+      const pct = Math.max(0, (cur / max) * 100);
+      el.style.width = pct + "%";
+      el.style.backgroundColor = pct > 60 ? "#4caf50" : pct > 30 ? "#f59e0b" : "#ef4444";
+    }
+
+    function enemyTurn() {
+      let time = 5;
+      countdownEl.textContent = `Attaque IA dans ${time}s`;
+      countdownInterval = setInterval(() => {
+        time--;
+        if (time <= 0) {
+          clearInterval(countdownInterval);
+          countdownEl.textContent = "L'ennemi attaque !";
+          const dmg = Math.floor(Math.random() * 3) + 1;
+          playerHP -= dmg;
+          if (playerHP <= 0) {
+            currentPlayerIndex++;
+            if (currentPlayerIndex >= playerTeam.length) return lose();
+            initPlayerFighter();
+          } else {
+            updateHealthBar(playerHPEl, playerHP, HP_BY_RARITY[playerTeam[currentPlayerIndex].rarity]);
+          }
+          startPlayerTurn();
+        } else {
+          countdownEl.textContent = `Attaque IA dans ${time}s`;
+        }
+      }, 1000);
+    }
+
+    function startPlayerTurn() {
+      countdownEl.textContent = "À vous d'attaquer !";
+      attackBtn.disabled = false;
+      attackBtn.onclick = () => {
+        attackBtn.disabled = true;
+        let c = 3;
+        countdownEl.textContent = `Attaque dans ${c}s`;
+        const timer = setInterval(() => {
+          c--;
+          if (c <= 0) {
+            clearInterval(timer);
+            startSpamClick();
+          } else {
+            countdownEl.textContent = `Attaque dans ${c}s`;
+          }
+        }, 1000);
+      };
+    }
+
+    function startSpamClick() {
+      countdownEl.textContent = "Spam clic ! (5 secondes)";
+      spamClicks = 0;
+      clickCountEl.textContent = "0";
+      spamClickZone.style.display = "block";
+      spamClickZone.onclick = () => {
+        spamClicks++;
+        clickCountEl.textContent = spamClicks;
+      };
+      setTimeout(() => {
+        spamClickZone.style.display = "none";
+        const dmg = Math.floor(spamClicks / 7);
+        if (dmg > 0) {
+          enemyHP -= dmg;
+          updateHealthBar(enemyHPEl, enemyHP, HP_BY_RARITY[enemyTeam[currentEnemyIndex].rarity]);
+        }
+        if (enemyHP <= 0) {
+          currentEnemyIndex++;
+          if (currentEnemyIndex >= enemyTeam.length) return win();
+          initEnemyFighter();
+          setTimeout(enemyTurn, 1000);
+        } else {
+          setTimeout(enemyTurn, 1000);
+        }
+      }, 5000);
+    }
+
+    function win() {
+      alert("Victoire ! Vous avez gagné le combat !");
+      if (Math.random() < 0.1) {
+        localStorage.setItem("resetTimerFromFight", "true");
+      }
+      window.location.href = "index.html";
+    }
+
+    function lose() {
+      alert("Vous avez perdu !");
+      window.location.href = "index.html";
+    }
+  </script></body>
+</html>
