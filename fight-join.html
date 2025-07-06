@@ -5,20 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Rejoindre le Combat</title>
   <style>
-    body {
-      font-family: sans-serif;
-      padding: 1rem;
-      background: #f8f9fa;
-    }
-    h1, h2 {
-      color: #333;
-    }
-    .team {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 2rem;
-    }
+    body { font-family: sans-serif; padding: 1rem; background: #f8f9fa; }
+    h1, h2 { color: #333; }
+    .team { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 2rem; }
     .card {
       background: white;
       padding: 1rem;
@@ -29,17 +18,9 @@
       cursor: pointer;
       transition: transform 0.2s;
     }
-    .card:hover {
-      transform: scale(1.05);
-    }
-    .card.selected {
-      border: 3px solid #38d9a9;
-    }
-    .card img {
-      width: 100px;
-      height: 100px;
-      object-fit: contain;
-    }
+    .card:hover { transform: scale(1.05); }
+    .card.selected { border: 3px solid #38d9a9; }
+    .card img { width: 100px; height: 100px; object-fit: contain; }
     #fightBtn {
       display: block;
       margin: 0 auto;
@@ -51,43 +32,34 @@
       border-radius: 8px;
       cursor: pointer;
     }
-    #fightBtn:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
-    }
+    #fightBtn:disabled { background-color: #ccc; cursor: not-allowed; }
   </style>
 </head>
 <body>
 
   <h1>⚔️ Rejoindre un Combat</h1>
-  <div id="content">
-    <p>Chargement...</p>
-  </div>
+  <div id="content"><p>Chargement…</p></div>
 
   <script>
     const content = document.getElementById("content");
-    const urlParams = new URLSearchParams(window.location.search);
-    const idsParam = urlParams.get("ids");
+    const idsParam = new URLSearchParams(window.location.search).get("ids");
 
     if (!idsParam) {
-      content.innerHTML = "<p>❌ Aucun joueur 1 détecté dans l’URL.</p>";
+      content.innerHTML = "<p>❌ L’équipe du joueur 1 est absente (URL erronée).</p>";
     } else {
-      const player1Ids = idsParam.split(",");
+      const player1Ids = idsParam.split(",").filter(s => s.trim());
       fetch("canards.json")
-        .then(res => res.json())
+        .then(r => r.json())
         .then(data => {
           const duckData = data;
-
           const getDuck = id => duckData.find(d => d.id === id);
 
           const team1 = player1Ids.map(getDuck).filter(Boolean);
-
           if (team1.length === 0) {
-            content.innerHTML = "<p>❌ Impossible de trouver les canards du joueur 1.</p>";
+            content.innerHTML = "<p>❌ Aucun canard trouvé pour le joueur 1.</p>";
             return;
           }
 
-          // Rendu HTML
           content.innerHTML = `
             <h2>Équipe du Joueur 1</h2>
             <div class="team" id="team1"></div>
@@ -97,65 +69,53 @@
           `;
 
           const team1Container = document.getElementById("team1");
-          const team2Container = document.getElementById("team2");
-          const fightBtn = document.getElementById("fightBtn");
-
-          // Affiche les canards du joueur 1
           team1.forEach(duck => {
             const card = document.createElement("div");
             card.className = "card";
-            card.innerHTML = `
-              <img src="${duck.image}" alt="${duck.name}">
-              <h4>${duck.name}</h4>
-              <p>${duck.rarity}</p>
-            `;
+            card.innerHTML = `<img src="${duck.image}" alt="${duck.name}"><h4>${duck.name}</h4><p>${duck.rarity}</p>`;
             team1Container.appendChild(card);
           });
 
-          // Sélection du joueur 2
           const collection = JSON.parse(localStorage.getItem("collection") || "[]");
-          const ownedDucks = collection.map(getDuck).filter(Boolean);
-          const selected = [];
+          const owned = collection.map(getDuck).filter(Boolean);
 
-          if (ownedDucks.length === 0) {
-            team2Container.innerHTML = "<p>Tu n’as aucun canard 🥲</p>";
+          if (owned.length === 0) {
+            document.getElementById("team2").innerHTML = "<p>Tu n’as aucun canard 🥲</p>";
             return;
           }
 
-          ownedDucks.forEach(duck => {
+          const selected = [];
+          const team2Container = document.getElementById("team2");
+          owned.forEach(duck => {
             const card = document.createElement("div");
             card.className = "card";
-            card.innerHTML = `
-              <img src="${duck.image}" alt="${duck.name}">
-              <h4>${duck.name}</h4>
-              <p>${duck.rarity}</p>
-            `;
+            card.innerHTML = `<img src="${duck.image}" alt="${duck.name}"><h4>${duck.name}</h4><p>${duck.rarity}</p>`;
             card.addEventListener("click", () => {
-              const index = selected.indexOf(duck.id);
-              if (index >= 0) {
-                selected.splice(index, 1);
+              const idx = selected.indexOf(duck.id);
+              if (idx >= 0) {
+                selected.splice(idx, 1);
                 card.classList.remove("selected");
               } else if (selected.length < 4) {
                 selected.push(duck.id);
                 card.classList.add("selected");
               }
-              fightBtn.disabled = selected.length === 0;
+              document.getElementById("fightBtn").disabled = selected.length === 0;
             });
             team2Container.appendChild(card);
           });
 
-          fightBtn.addEventListener("click", () => {
+          document.getElementById("fightBtn").addEventListener("click", () => {
             const team2 = selected.map(getDuck).filter(Boolean);
             alert(
-              `Combat lancé !\n\nJoueur 1 : ${team1.map(d => d.name).join(", ")}\n` +
-              `Joueur 2 : ${team2.map(d => d.name).join(", ")}`
+              `Combat lancé !\n\nJ1 : ${team1.map(d => d.name).join(", ")}\n` +
+              `J2 : ${team2.map(d => d.name).join(", ")}`
             );
-            // Tu peux ici rediriger vers un fichier fight.html ou démarrer une animation
+            // Ici tu pourras rediriger vers une page de combat ou lancer la logique de combat
           });
         })
         .catch(err => {
+          content.innerHTML = "<p>❌ Impossible de charger les données des canards.</p>";
           console.error(err);
-          content.innerHTML = "<p>❌ Erreur de chargement des canards.</p>";
         });
     }
   </script>
