@@ -6,6 +6,7 @@
   <title>Combat - Duckydex</title>
   <link rel="icon" type="image/png" href="filet-canard.png" />
   <style>
+    /* ... (même style que l'original, inchangé) ... */
     body {
       margin: 0;
       font-family: sans-serif;
@@ -18,8 +19,7 @@
       padding: 1rem;
     }
 
-    #player1,
-    #player2 {
+    #player1, #player2 {
       background: white;
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -43,8 +43,7 @@
       flex-direction: row-reverse;
     }
 
-    #player1 img,
-    #player2 img {
+    #player1 img, #player2 img {
       width: 120px;
       height: 120px;
       object-fit: contain;
@@ -161,7 +160,7 @@
         <div class="hp-text" id="p1-hp-text">100 / 100</div>
       </div>
     </div>
-    <button class="attack-btn" id="p1-attack-btn" disabled>Attaquer</button>
+    <button class="attack-btn" id="p1-attack-btn">Attaquer</button>
   </div>
 
   <div id="message" role="alert" aria-live="polite"></div>
@@ -209,6 +208,10 @@
     const messageDiv = document.getElementById("message");
     const tapArea = document.getElementById("tap-area");
 
+    if (isBot) {
+      p1AttackBtn.style.display = "none";
+    }
+
     function getHpMaxByRarity(rarity) {
       switch (rarity.toLowerCase()) {
         case "commun": return 10;
@@ -241,7 +244,6 @@
         maxHp2 = getHpMaxByRarity(team2[0].rarity);
         hp2 = maxHp2;
 
-        if (isBot) p2AttackBtn.style.display = "none";
         updateUI();
         startTurnRandom();
       })
@@ -265,9 +267,7 @@
       p1AttackBtn.disabled = true;
       p2AttackBtn.disabled = true;
 
-      if (!messageDiv.textContent.startsWith("Le joueur")) {
-        messageDiv.textContent = `Tour du joueur ${currentTurn}`;
-      }
+      messageDiv.textContent = `Tour du joueur ${currentTurn}`;
     }
 
     function updateHpBar(barElem, textElem, hp, maxHp) {
@@ -282,29 +282,27 @@
     function startTurnRandom() {
       currentTurn = Math.random() < 0.5 ? "1" : "2";
       messageDiv.textContent = `Le joueur ${currentTurn} commence !`;
-      setTimeout(() => {
-        enableAttackBtn();
-      }, 1500);
+      setTimeout(enableAttackBtn, 1500);
     }
 
     function enableAttackBtn() {
-      if (currentTurn === "1") {
+      if (currentTurn === "1" && isBot) {
+        let countdown = 5;
+        messageDiv.textContent = `Bot attaque dans ${countdown}...`;
+        countdownTimer = setInterval(() => {
+          countdown--;
+          messageDiv.textContent = `Bot attaque dans ${countdown}...`;
+          if (countdown <= 0) {
+            clearInterval(countdownTimer);
+            const damage = Math.floor(Math.random() * 4) + 1; // 1 à 4
+            applyDamage(damage);
+          }
+        }, 1000);
+      } else if (currentTurn === "1") {
         p1AttackBtn.disabled = false;
       } else {
-        if (isBot) {
-          setTimeout(() => {
-            const fakeTaps = Math.floor(Math.random() * 16) + 5;
-            const damage = Math.floor(fakeTaps / 5);
-            messageDiv.textContent = `Le bot attaque...`;
-            setTimeout(() => {
-              applyDamage(damage);
-            }, 1000);
-          }, 1000);
-        } else {
-          p2AttackBtn.disabled = false;
-        }
+        p2AttackBtn.disabled = false;
       }
-      messageDiv.textContent = `Tour du joueur ${currentTurn}`;
     }
 
     function onAttackBtnClick() {
@@ -385,9 +383,7 @@
       }
 
       currentTurn = currentTurn === "1" ? "2" : "1";
-      setTimeout(() => {
-        enableAttackBtn();
-      }, 2000);
+      setTimeout(enableAttackBtn, 2000);
     }
 
     function endGame(winner) {
