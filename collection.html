@@ -76,6 +76,7 @@
       padding: 1rem;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
       text-align: center;
+      cursor: pointer;
       user-select: none;
       border: 2px solid transparent;
       transition: border-color 0.3s, background-color 0.3s;
@@ -85,10 +86,6 @@
       width: 100px;
       height: 100px;
       object-fit: contain;
-    }
-
-    .card.selectable {
-      cursor: pointer;
     }
 
     .card.selected {
@@ -101,12 +98,10 @@
       text-align: center;
     }
 
-    #fightBtn {
+    #fightBtn, #giveBtn {
       position: fixed;
       bottom: 1.5rem;
-      right: 1.5rem;
       padding: 12px 24px;
-      background: #fa5252;
       color: white;
       border: none;
       border-radius: 30px;
@@ -117,13 +112,24 @@
       transition: background-color 0.3s;
     }
 
+    #fightBtn {
+      right: 1.5rem;
+      background: #fa5252;
+    }
+
     #fightBtn:disabled {
       background: #faa;
       cursor: not-allowed;
     }
 
-    #qrcode {
-      margin-top: 1rem;
+    #giveBtn {
+      left: 1.5rem;
+      background: #38d9a9;
+    }
+
+    #giveBtn:disabled {
+      background: #aadbd5;
+      cursor: not-allowed;
     }
 
     #levelSelectSection {
@@ -174,8 +180,6 @@
     <div class="collection" id="collection"></div>
 
     <div id="fightSection">
-      <div id="qrcode"></div>
-
       <div id="levelSelectSection">
         <label for="levelSelect">Choisir un niveau :</label>
         <select id="levelSelect"></select>
@@ -185,6 +189,7 @@
   </main>
 
   <button id="fightBtn" disabled>⚔️ Combattre</button>
+  <button id="giveBtn" disabled>🎁 Donner</button>
 
   <script>
     function toggleMenu() {
@@ -194,6 +199,7 @@
     const collectionContainer = document.getElementById("collection");
     const sortSelect = document.getElementById("sortSelect");
     const fightBtn = document.getElementById("fightBtn");
+    const giveBtn = document.getElementById("giveBtn");
     const levelSelectSection = document.getElementById("levelSelectSection");
     const levelSelect = document.getElementById("levelSelect");
     const startCombatBtn = document.getElementById("startCombatBtn");
@@ -202,6 +208,7 @@
     let duckData = [];
     let selectedIds = [];
     let selectionMode = false;
+    let giveMode = false;
 
     fetch("canards.json")
       .then(res => res.json())
@@ -209,17 +216,20 @@
         duckData = data;
 
         if (collection.length === 0) {
-          collectionContainer.innerHTML = "<p>Aucun canard pour le moment !</p>";
+          collectionContainer.innerHTML = "<p>Aucun Zōion pour le moment !</p>";
           fightBtn.disabled = true;
+          giveBtn.disabled = true;
         } else {
           renderCollection();
           fightBtn.disabled = false;
+          giveBtn.disabled = false;
         }
       })
       .catch(err => {
         collectionContainer.innerHTML = "<p>Erreur de chargement 😢</p>";
         console.error(err);
         fightBtn.disabled = true;
+        giveBtn.disabled = true;
       });
 
     function renderCollection() {
@@ -230,7 +240,6 @@
         .filter(Boolean);
 
       const sortBy = sortSelect.value;
-
       if (sortBy === "name") {
         ducks.sort((a, b) => a.name.localeCompare(b.name));
       } else if (sortBy === "rarity") {
@@ -248,13 +257,21 @@
           <p>${duck.rarity}</p>
         `;
 
-        // Cliquable seulement si le mode sélection est actif
-        if (selectionMode) {
+        if (selectionMode || giveMode) {
           card.classList.add("selectable");
-          card.addEventListener("click", () => toggleSelect(duck.id, card));
+          card.addEventListener("click", () => {
+            if (giveMode) {
+              exportZoion(duck);
+              giveBtn.textContent = "🎁 Donner";
+              giveMode = false;
+              selectedIds = [];
+              renderCollection();
+            } else {
+              toggleSelect(duck.id, card);
+            }
+          });
         }
 
-        // Marquer si sélectionné
         if (selectedIds.includes(duck.id)) {
           card.classList.add("selected");
         }
@@ -297,6 +314,8 @@
     fightBtn.addEventListener("click", () => {
       if (!selectionMode) {
         selectionMode = true;
+        giveMode = false;
+        selectedIds = [];
         fightBtn.textContent = "✅ Choisir un niveau";
         renderCollection();
         updateFightButtonState();
@@ -304,7 +323,7 @@
       }
 
       if (selectedIds.length === 0) {
-        alert("Sélectionne au moins un zōion !");
+        alert("Sélectionne au moins un Zōion !");
         return;
       }
 
@@ -319,10 +338,30 @@
     startCombatBtn.addEventListener("click", () => {
       const level = levelSelect.value;
       if (!level || selectedIds.length === 0) return;
-
       const url = `start-combat.html?ids=${selectedIds.join(",")}&level=${level}`;
       window.location.href = url;
     });
+
+    giveBtn.addEventListener("click", () => {
+      if (!giveMode) {
+        giveMode = true;
+        selectionMode = false;
+        selectedIds = [];
+        fightBtn.disabled = true;
+        giveBtn.textContent = "✅ Choisir un Zōion";
+        renderCollection();
+      }
+    });
+
+    function exportZoion(zoion) {
+      const blob = new Blob([JSON.stringify(zoion)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${zoion.name}.zoion`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
   </script>
 </body>
 </html>
