@@ -130,5 +130,11 @@
     "name": "Pyroki",
     "rarity": "Épique",
     "image": "assets/duck022.png"
+    },
+    {
+    "id": "duck023",
+    "name": "Platydrip",
+    "rarity": "Commun",
+    "image": "assets/duck023.png"
     }
 ]
