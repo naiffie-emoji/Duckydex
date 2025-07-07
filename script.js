@@ -1,4 +1,4 @@
-const cooldownMs = 6 * 60 * 60 * 1000; // 6h
+const cooldownMs = 2 * 60 * 60 * 1000; // 6h
 const button = document.getElementById("claimButton");
 const timerText = document.getElementById("timerText");
 const result = document.getElementById("result");
