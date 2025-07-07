@@ -12,6 +12,7 @@
       background: #f0f8ff;
       color: #333;
     }
+
     header {
       background-color: #4dabf7;
       color: white;
@@ -20,30 +21,36 @@
       justify-content: space-between;
       align-items: center;
     }
+
     .burger {
       display: none;
       flex-direction: column;
       gap: 4px;
       cursor: pointer;
     }
+
     .burger span {
       width: 25px;
       height: 3px;
       background: white;
     }
+
     nav {
       display: flex;
       gap: 1rem;
     }
+
     nav a {
       color: white;
       text-decoration: none;
       font-weight: bold;
     }
+
     main {
       padding: 2rem;
       padding-bottom: 6rem;
     }
+
     .toolbar {
       margin-bottom: 1rem;
       display: flex;
@@ -51,39 +58,49 @@
       align-items: center;
       gap: 1rem;
     }
+
     select {
       padding: 5px 10px;
       font-size: 1rem;
     }
+
     .collection {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 1rem;
     }
+
     .card {
       background: white;
       border-radius: 12px;
       padding: 1rem;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
       text-align: center;
-      cursor: pointer;
       user-select: none;
       border: 2px solid transparent;
       transition: border-color 0.3s, background-color 0.3s;
     }
+
     .card img {
       width: 100px;
       height: 100px;
       object-fit: contain;
     }
+
+    .card.selectable {
+      cursor: pointer;
+    }
+
     .card.selected {
       border-color: #38d9a9;
       background-color: #e0f7f1;
     }
+
     #fightSection {
       margin-top: 2rem;
       text-align: center;
     }
+
     #fightBtn {
       position: fixed;
       bottom: 1.5rem;
@@ -99,17 +116,21 @@
       z-index: 1000;
       transition: background-color 0.3s;
     }
+
     #fightBtn:disabled {
       background: #faa;
       cursor: not-allowed;
     }
+
     #qrcode {
       margin-top: 1rem;
     }
+
     #levelSelectSection {
       display: none;
       margin-top: 2rem;
     }
+
     @media (max-width: 600px) {
       nav {
         display: none;
@@ -117,9 +138,11 @@
         background-color: #4dabf7;
         padding: 1rem;
       }
+
       nav.active {
         display: flex;
       }
+
       .burger {
         display: flex;
       }
@@ -178,6 +201,7 @@
     const collection = JSON.parse(localStorage.getItem("collection") || "[]");
     let duckData = [];
     let selectedIds = [];
+    let selectionMode = false;
 
     fetch("canards.json")
       .then(res => res.json())
@@ -224,10 +248,13 @@
           <p>${duck.rarity}</p>
         `;
 
-        // Ajout gestion sélection
-        card.addEventListener("click", () => toggleSelect(duck.id, card));
+        // Cliquable seulement si le mode sélection est actif
+        if (selectionMode) {
+          card.classList.add("selectable");
+          card.addEventListener("click", () => toggleSelect(duck.id, card));
+        }
 
-        // Si déjà sélectionné, ajouter la classe
+        // Marquer si sélectionné
         if (selectedIds.includes(duck.id)) {
           card.classList.add("selected");
         }
@@ -239,23 +266,20 @@
     function toggleSelect(id, cardElement) {
       const index = selectedIds.indexOf(id);
       if (index >= 0) {
-        // Désélectionner
         selectedIds.splice(index, 1);
         cardElement.classList.remove("selected");
       } else {
-        // Sélectionner max 4
         if (selectedIds.length >= 4) return;
         selectedIds.push(id);
         cardElement.classList.add("selected");
       }
       updateFightButtonState();
-      levelSelectSection.style.display = "none"; // cache la sélection niveau si elle était visible
-      startCombatBtn.disabled = true; // empêche lancer combat sans choisir niveau à nouveau
+      levelSelectSection.style.display = "none";
+      startCombatBtn.disabled = true;
     }
 
     function updateFightButtonState() {
-      // Activé seulement si entre 1 et 4 canards sélectionnés
-      fightBtn.disabled = selectedIds.length === 0;
+      fightBtn.disabled = !selectionMode || selectedIds.length === 0;
     }
 
     function showLevelSelect() {
@@ -267,17 +291,25 @@
         levelSelect.appendChild(option);
       }
       levelSelectSection.style.display = "block";
-      fightBtn.disabled = true;
-      fightBtn.textContent = "Sélection du niveau...";
       startCombatBtn.disabled = selectedIds.length === 0;
     }
 
     fightBtn.addEventListener("click", () => {
-      if (selectedIds.length === 0) {
-        alert("Sélectionne au moins un canard (max 4) pour combattre !");
+      if (!selectionMode) {
+        selectionMode = true;
+        fightBtn.textContent = "✅ Choisir un niveau";
+        renderCollection();
+        updateFightButtonState();
         return;
       }
+
+      if (selectedIds.length === 0) {
+        alert("Sélectionne au moins un zōion !");
+        return;
+      }
+
       showLevelSelect();
+      fightBtn.disabled = true;
     });
 
     levelSelect.addEventListener("change", () => {
