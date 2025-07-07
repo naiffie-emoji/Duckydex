@@ -353,12 +353,17 @@
       }
     });
 
+    // ✅ Fonction modifiée ici
     function exportZoion(zoion) {
-      const blob = new Blob([JSON.stringify(zoion)], { type: "application/json" });
+      const data = {
+        id: zoion.id,
+        used: false
+      };
+      const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${zoion.name}.zoion`;
+      a.download = `${zoion.name}.zoion`; // ✅ Extension personnalisée
       a.click();
       URL.revokeObjectURL(url);
     }
