@@ -112,5 +112,23 @@
     "name": "Evily",
     "rarity": "Rare",
     "image": "assets/duck019.png"
-  }
+  },
+  {
+    "id": "duck020",
+    "name": "Flammouse",
+    "rarity": "Commun",
+    "image": "assets/duck020.png"
+  },
+    {
+    "id": "duck021",
+    "name": "Pyratouff",
+    "rarity": "Rare",
+    "image": "assets/duck021.png"
+    },
+    {
+    "id": "duck022",
+    "name": "Pyroki",
+    "rarity": "Épique",
+    "image": "assets/duck022.png"
+    }
 ]
