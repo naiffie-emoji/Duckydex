@@ -19,7 +19,7 @@ fetch('canards.json')
   .then(response => response.json())
   .then(data => {
     canards = data;
-    handleURLParams(); // 👈 Ajout ici
+    handleURLParams(); // 👈 Traite les paramètres add/remove
     checkCooldown();
   })
   .catch(err => {
@@ -36,7 +36,6 @@ function handleURLParams() {
   let collection = JSON.parse(localStorage.getItem("collection")) || [];
 
   if (addId) {
-    // Ajoute même s'il est déjà présent
     collection.push(addId);
     localStorage.setItem("collection", JSON.stringify(collection));
 
@@ -48,12 +47,18 @@ function handleURLParams() {
   if (removeId) {
     const index = collection.indexOf(removeId);
     if (index !== -1) {
-      collection.splice(index, 1); // Retire une seule occurrence
+      collection.splice(index, 1);
       localStorage.setItem("collection", JSON.stringify(collection));
       alert(`❌ Une copie de ${removeId} a été retirée.`);
     } else {
       alert(`⚠️ Tu ne possèdes pas ce Zōion : ${removeId}`);
     }
+  }
+
+  // 🧼 Nettoie l'URL après traitement (sans recharger)
+  if (addId || removeId) {
+    const cleanUrl = window.location.origin + window.location.pathname;
+    history.replaceState(null, "", cleanUrl);
   }
 }
 
@@ -151,4 +156,4 @@ function showDuck(duck) {
       <span>${duck.rarity}</span>
     </div>
   `;
-                                         }
+                         }
