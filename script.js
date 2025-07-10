@@ -1,4 +1,4 @@
-const cooldownMs = 6 * 60 * 60 * 1000; // 6h
+const cooldownMs = 2 * 60 * 60 * 1000; // 2h
 const button = document.getElementById("claimButton");
 const timerText = document.getElementById("timerText");
 const result = document.getElementById("result");
@@ -19,9 +19,7 @@ fetch('canards.json')
   .then(response => response.json())
   .then(data => {
     canards = data;
-
-    // Vérifie si l'URL contient ?add= ou ?remove=
-    handleURLParams();
+    handleURLParams(); // 👈 Ajout ici
     checkCooldown();
   })
   .catch(err => {
@@ -29,6 +27,7 @@ fetch('canards.json')
     console.error("Erreur lors du chargement des canards :", err);
   });
 
+// 🧩 Gère les paramètres ?add=... ou ?remove=...
 function handleURLParams() {
   const params = new URLSearchParams(window.location.search);
   const addId = params.get("add");
@@ -37,22 +36,21 @@ function handleURLParams() {
   let collection = JSON.parse(localStorage.getItem("collection")) || [];
 
   if (addId) {
-    if (!collection.includes(addId)) {
-      collection.push(addId);
-      localStorage.setItem("collection", JSON.stringify(collection));
-      const added = canards.find(d => d.id === addId);
-      if (added) showDuck(added);
-      alert(`✅ Zōion ajouté à ta collection : ${addId}`);
-    } else {
-      alert(`ℹ️ Tu as déjà ce Zōion : ${addId}`);
-    }
+    // Ajoute même s'il est déjà présent
+    collection.push(addId);
+    localStorage.setItem("collection", JSON.stringify(collection));
+
+    const added = canards.find(d => d.id === addId);
+    if (added) showDuck(added);
+    alert(`✅ Zōion ajouté : ${addId}`);
   }
 
   if (removeId) {
-    if (collection.includes(removeId)) {
-      collection = collection.filter(id => id !== removeId);
+    const index = collection.indexOf(removeId);
+    if (index !== -1) {
+      collection.splice(index, 1); // Retire une seule occurrence
       localStorage.setItem("collection", JSON.stringify(collection));
-      alert(`❌ Zōion retiré de ta collection : ${removeId}`);
+      alert(`❌ Une copie de ${removeId} a été retirée.`);
     } else {
       alert(`⚠️ Tu ne possèdes pas ce Zōion : ${removeId}`);
     }
@@ -61,6 +59,7 @@ function handleURLParams() {
 
 function checkCooldown() {
   const resetFromFight = localStorage.getItem("resetTimerFromFight");
+
   if (resetFromFight === "true") {
     localStorage.removeItem("resetTimerFromFight");
     enableButton();
@@ -152,4 +151,4 @@ function showDuck(duck) {
       <span>${duck.rarity}</span>
     </div>
   `;
-      }
+                                         }
