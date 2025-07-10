@@ -1,4 +1,4 @@
-const cooldownMs = 2 * 60 * 60 * 1000; // 6h
+const cooldownMs = 6 * 60 * 60 * 1000; // 6h
 const button = document.getElementById("claimButton");
 const timerText = document.getElementById("timerText");
 const result = document.getElementById("result");
@@ -19,6 +19,9 @@ fetch('canards.json')
   .then(response => response.json())
   .then(data => {
     canards = data;
+
+    // Vérifie si l'URL contient ?add= ou ?remove=
+    handleURLParams();
     checkCooldown();
   })
   .catch(err => {
@@ -26,13 +29,41 @@ fetch('canards.json')
     console.error("Erreur lors du chargement des canards :", err);
   });
 
-function checkCooldown() {
-  // 👉 Vérifie si une victoire PvE a "réinitialisé" le timer
-  const resetFromFight = localStorage.getItem("resetTimerFromFight");
+function handleURLParams() {
+  const params = new URLSearchParams(window.location.search);
+  const addId = params.get("add");
+  const removeId = params.get("remove");
 
+  let collection = JSON.parse(localStorage.getItem("collection")) || [];
+
+  if (addId) {
+    if (!collection.includes(addId)) {
+      collection.push(addId);
+      localStorage.setItem("collection", JSON.stringify(collection));
+      const added = canards.find(d => d.id === addId);
+      if (added) showDuck(added);
+      alert(`✅ Zōion ajouté à ta collection : ${addId}`);
+    } else {
+      alert(`ℹ️ Tu as déjà ce Zōion : ${addId}`);
+    }
+  }
+
+  if (removeId) {
+    if (collection.includes(removeId)) {
+      collection = collection.filter(id => id !== removeId);
+      localStorage.setItem("collection", JSON.stringify(collection));
+      alert(`❌ Zōion retiré de ta collection : ${removeId}`);
+    } else {
+      alert(`⚠️ Tu ne possèdes pas ce Zōion : ${removeId}`);
+    }
+  }
+}
+
+function checkCooldown() {
+  const resetFromFight = localStorage.getItem("resetTimerFromFight");
   if (resetFromFight === "true") {
-    localStorage.removeItem("resetTimerFromFight"); // consomme le reset
-    enableButton(); // débloque le bouton sans timer
+    localStorage.removeItem("resetTimerFromFight");
+    enableButton();
     return;
   }
 
@@ -121,4 +152,4 @@ function showDuck(duck) {
       <span>${duck.rarity}</span>
     </div>
   `;
-    }
+      }
