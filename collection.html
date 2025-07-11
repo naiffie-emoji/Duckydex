@@ -123,7 +123,7 @@
       .burger {
         display: flex;
       }
-    }
+      }
   </style>
 </head>
 <body>
@@ -147,11 +147,9 @@
         <option value="rarity">Rareté</option>
       </select>
     </div>
-
     <div class="collection" id="collection"></div>
-
     <div id="fightSection">
-      <div id="levelSelectSection">
+      <div id="levelSelectSection" style="display:none;">
         <label for="levelSelect">Choisir un niveau :</label>
         <select id="levelSelect"></select>
         <button id="startCombatBtn" disabled>🚀 Lancer le combat</button>
@@ -173,9 +171,17 @@
     const levelSelect = document.getElementById("levelSelect");
     const startCombatBtn = document.getElementById("startCombatBtn");
 
-    const collection = JSON.parse(localStorage.getItem("collection") || "[]");
+    let collection = JSON.parse(localStorage.getItem("collection") || "[]");
+
+    // 🚀 Migration automatique si collection n’a pas de uid
+    if (collection.length && typeof collection[0] === "string") {
+      collection = collection.map(id => ({ uid: crypto.randomUUID(), id }));
+      localStorage.setItem("collection", JSON.stringify(collection));
+      console.log("Migration effectuée :", collection);
+    }
+
     let duckData = [];
-    let selectedIds = [];
+    let selectedUids = [];
     let selectionMode = false;
 
     fetch("canards.json")
@@ -200,7 +206,10 @@
       collectionContainer.innerHTML = "";
 
       let ducks = collection
-        .map(id => duckData.find(d => d.id === id))
+        .map(obj => {
+          const duck = duckData.find(d => d.id === obj.id);
+          return duck ? { ...duck, uid: obj.uid } : null;
+        })
         .filter(Boolean);
 
       const sortBy = sortSelect.value;
@@ -214,7 +223,7 @@
       ducks.forEach(duck => {
         const card = document.createElement("div");
         card.className = "card";
-        card.dataset.id = duck.id;
+        card.dataset.uid = duck.uid;
         card.innerHTML = `
           <img src="${duck.image}" alt="${duck.name}">
           <h3>${duck.name}</h3>
@@ -223,15 +232,14 @@
 
         if (selectionMode) {
           card.classList.add("selectable");
-          card.addEventListener("click", () => toggleSelect(duck.id, card));
+          card.addEventListener("click", () => toggleSelect(duck.uid, card));
         } else {
-          // ✅ ajout important : clic pour voir la fiche du zōion
           card.addEventListener("click", () => {
-            window.location.href = "zoion.html?id=" + duck.id;
+            window.location.href = "zoion.html?uid=" + duck.uid;
           });
         }
 
-        if (selectedIds.includes(duck.id)) {
+        if (selectedUids.includes(duck.uid)) {
           card.classList.add("selected");
         }
 
@@ -239,14 +247,14 @@
       });
     }
 
-    function toggleSelect(id, cardElement) {
-      const index = selectedIds.indexOf(id);
+    function toggleSelect(uid, cardElement) {
+      const index = selectedUids.indexOf(uid);
       if (index >= 0) {
-        selectedIds.splice(index, 1);
+        selectedUids.splice(index, 1);
         cardElement.classList.remove("selected");
       } else {
-        if (selectedIds.length >= 4) return;
-        selectedIds.push(id);
+        if (selectedUids.length >= 4) return;
+        selectedUids.push(uid);
         cardElement.classList.add("selected");
       }
       updateFightButtonState();
@@ -255,7 +263,7 @@
     }
 
     function updateFightButtonState() {
-      fightBtn.disabled = !selectionMode || selectedIds.length === 0;
+      fightBtn.disabled = !selectionMode || selectedUids.length === 0;
     }
 
     function showLevelSelect() {
@@ -267,7 +275,7 @@
         levelSelect.appendChild(option);
       }
       levelSelectSection.style.display = "block";
-      startCombatBtn.disabled = selectedIds.length === 0;
+      startCombatBtn.disabled = selectedUids.length === 0;
     }
 
     fightBtn.addEventListener("click", () => {
@@ -278,7 +286,7 @@
         updateFightButtonState();
         return;
       }
-      if (selectedIds.length === 0) {
+      if (selectedUids.length === 0) {
         alert("Sélectionne au moins un zōion !");
         return;
       }
@@ -292,8 +300,8 @@
 
     startCombatBtn.addEventListener("click", () => {
       const level = levelSelect.value;
-      if (!level || selectedIds.length === 0) return;
-      const url = `start-combat.html?ids=${selectedIds.join(",")}&level=${level}`;
+      if (!level || selectedUids.length === 0) return;
+      const url = `start-combat.html?uids=${selectedUids.join(",")}&level=${level}`;
       window.location.href = url;
     });
   </script>
