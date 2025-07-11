@@ -62,6 +62,14 @@
       max-width: 300px;      
     }      
 
+    .card img {
+      max-width: 100%;
+      height: auto;
+      max-height: 150px;
+      object-fit: contain;
+      margin-bottom: 1rem;
+    }
+
     .xp-bar-container {
       background: #ddd;
       border-radius: 10px;
@@ -225,6 +233,8 @@
             feedBtn.addEventListener("click", () => {
               const donorId = donorSelect.value;
               if (!donorId) return;
+
+              feedBtn.disabled = true; // désactiver pour éviter multi-clic
 
               const donorDuck = data.find(d => d.id === donorId);
               if (!donorDuck) return;
