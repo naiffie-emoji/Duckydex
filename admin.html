@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Zōion</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f0f8ff;
+      color: #333;
+      margin: 0;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      color: #4dabf7;
+    }
+    .hidden {
+      display: none;
+    }
+    .field {
+      margin: 1rem 0;
+    }
+    input, select, button {
+      font-size: 1rem;
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      cursor: pointer;
+      background: #4dabf7;
+      color: white;
+      border: none;
+    }
+    .links {
+      margin-top: 2rem;
+    }
+    .link-box {
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    input[type="text"].link {
+      flex: 1;
+      background: #e9f5ff;
+      border: 1px solid #4dabf7;
+    }
+  </style>
+</head>
+<body>
+  <h1>Admin Zōion</h1>
+
+  <div id="passwordSection">
+    <div class="field">
+      <label>Mot de passe :</label><br>
+      <input type="password" id="passwordInput">
+    </div>
+    <button onclick="checkPassword()">Valider</button>
+    <p id="errorMsg" style="color: red;"></p>
+  </div>
+
+  <div id="adminSection" class="hidden">
+    <div class="field">
+      <label>Action :</label><br>
+      <select id="actionSelect">
+        <option value="add">Ajouter</option>
+        <option value="remove">Retirer</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Nom du Zōion :</label><br>
+      <input type="text" id="nameInput" placeholder="Nom exact">
+    </div>
+    <button onclick="generateLinks()">Valider</button>
+
+    <div class="links hidden" id="linksSection">
+      <div class="link-box">
+        <input type="text" class="link" id="donorLink" readonly>
+        <button onclick="copyLink('donorLink')">📋 Copier</button>
+      </div>
+      <div class="link-box">
+        <input type="text" class="link" id="buyerLink" readonly>
+        <button onclick="copyLink('buyerLink')">📋 Copier</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const correctPassword = "ZOION000!";
+    let duckData = [];
+
+    fetch("canards.json")
+      .then(res => res.json())
+      .then(data => { duckData = data; })
+      .catch(err => { console.error("Erreur de chargement de canards.json", err); });
+
+    function checkPassword() {
+      const pwd = document.getElementById("passwordInput").value;
+      const errorMsg = document.getElementById("errorMsg");
+      if (pwd === correctPassword) {
+        document.getElementById("passwordSection").classList.add("hidden");
+        document.getElementById("adminSection").classList.remove("hidden");
+        errorMsg.textContent = "";
+      } else {
+        errorMsg.textContent = "Mot de passe incorrect !";
+      }
+    }
+
+    function generateLinks() {
+      const action = document.getElementById("actionSelect").value;
+      const name = document.getElementById("nameInput").value.trim();
+      const duck = duckData.find(d => d.name.toLowerCase() === name.toLowerCase());
+
+      if (!duck) {
+        alert("Zōion non trouvé !");
+        return;
+      }
+
+      const id = duck.id;
+      document.getElementById("donorLink").value = `https://naiffie-emoji.github.io/Duckydex/index.html?remove=${id}`;
+      document.getElementById("buyerLink").value = `https://naiffie-emoji.github.io/Duckydex/index.html?add=${id}`;
+      document.getElementById("linksSection").classList.remove("hidden");
+    }
+
+    function copyLink(inputId) {
+      const input = document.getElementById(inputId);
+      input.select();
+      input.setSelectionRange(0, 99999);
+      document.execCommand("copy");
+      alert("Lien copié !");
+    }
+  </script>
+</body>
+</html>
