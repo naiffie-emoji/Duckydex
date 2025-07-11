@@ -130,7 +130,7 @@
 
   <main>
     <h2>Obtiens un nouveau Zōion !</h2>
-    <button id="claimButton" disabled>Chargement...</button>
+    <button id="claimButton">Tirer un Zōion</button>
     <p id="timerText"></p>
 
     <section id="result"></section>
@@ -142,6 +142,83 @@
     }
   </script>
 
-  <script src="script.js"></script>
+  <script>
+    const claimButton = document.getElementById('claimButton');
+    const resultSection = document.getElementById('result');
+    const timerText = document.getElementById('timerText');
+    const COOLDOWN_SECONDS = 10; // temps d'attente après chaque tirage
+
+    // Génère un uuid simple (exemple)
+    function generateUUID() {
+      return 'xxxx-xxxx-4xxx-yxxx'.replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
+    function loadCollection() {
+      return JSON.parse(localStorage.getItem('collection') || '[]');
+    }
+
+    function saveCollection(collection) {
+      localStorage.setItem('collection', JSON.stringify(collection));
+    }
+
+    claimButton.addEventListener('click', () => {
+      claimButton.disabled = true;
+
+      fetch('canards.json')
+        .then(res => res.json())
+        .then(data => {
+          if (!data || data.length === 0) {
+            resultSection.innerHTML = '<p>Erreur : aucun Zōion disponible.</p>';
+            return;
+          }
+
+          // Tirer un Zōion au hasard
+          const randomZoion = data[Math.floor(Math.random() * data.length)];
+
+          // Créer un nouveau Zōion avec uuid
+          const newZoion = {
+            uid: generateUUID(),
+            id: randomZoion.id
+          };
+
+          // Ajouter à la collection
+          const collection = loadCollection();
+          collection.push(newZoion);
+          saveCollection(collection);
+
+          // Afficher le résultat
+          resultSection.innerHTML = `
+            <div class="card">
+              <img src="${randomZoion.image}" alt="${randomZoion.name}">
+              <h3>${randomZoion.name}</h3>
+              <span>Rareté : ${randomZoion.rarity}</span>
+            </div>
+          `;
+
+          // Démarrer le cooldown
+          let remaining = COOLDOWN_SECONDS;
+          timerText.textContent = `Patiente ${remaining} secondes avant le prochain tirage...`;
+          const interval = setInterval(() => {
+            remaining--;
+            if (remaining <= 0) {
+              clearInterval(interval);
+              timerText.textContent = '';
+              claimButton.disabled = false;
+            } else {
+              timerText.textContent = `Patiente ${remaining} secondes avant le prochain tirage...`;
+            }
+          }, 1000);
+        })
+        .catch(err => {
+          console.error(err);
+          resultSection.innerHTML = '<p>Erreur lors du tirage du Zōion.</p>';
+          claimButton.disabled = false;
+        });
+    });
+  </script>
 </body>
 </html>
