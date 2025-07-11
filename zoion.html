@@ -62,14 +62,6 @@
       max-width: 300px;      
     }      
 
-    .card img {
-      max-width: 100%;
-      height: auto;
-      max-height: 150px;
-      object-fit: contain;
-      margin-bottom: 1rem;
-    }
-
     .xp-bar-container {
       background: #ddd;
       border-radius: 10px;
@@ -197,7 +189,7 @@
             const xpPercent = Math.min(100, (xp / XP_MAX) * 100);
 
             card.innerHTML = `
-              <img src="${duck.image}" alt="${duck.name}">
+              <img src="${duck.image}" alt="${duck.name}" style="max-width: 150px; max-height: 150px; margin-bottom: 1rem;">
               <h2>${duck.name}</h2>
               <p>Rareté : ${duck.rarity}</p>
               <p>Niveau : ${lvl}</p>
@@ -253,8 +245,13 @@
                 alert(`${duck.name} a monté un niveau ! Niveau actuel : ${levels[id].level}`);
               }
 
-              // Sauvegarder
+              // Sauvegarder niveaux/XP
               saveLevels(levels);
+
+              // Supprimer le zoion donneur de la collection
+              const collection = JSON.parse(localStorage.getItem("collection") || "[]");
+              const newCollection = collection.filter(d => d !== donorId);
+              localStorage.setItem("collection", JSON.stringify(newCollection));
 
               // Mise à jour affichage
               updateDisplay();
