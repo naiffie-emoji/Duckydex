@@ -61,6 +61,21 @@
     background: #e9f5ff;
     border: 1px solid #4dabf7;
   }
+  /* Bouton flottant */
+  #listBtn {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    background: #38b000;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 20px;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    cursor: pointer;
+    z-index: 1000;
+  }
 </style>
 </head>
 <body>
@@ -120,6 +135,9 @@
   </div>
 </div>
 
+<!-- Bouton flottant -->
+<button id="listBtn" onclick="window.location.href='list.html'">📜 List</button>
+
 <script>
 const correctPassword = "ZOION000!";
 let duckData = [];
@@ -145,14 +163,11 @@ function generateGiveLink() {
   const action = document.getElementById("actionSelect").value;
   const name = document.getElementById("nameInputGive").value.trim();
   const duck = duckData.find(d => d.name.toLowerCase() === name.toLowerCase());
-
   if (!duck) {
     alert("Zōion non trouvé !");
     return;
   }
-
-  const id = duck.id;
-  const url = `https://naiffie-emoji.github.io/Duckydex/index.html?${action}=${id}`;
+  const url = `https://naiffie-emoji.github.io/Duckydex/index.html?${action}=${duck.id}`;
   document.getElementById("giveLink").value = url;
   document.getElementById("giveLinkSection").classList.remove("hidden");
 }
@@ -160,15 +175,12 @@ function generateGiveLink() {
 function generateTradeLinks() {
   const name = document.getElementById("nameInputTrade").value.trim();
   const duck = duckData.find(d => d.name.toLowerCase() === name.toLowerCase());
-
   if (!duck) {
     alert("Zōion non trouvé !");
     return;
   }
-
-  const id = duck.id;
-  document.getElementById("donorLink").value = `Donneur : https://naiffie-emoji.github.io/Duckydex/index.html?remove=${id}`;
-  document.getElementById("buyerLink").value = `Acheteur : https://naiffie-emoji.github.io/Duckydex/index.html?add=${id}`;
+  document.getElementById("donorLink").value = `Donneur : https://naiffie-emoji.github.io/Duckydex/index.html?remove=${duck.id}`;
+  document.getElementById("buyerLink").value = `Acheteur : https://naiffie-emoji.github.io/Duckydex/index.html?add=${duck.id}`;
   document.getElementById("tradeLinksSection").classList.remove("hidden");
 }
 
@@ -181,4 +193,4 @@ function copyLink(inputId) {
 }
 </script>
 </body>
-</html>
+  </html>
