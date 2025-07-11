@@ -1,230 +1,161 @@
-<!DOCTYPE html>      
-<html lang="fr">      
-<head>      
-  <meta charset="UTF-8" />      
-  <meta name="viewport" content="width=device-width, initial-scale=1" />      
-  <title>Zōion</title>      
-  <link rel="icon" type="image/png" href="filet-canard.png" />      
-  <style>      
-    body {      
-      margin: 0;      
-      font-family: sans-serif;      
-      background: #f0f8ff;      
-      color: #333;      
-    }      
-    header {      
-      background-color: #4dabf7;      
-      color: white;      
-      padding: 1rem;      
-      display: flex;      
-      justify-content: space-between;      
-      align-items: center;      
-    }      
-    .burger {      
-      display: none;      
-      flex-direction: column;      
-      gap: 4px;      
-      cursor: pointer;      
-    }      
-    .burger span {      
-      width: 25px;      
-      height: 3px;      
-      background: white;      
-    }      
-    nav {      
-      display: flex;      
-      gap: 1rem;      
-    }      
-    nav a {      
-      color: white;      
-      text-decoration: none;      
-      font-weight: bold;      
-    }      
-    main {      
-      padding: 2rem;      
-      display: flex;      
-      flex-direction: column;      
-      align-items: center;      
-    }      
-    .card {      
-      background: white;      
-      border-radius: 12px;      
-      padding: 2rem;      
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);      
-      text-align: center;      
-      max-width: 300px;      
-    }      
-    .xp-bar-container {
-      background: #ddd;
-      border-radius: 10px;
-      width: 100%;
-      height: 20px;
-      margin: 1rem 0;
-      overflow: hidden;
-    }
-    .xp-bar {
-      height: 100%;
-      background: #38d9a9;
-      width: 0%;
-      transition: width 0.5s ease;
-    }
-    select, button {
-      margin-top: 1rem;
-      padding: 0.5rem 1rem;
-      font-size: 1rem;
-    }
-    .back-btn {      
-      margin-top: 2rem;      
-      padding: 0.5rem 1rem;      
-      background-color: #4dabf7;      
-      color: white;      
-      border: none;      
-      border-radius: 8px;      
-      text-decoration: none;      
-      font-size: 1rem;      
-    }      
-    @media (max-width: 600px) {      
-      nav {      
-        display: none;      
-        flex-direction: column;      
-        background-color: #4dabf7;      
-        padding: 1rem;      
-      }      
-      nav.active {      
-        display: flex;      
-      }      
-      .burger {      
-        display: flex;      
-      }      
-    }      
-  </style>      
-</head>      
-<body>      
-  <header>      
-    <h1>Zōion</h1>      
-    <div class="burger" onclick="toggleMenu()">      
-      <span></span><span></span><span></span>      
-    </div>      
-    <nav id="menu">      
-      <a href="index.html">🎁 Obtenir un Zōion</a>      
-      <a href="collection.html">🎟 Ma collection</a>      
-    </nav>      
-  </header>      
-  <main>      
-    <div id="zoionCard" class="card">      
-      <p>Chargement...</p>      
-    </div>      
-    <a href="collection.html" class="back-btn">⬅ Retour</a>      
-  </main>      
-  <script>      
-    function toggleMenu() {      
-      document.getElementById("menu").classList.toggle("active");      
-    }      
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Zōion</title>
+<link rel="icon" type="image/png" href="filet-canard.png" />
+<style>
+  body { margin: 0; font-family: sans-serif; background: #f0f8ff; color: #333; }
+  header { background-color: #4dabf7; color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
+  .burger { display: none; flex-direction: column; gap: 4px; cursor: pointer; }
+  .burger span { width: 25px; height: 3px; background: white; }
+  nav { display: flex; gap: 1rem; }
+  nav a { color: white; text-decoration: none; font-weight: bold; }
+  main { padding: 2rem; display: flex; flex-direction: column; align-items: center; }
+  .card { background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 6px rgba(0,0,0,0.1); text-align: center; max-width: 300px; }
+  .xp-bar-container { background: #ddd; border-radius: 10px; width: 100%; height: 20px; margin: 1rem 0; overflow: hidden; }
+  .xp-bar { height: 100%; background: #38d9a9; width: 0%; transition: width 0.5s ease; }
+  select, button { margin-top: 1rem; padding: 0.5rem 1rem; font-size: 1rem; }
+  .back-btn { margin-top: 2rem; padding: 0.5rem 1rem; background-color: #4dabf7; color: white; border: none; border-radius: 8px; text-decoration: none; font-size: 1rem; }
+  @media (max-width: 600px) {
+    nav { display: none; flex-direction: column; background-color: #4dabf7; padding: 1rem; }
+    nav.active { display: flex; }
+    .burger { display: flex; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Zōion</h1>
+  <div class="burger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+  <nav id="menu">
+    <a href="index.html">🎁 Obtenir un Zōion</a>
+    <a href="collection.html">🎟 Ma collection</a>
+  </nav>
+</header>
+<main>
+  <div id="zoionCard" class="card">
+    <p>Chargement...</p>
+  </div>
+  <a href="collection.html" class="back-btn">⬅ Retour</a>
+</main>
+<script>
+function toggleMenu() {
+  document.getElementById("menu").classList.toggle("active");
+}
 
-    const params = new URLSearchParams(window.location.search);      
-    const id = params.get("id");      
-    const card = document.getElementById("zoionCard");      
-    const XP_MAX = 100;
+const params = new URLSearchParams(window.location.search);
+const uid = params.get("uid"); // identifiant unique du Zoion qu’on nourrit
+const card = document.getElementById("zoionCard");
+const XP_MAX = 100;
 
-    function loadLevels() {
-      return JSON.parse(localStorage.getItem("zoionLevels") || "{}");
-    }
-    function saveLevels(levels) {
-      localStorage.setItem("zoionLevels", JSON.stringify(levels));
-    }
-    function xpGain(rarity, donorLevel) {
-      const rarityValue = {"Commun": 10, "Rare": 20, "Épique": 40, "Légendaire": 80};
-      return (rarityValue[rarity] || 10) + donorLevel * 5;
-    }
+function loadLevels() {
+  return JSON.parse(localStorage.getItem("zoionLevels") || "{}");
+}
+function saveLevels(levels) {
+  localStorage.setItem("zoionLevels", JSON.stringify(levels));
+}
+function xpGain(rarity, donorLevel) {
+  const rarityValue = {"Commun": 10, "Rare": 20, "Épique": 40, "Légendaire": 80};
+  return (rarityValue[rarity] || 10) + donorLevel * 5;
+}
 
-    if (!id) {      
-      card.innerHTML = "<p>Erreur : aucun identifiant fourni.</p>";      
-    } else {      
-      fetch("canards.json")      
-        .then(res => res.json())      
-        .then(data => {      
-          const duck = data.find(d => d.id === id);      
-          if (!duck) {
-            card.innerHTML = "<p>Zōion introuvable.</p>";
-            return;
-          }
-          let levels = loadLevels();
-          if (!levels[id]) {
-            levels[id] = { level: 1, xp: 0 };
-            saveLevels(levels);
-          }
+if (!uid) {
+  card.innerHTML = "<p>Erreur : aucun identifiant fourni.</p>";
+} else {
+  fetch("canards.json")
+    .then(res => res.json())
+    .then(data => {
+      let collection = JSON.parse(localStorage.getItem("collection") || "[]");
+      const currentZoion = collection.find(z => z.uid === uid);
+      if (!currentZoion) {
+        card.innerHTML = "<p>Zōion introuvable dans votre collection.</p>";
+        return;
+      }
+      const duck = data.find(d => d.id === currentZoion.id);
+      if (!duck) {
+        card.innerHTML = "<p>Données du Zōion introuvables.</p>";
+        return;
+      }
 
-          function updateDisplay() {
-            const lvl = levels[id].level;
-            const xp = levels[id].xp;
-            const xpPercent = Math.min(100, (xp / XP_MAX) * 100);
-            card.innerHTML = `
-              <img src="${duck.image}" alt="${duck.name}" style="max-width: 150px; max-height: 150px; margin-bottom: 1rem;">
-              <h2>${duck.name}</h2>
-              <p>Rareté : ${duck.rarity}</p>
-              <p>Niveau : ${lvl}</p>
-              <div class="xp-bar-container" title="XP: ${xp} / ${XP_MAX}">
-                <div class="xp-bar" style="width: ${xpPercent}%;"></div>
-              </div>
-              <label for="donorSelect">Nourrir avec un autre Zōion :</label><br>
-              <select id="donorSelect">
-                <option value="">-- Choisir un Zoion --</option>
-              </select><br>
-              <button id="feedBtn" disabled>Nourrir</button>
-            `;
-            const donorSelect = document.getElementById("donorSelect");
-            const feedBtn = document.getElementById("feedBtn");
+      let levels = loadLevels();
+      if (!levels[uid]) {
+        levels[uid] = { level: 1, xp: 0 };
+        saveLevels(levels);
+      }
 
-            const collection = JSON.parse(localStorage.getItem("collection") || "[]");
-            const donors = collection.filter(did => did !== id);
-            donors.forEach(did => {
-              const donorDuck = data.find(d => d.id === did);
-              if (donorDuck) {
-                const donorLevel = (levels[did]?.level) || 1;
-                donorSelect.innerHTML += `<option value="${did}">${donorDuck.name} (Lvl ${donorLevel})</option>`;
-              }
-            });
+      function updateDisplay() {
+        const lvl = levels[uid].level;
+        const xp = levels[uid].xp;
+        const xpPercent = Math.min(100, (xp / XP_MAX) * 100);
 
-            donorSelect.addEventListener("change", () => {
-              feedBtn.disabled = donorSelect.value === "";
-            });
+        card.innerHTML = `
+          <img src="${duck.image}" alt="${duck.name}" style="max-width: 150px; margin-bottom: 1rem;">
+          <h2>${duck.name}</h2>
+          <p>Rareté : ${duck.rarity}</p>
+          <p>Niveau : ${lvl}</p>
+          <div class="xp-bar-container" title="XP: ${xp} / ${XP_MAX}">
+            <div class="xp-bar" style="width: ${xpPercent}%;"></div>
+          </div>
+          <label for="donorSelect">Nourrir avec un autre ${duck.name} :</label><br>
+          <select id="donorSelect">
+            <option value="">-- Choisir un exemplaire --</option>
+          </select><br>
+          <button id="feedBtn" disabled>Nourrir</button>
+        `;
 
-            feedBtn.addEventListener("click", () => {
-              const donorId = donorSelect.value;
-              if (!donorId) return;
-              const donorDuck = data.find(d => d.id === donorId);
-              if (!donorDuck) return;
-              const donorLevel = (levels[donorId]?.level) || 1;
-              const gainedXP = xpGain(donorDuck.rarity, donorLevel);
+        const donorSelect = document.getElementById("donorSelect");
+        const feedBtn = document.getElementById("feedBtn");
 
-              // Ajoute l'XP et gère le level up
-              levels[id].xp += gainedXP;
-              while (levels[id].xp >= XP_MAX) {
-                levels[id].xp -= XP_MAX;
-                levels[id].level++;
-                alert(`${duck.name} a monté un niveau ! Niveau actuel : ${levels[id].level}`);
-              }
-              saveLevels(levels);
-
-              // Retirer le donneur de la collection et sauvegarder
-              let newCollection = collection.filter(d => d !== donorId);
-              localStorage.setItem("collection", JSON.stringify(newCollection));
-
-              // Retirer aussi les niveaux du donneur si tu veux :
-              delete levels[donorId];
-              saveLevels(levels);
-
-              // Mettre à jour l'affichage
-              updateDisplay();
-            });
-          }
-          updateDisplay();
-        })      
-        .catch(err => {
-          console.error(err);
-          card.innerHTML = "<p>Erreur lors du chargement des données.</p>";
+        // Lister autres exemplaires du même type (même id) MAIS pas celui qu’on nourrit
+        const donors = collection.filter(z => z.id === currentZoion.id && z.uid !== uid);
+        donors.forEach(donor => {
+          const donorLevel = levels[donor.uid]?.level || 1;
+          donorSelect.innerHTML += `<option value="${donor.uid}">${duck.name} (Lvl ${donorLevel})</option>`;
         });
-    }
-  </script>      
-</body>      
+
+        donorSelect.addEventListener("change", () => {
+          feedBtn.disabled = donorSelect.value === "";
+        });
+
+        feedBtn.addEventListener("click", () => {
+          const donorUid = donorSelect.value;
+          if (!donorUid) return;
+
+          const donorLevel = levels[donorUid]?.level || 1;
+          const gainedXP = xpGain(duck.rarity, donorLevel);
+
+          // Ajouter XP et gérer level up
+          levels[uid].xp += gainedXP;
+          while (levels[uid].xp >= XP_MAX) {
+            levels[uid].xp -= XP_MAX;
+            levels[uid].level++;
+            alert(`${duck.name} a monté un niveau ! Niveau actuel : ${levels[uid].level}`);
+          }
+
+          // Supprimer donneur de la collection
+          collection = collection.filter(z => z.uid !== donorUid);
+
+          // Supprimer aussi son niveau
+          delete levels[donorUid];
+
+          // Sauvegarder
+          saveLevels(levels);
+          localStorage.setItem("collection", JSON.stringify(collection));
+
+          updateDisplay();
+        });
+      }
+      updateDisplay();
+    })
+    .catch(err => {
+      console.error(err);
+      card.innerHTML = "<p>Erreur lors du chargement des données.</p>";
+    });
+}
+</script>
+</body>
 </html>
