@@ -3,84 +3,151 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mon Zōion</title>
+  <title>Zōion</title>
+  <link rel="icon" type="image/png" href="filet-canard.png" />
   <style>
-    body { font-family: sans-serif; text-align: center; background: #f0f8ff; padding: 2rem; }
-    .card { background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 6px rgba(0,0,0,0.1); display: inline-block; }
-    .upgrade-btn { margin-top: 1rem; padding: 0.5rem 1rem; background: #38d9a9; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #f0f8ff;
+      color: #333;
+    }
+
+    header {
+      background-color: #4dabf7;
+      color: white;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .burger {
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .burger span {
+      width: 25px;
+      height: 3px;
+      background: white;
+    }
+
+    nav {
+      display: flex;
+      gap: 1rem;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    main {
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 300px;
+    }
+
+    .card img {
+      width: 150px;
+      height: 150px;
+      object-fit: contain;
+      margin-bottom: 1rem;
+    }
+
+    .back-btn {
+      margin-top: 2rem;
+      padding: 0.5rem 1rem;
+      background-color: #4dabf7;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 1rem;
+    }
+
+    @media (max-width: 600px) {
+      nav {
+        display: none;
+        flex-direction: column;
+        background-color: #4dabf7;
+        padding: 1rem;
+      }
+
+      nav.active {
+        display: flex;
+      }
+
+      .burger {
+        display: flex;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="card" id="zoionCard">
-    <img id="zoionImage" src="" alt="" width="150" />
-    <h2 id="zoionName"></h2>
-    <p id="zoionRarity"></p>
-    <p id="zoionLevel"></p>
-    <button class="upgrade-btn" onclick="startUpgrade()">🍽️ Upgrade</button>
-  </div>
+  <header>
+    <h1>Zōion</h1>
+    <div class="burger" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </div>
+    <nav id="menu">
+      <a href="index.html">🎁 Obtenir un Zōion</a>
+      <a href="collection.html">🎟 Ma collection</a>
+    </nav>
+  </header>
+
+  <main>
+    <div id="zoionCard" class="card">
+      <p>Chargement...</p>
+    </div>
+    <a href="collection.html" class="back-btn">⬅ Retour</a>
+  </main>
 
   <script>
+    function toggleMenu() {
+      document.getElementById("menu").classList.toggle("active");
+    }
+
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
 
-    let duckData = [];
-    let collection = JSON.parse(localStorage.getItem("collection") || "[]");
-    let zoionLevel = JSON.parse(localStorage.getItem("levels") || "{}")[id] || 1;
+    const card = document.getElementById("zoionCard");
 
-    fetch("canards.json")
-      .then(res => res.json())
-      .then(data => {
-        duckData = data;
-        const zoion = duckData.find(d => d.id === id);
-        if (!zoion) {
-          document.body.innerHTML = "<p>Zōion introuvable 😢</p>";
-          return;
-        }
-
-        document.getElementById("zoionImage").src = zoion.image;
-        document.getElementById("zoionName").textContent = zoion.name;
-        document.getElementById("zoionRarity").textContent = "Rareté : " + zoion.rarity;
-        document.getElementById("zoionLevel").textContent = "Niveau : " + zoionLevel;
-      });
-
-    function startUpgrade() {
-      const otherIds = collection.filter(cid => cid !== id);
-      if (otherIds.length === 0) {
-        alert("Pas d'autres zōion pour nourrir celui-ci !");
-        return;
-      }
-
-      // Pour simplifier : demander de sélectionner UN zōion à sacrifier
-      const sacrificedId = prompt("Entre l'ID d'un zōion de ta collection à sacrifier :\n" + otherIds.join(", "));
-      if (!sacrificedId || !otherIds.includes(sacrificedId)) {
-        alert("ID invalide.");
-        return;
-      }
-
-      const sacrificed = duckData.find(d => d.id === sacrificedId);
-      let xpGain = 1;
-      switch (sacrificed.rarity) {
-        case "Légendaire": xpGain = 5; break;
-        case "Épique": xpGain = 4; break;
-        case "Rare": xpGain = 3; break;
-        case "Commun": xpGain = 2; break;
-      }
-
-      zoionLevel += xpGain;
-
-      // Enregistrer le nouveau niveau
-      let levels = JSON.parse(localStorage.getItem("levels") || "{}");
-      levels[id] = zoionLevel;
-      localStorage.setItem("levels", JSON.stringify(levels));
-
-      // Supprimer le zōion sacrifié
-      collection = collection.filter(cid => cid !== sacrificedId);
-      localStorage.setItem("collection", JSON.stringify(collection));
-
-      alert(`Ton zōion a gagné +${xpGain} niveaux !`);
-
-      // Mettre à jour l'affichage
-      document.getElementById("zoionLevel").textContent = "Niveau : " + zoionLevel;
+    if (!id) {
+      card.innerHTML = "<p>Erreur : aucun identifiant fourni.</p>";
+    } else {
+      fetch("canards.json")
+        .then(res => res.json())
+        .then(data => {
+          const duck = data.find(d => d.id === id);
+          if (!duck) {
+            card.innerHTML = "<p>Zōion introuvable.</p>";
+          } else {
+            card.innerHTML = `
+              <img src="${duck.image}" alt="${duck.name}">
+              <h2>${duck.name}</h2>
+              <p>Rareté : ${duck.rarity}</p>
+            `;
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          card.innerHTML = "<p>Erreur lors du chargement des données.</p>";
+        });
     }
   </script>
 </body>
