@@ -12,7 +12,6 @@
       background: #f0f8ff;
       color: #333;
     }
-
     header {
       background-color: #4dabf7;
       color: white;
@@ -21,36 +20,30 @@
       justify-content: space-between;
       align-items: center;
     }
-
     .burger {
       display: none;
       flex-direction: column;
       gap: 4px;
       cursor: pointer;
     }
-
     .burger span {
       width: 25px;
       height: 3px;
       background: white;
     }
-
     nav {
       display: flex;
       gap: 1rem;
     }
-
     nav a {
       color: white;
       text-decoration: none;
       font-weight: bold;
     }
-
     main {
       padding: 2rem;
       padding-bottom: 6rem;
     }
-
     .toolbar {
       margin-bottom: 1rem;
       display: flex;
@@ -58,18 +51,15 @@
       align-items: center;
       gap: 1rem;
     }
-
     select {
       padding: 5px 10px;
       font-size: 1rem;
     }
-
     .collection {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 1rem;
     }
-
     .card {
       background: white;
       border-radius: 12px;
@@ -79,28 +69,24 @@
       user-select: none;
       border: 2px solid transparent;
       transition: border-color 0.3s, background-color 0.3s;
+      cursor: pointer;
     }
-
     .card img {
       width: 100px;
       height: 100px;
       object-fit: contain;
     }
-
     .card.selectable {
       cursor: pointer;
     }
-
     .card.selected {
       border-color: #38d9a9;
       background-color: #e0f7f1;
     }
-
     #fightSection {
       margin-top: 2rem;
       text-align: center;
     }
-
     #fightBtn {
       position: fixed;
       bottom: 1.5rem;
@@ -116,17 +102,14 @@
       z-index: 1000;
       transition: background-color 0.3s;
     }
-
     #fightBtn:disabled {
       background: #faa;
       cursor: not-allowed;
     }
-
     #levelSelectSection {
       display: none;
       margin-top: 2rem;
     }
-
     @media (max-width: 600px) {
       nav {
         display: none;
@@ -134,11 +117,9 @@
         background-color: #4dabf7;
         padding: 1rem;
       }
-
       nav.active {
         display: flex;
       }
-
       .burger {
         display: flex;
       }
@@ -201,7 +182,6 @@
       .then(res => res.json())
       .then(data => {
         duckData = data;
-
         if (collection.length === 0) {
           collectionContainer.innerHTML = "<p>Aucun canard pour le moment !</p>";
           fightBtn.disabled = true;
@@ -224,7 +204,6 @@
         .filter(Boolean);
 
       const sortBy = sortSelect.value;
-
       if (sortBy === "name") {
         ducks.sort((a, b) => a.name.localeCompare(b.name));
       } else if (sortBy === "rarity") {
@@ -245,6 +224,11 @@
         if (selectionMode) {
           card.classList.add("selectable");
           card.addEventListener("click", () => toggleSelect(duck.id, card));
+        } else {
+          // ✅ ajout important : clic pour voir la fiche du zōion
+          card.addEventListener("click", () => {
+            window.location.href = "zoion.html?id=" + duck.id;
+          });
         }
 
         if (selectedIds.includes(duck.id)) {
@@ -294,12 +278,10 @@
         updateFightButtonState();
         return;
       }
-
       if (selectedIds.length === 0) {
         alert("Sélectionne au moins un zōion !");
         return;
       }
-
       showLevelSelect();
       fightBtn.disabled = true;
     });
@@ -311,7 +293,6 @@
     startCombatBtn.addEventListener("click", () => {
       const level = levelSelect.value;
       if (!level || selectedIds.length === 0) return;
-
       const url = `start-combat.html?ids=${selectedIds.join(",")}&level=${level}`;
       window.location.href = url;
     });
