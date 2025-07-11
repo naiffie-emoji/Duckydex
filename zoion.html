@@ -12,7 +12,6 @@
       background: #f0f8ff;      
       color: #333;      
     }      
-      
     header {      
       background-color: #4dabf7;      
       color: white;      
@@ -21,38 +20,32 @@
       justify-content: space-between;      
       align-items: center;      
     }      
-      
     .burger {      
       display: none;      
       flex-direction: column;      
       gap: 4px;      
       cursor: pointer;      
     }      
-      
     .burger span {      
       width: 25px;      
       height: 3px;      
       background: white;      
     }      
-      
     nav {      
       display: flex;      
       gap: 1rem;      
     }      
-      
     nav a {      
       color: white;      
       text-decoration: none;      
       font-weight: bold;      
     }      
-      
     main {      
       padding: 2rem;      
       display: flex;      
       flex-direction: column;      
       align-items: center;      
     }      
-      
     .card {      
       background: white;      
       border-radius: 12px;      
@@ -61,7 +54,6 @@
       text-align: center;      
       max-width: 300px;      
     }      
-
     .xp-bar-container {
       background: #ddd;
       border-radius: 10px;
@@ -76,13 +68,11 @@
       width: 0%;
       transition: width 0.5s ease;
     }
-
     select, button {
       margin-top: 1rem;
       padding: 0.5rem 1rem;
       font-size: 1rem;
     }
-
     .back-btn {      
       margin-top: 2rem;      
       padding: 0.5rem 1rem;      
@@ -93,7 +83,6 @@
       text-decoration: none;      
       font-size: 1rem;      
     }      
-      
     @media (max-width: 600px) {      
       nav {      
         display: none;      
@@ -101,11 +90,9 @@
         background-color: #4dabf7;      
         padding: 1rem;      
       }      
-      
       nav.active {      
         display: flex;      
       }      
-      
       .burger {      
         display: flex;      
       }      
@@ -123,14 +110,12 @@
       <a href="collection.html">🎟 Ma collection</a>      
     </nav>      
   </header>      
-      
   <main>      
     <div id="zoionCard" class="card">      
       <p>Chargement...</p>      
     </div>      
     <a href="collection.html" class="back-btn">⬅ Retour</a>      
   </main>      
-
   <script>      
     function toggleMenu() {      
       document.getElementById("menu").classList.toggle("active");      
@@ -139,28 +124,16 @@
     const params = new URLSearchParams(window.location.search);      
     const id = params.get("id");      
     const card = document.getElementById("zoionCard");      
-
     const XP_MAX = 100;
 
-    // Fonction pour charger les niveaux/XP depuis localStorage (objet { id: {level, xp} })
     function loadLevels() {
       return JSON.parse(localStorage.getItem("zoionLevels") || "{}");
     }
-
-    // Fonction pour sauver niveaux/XP
     function saveLevels(levels) {
       localStorage.setItem("zoionLevels", JSON.stringify(levels));
     }
-
-    // Calcul de l'XP gagnée en nourrissant, selon rareté et niveau du zoion donné
     function xpGain(rarity, donorLevel) {
-      // Pondération par rareté (valeurs arbitraires)
-      const rarityValue = {
-        "Commun": 10,
-        "Rare": 20,
-        "Épique": 40,
-        "Légendaire": 80
-      };
+      const rarityValue = {"Commun": 10, "Rare": 20, "Épique": 40, "Légendaire": 80};
       return (rarityValue[rarity] || 10) + donorLevel * 5;
     }
 
@@ -171,12 +144,10 @@
         .then(res => res.json())      
         .then(data => {      
           const duck = data.find(d => d.id === id);      
-          if (!duck) {      
-            card.innerHTML = "<p>Zōion introuvable.</p>";      
+          if (!duck) {
+            card.innerHTML = "<p>Zōion introuvable.</p>";
             return;
           }
-
-          // Charge niveaux/XP
           let levels = loadLevels();
           if (!levels[id]) {
             levels[id] = { level: 1, xp: 0 };
@@ -187,7 +158,6 @@
             const lvl = levels[id].level;
             const xp = levels[id].xp;
             const xpPercent = Math.min(100, (xp / XP_MAX) * 100);
-
             card.innerHTML = `
               <img src="${duck.image}" alt="${duck.name}" style="max-width: 150px; max-height: 150px; margin-bottom: 1rem;">
               <h2>${duck.name}</h2>
@@ -202,17 +172,14 @@
               </select><br>
               <button id="feedBtn" disabled>Nourrir</button>
             `;
-            // Remplir le select avec la collection sauf le zoion affiché
             const donorSelect = document.getElementById("donorSelect");
             const feedBtn = document.getElementById("feedBtn");
 
             const collection = JSON.parse(localStorage.getItem("collection") || "[]");
             const donors = collection.filter(did => did !== id);
-
             donors.forEach(did => {
               const donorDuck = data.find(d => d.id === did);
               if (donorDuck) {
-                // Récupérer niveau du donneur
                 const donorLevel = (levels[did]?.level) || 1;
                 donorSelect.innerHTML += `<option value="${did}">${donorDuck.name} (Lvl ${donorLevel})</option>`;
               }
@@ -225,47 +192,39 @@
             feedBtn.addEventListener("click", () => {
               const donorId = donorSelect.value;
               if (!donorId) return;
-
-              feedBtn.disabled = true; // désactiver pour éviter multi-clic
-
               const donorDuck = data.find(d => d.id === donorId);
               if (!donorDuck) return;
-
               const donorLevel = (levels[donorId]?.level) || 1;
-              // Calcul XP gagnée
               const gainedXP = xpGain(donorDuck.rarity, donorLevel);
 
-              // Mise à jour XP du zoion courant
+              // Ajoute l'XP et gère le level up
               levels[id].xp += gainedXP;
-
-              // Gestion niveau up
               while (levels[id].xp >= XP_MAX) {
                 levels[id].xp -= XP_MAX;
                 levels[id].level++;
                 alert(`${duck.name} a monté un niveau ! Niveau actuel : ${levels[id].level}`);
               }
-
-              // Sauvegarder niveaux/XP
               saveLevels(levels);
 
-              // Supprimer le zoion donneur de la collection
-              const collection = JSON.parse(localStorage.getItem("collection") || "[]");
-              const newCollection = collection.filter(d => d !== donorId);
+              // Retirer le donneur de la collection et sauvegarder
+              let newCollection = collection.filter(d => d !== donorId);
               localStorage.setItem("collection", JSON.stringify(newCollection));
 
-              // Mise à jour affichage
+              // Retirer aussi les niveaux du donneur si tu veux :
+              delete levels[donorId];
+              saveLevels(levels);
+
+              // Mettre à jour l'affichage
               updateDisplay();
             });
           }
-
           updateDisplay();
-
         })      
-        .catch(err => {      
-          console.error(err);      
-          card.innerHTML = "<p>Erreur lors du chargement des données.</p>";      
-        });      
-    }      
+        .catch(err => {
+          console.error(err);
+          card.innerHTML = "<p>Erreur lors du chargement des données.</p>";
+        });
+    }
   </script>      
 </body>      
 </html>
