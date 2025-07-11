@@ -48,7 +48,7 @@ function toggleMenu() {
 }
 
 const params = new URLSearchParams(window.location.search);
-const uid = params.get("uid"); // identifiant unique du Zoion qu’on nourrit
+const uid = params.get("uid");
 const card = document.getElementById("zoionCard");
 const XP_MAX = 100;
 
@@ -100,9 +100,9 @@ if (!uid) {
           <div class="xp-bar-container" title="XP: ${xp} / ${XP_MAX}">
             <div class="xp-bar" style="width: ${xpPercent}%;"></div>
           </div>
-          <label for="donorSelect">Nourrir avec un autre ${duck.name} :</label><br>
+          <label for="donorSelect">Nourrir avec un autre Zōion :</label><br>
           <select id="donorSelect">
-            <option value="">-- Choisir un exemplaire --</option>
+            <option value="">-- Choisir un Zōion --</option>
           </select><br>
           <button id="feedBtn" disabled>Nourrir</button>
         `;
@@ -110,11 +110,14 @@ if (!uid) {
         const donorSelect = document.getElementById("donorSelect");
         const feedBtn = document.getElementById("feedBtn");
 
-        // Lister autres exemplaires du même type (même id) MAIS pas celui qu’on nourrit
-        const donors = collection.filter(z => z.id === currentZoion.id && z.uid !== uid);
+        // Tous les autres Zōion sauf celui qu’on nourrit
+        const donors = collection.filter(z => z.uid !== uid);
         donors.forEach(donor => {
+          const donorDuck = data.find(d => d.id === donor.id);
           const donorLevel = levels[donor.uid]?.level || 1;
-          donorSelect.innerHTML += `<option value="${donor.uid}">${duck.name} (Lvl ${donorLevel})</option>`;
+          const donorName = donorDuck ? donorDuck.name : "Inconnu";
+          const donorRarity = donorDuck ? donorDuck.rarity : "Commun";
+          donorSelect.innerHTML += `<option value="${donor.uid}">${donorName} (Rareté: ${donorRarity}, Lvl ${donorLevel})</option>`;
         });
 
         donorSelect.addEventListener("change", () => {
@@ -125,8 +128,10 @@ if (!uid) {
           const donorUid = donorSelect.value;
           if (!donorUid) return;
 
+          const donor = collection.find(z => z.uid === donorUid);
+          const donorDuck = data.find(d => d.id === donor.id);
           const donorLevel = levels[donorUid]?.level || 1;
-          const gainedXP = xpGain(duck.rarity, donorLevel);
+          const gainedXP = xpGain(donorDuck.rarity, donorLevel);
 
           // Ajouter XP et gérer level up
           levels[uid].xp += gainedXP;
@@ -136,13 +141,10 @@ if (!uid) {
             alert(`${duck.name} a monté un niveau ! Niveau actuel : ${levels[uid].level}`);
           }
 
-          // Supprimer donneur de la collection
+          // Retirer le donneur
           collection = collection.filter(z => z.uid !== donorUid);
-
-          // Supprimer aussi son niveau
           delete levels[donorUid];
 
-          // Sauvegarder
           saveLevels(levels);
           localStorage.setItem("collection", JSON.stringify(collection));
 
