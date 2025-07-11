@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Liste des Zōion</title>
+<style>
+  body {
+    font-family: sans-serif;
+    background: #f0f8ff;
+    color: #333;
+    margin: 0;
+    padding: 1rem;
+  }
+  h1 {
+    text-align: center;
+    color: #4dabf7;
+    margin-bottom: 1rem;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+  }
+  .card {
+    background: white;
+    border-radius: 8px;
+    text-align: center;
+    padding: 0.5rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  .card img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+  }
+  .card h3 {
+    margin: 0.5rem 0 0.2rem;
+    font-size: 1rem;
+  }
+  .card p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #666;
+  }
+</style>
+</head>
+<body>
+<h1>Liste des Zōion</h1>
+<div class="grid" id="listContainer">Chargement...</div>
+
+<script>
+fetch("canards.json")
+  .then(res => res.json())
+  .then(data => {
+    const container = document.getElementById("listContainer");
+    container.innerHTML = "";
+    data.forEach(duck => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <img src="${duck.image}" alt="${duck.name}">
+        <h3>${duck.name}</h3>
+        <p>${duck.rarity}</p>
+      `;
+      container.appendChild(card);
+    });
+  })
+  .catch(err => {
+    console.error(err);
+    document.getElementById("listContainer").textContent = "Erreur de chargement.";
+  });
+</script>
+</body>
+</html>
