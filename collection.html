@@ -122,10 +122,6 @@
       cursor: not-allowed;
     }
 
-    #qrcode {
-      margin-top: 1rem;
-    }
-
     #levelSelectSection {
       display: none;
       margin-top: 2rem;
@@ -174,8 +170,6 @@
     <div class="collection" id="collection"></div>
 
     <div id="fightSection">
-      <div id="qrcode"></div>
-
       <div id="levelSelectSection">
         <label for="levelSelect">Choisir un niveau :</label>
         <select id="levelSelect"></select>
@@ -248,13 +242,11 @@
           <p>${duck.rarity}</p>
         `;
 
-        // Cliquable seulement si le mode sélection est actif
         if (selectionMode) {
           card.classList.add("selectable");
           card.addEventListener("click", () => toggleSelect(duck.id, card));
         }
 
-        // Marquer si sélectionné
         if (selectedIds.includes(duck.id)) {
           card.classList.add("selected");
         }
