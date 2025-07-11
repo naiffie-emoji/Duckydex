@@ -134,7 +134,25 @@
     {
     "id": "duck023",
     "name": "Platydrip",
-    "rarity": "Commun",
+    "rarity": "Rare",
     "image": "assets/duck023.png"
-    }
+    },
+    {
+    "id": "duck024",
+    "name": "Florelyn",
+    "rarity": "Rare",
+    "image": "assets/duck024.png"
+    }, 
+      {
+    "id": "duck024",
+    "name": "Floracorne",
+    "rarity": "Épique",
+    "image": "assets/duck024.png"
+      },
+      {
+    "id": "duck026",
+    "name": "Féralyss",
+    "rarity": "Légendaire",
+    "image": "assets/duck026.png"
+      }
 ]
