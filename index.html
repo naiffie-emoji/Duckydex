@@ -132,7 +132,6 @@
     <h2>Obtiens un nouveau Zōion !</h2>
     <button id="claimButton">Tirer un Zōion</button>
     <p id="timerText"></p>
-
     <section id="result"></section>
   </main>
 
@@ -140,13 +139,11 @@
     function toggleMenu() {
       document.querySelector('.menu').classList.toggle('open');
     }
-  </script>
 
-  <script>
     const claimButton = document.getElementById('claimButton');
     const resultSection = document.getElementById('result');
     const timerText = document.getElementById('timerText');
-    const COOLDOWN_SECONDS = 2 * 60 * 60; // 2 heures = 7200 secondes
+    const COOLDOWN_SECONDS = 2 * 60 * 60; // 2 heures
 
     function generateUUID() {
       return 'xxxx-xxxx-4xxx-yxxx'.replace(/[xy]/g, c => {
@@ -207,6 +204,36 @@
       timerText.textContent = `Patiente ${h}h ${m}min ${s}s avant le prochain tirage...`;
     }
 
+    function tirageAvecRareté(data) {
+      // On définit ici les probabilités cumulées
+      const probabilités = [
+        { rarity: 'Légendaire', chance: 2 },
+        { rarity: 'Épique', chance: 8 },
+        { rarity: 'Rare', chance: 20 },
+        { rarity: 'Commun', chance: 70 }
+      ];
+
+      const rand = Math.random() * 100;
+      let cumul = 0;
+      let tirageRarity = 'Commun';
+
+      for (const p of probabilités) {
+        cumul += p.chance;
+        if (rand <= cumul) {
+          tirageRarity = p.rarity;
+          break;
+        }
+      }
+
+      // On filtre les Zōions qui ont cette rareté
+      const candidats = data.filter(z => z.rarity === tirageRarity);
+      if (candidats.length === 0) {
+        // Si aucun Zōion de cette rareté, on prend au hasard dans tous
+        return data[Math.floor(Math.random() * data.length)];
+      }
+      return candidats[Math.floor(Math.random() * candidats.length)];
+    }
+
     claimButton.addEventListener('click', () => {
       claimButton.disabled = true;
 
@@ -218,7 +245,7 @@
             return;
           }
 
-          const randomZoion = data[Math.floor(Math.random() * data.length)];
+          const randomZoion = tirageAvecRareté(data);
 
           const newZoion = {
             uid: generateUUID(),
@@ -228,7 +255,6 @@
           const collection = loadCollection();
           collection.push(newZoion);
           saveCollection(collection);
-
           setLastClaimTime(Date.now());
 
           resultSection.innerHTML = `
@@ -238,7 +264,6 @@
               <span>Rareté : ${randomZoion.rarity}</span>
             </div>
           `;
-
           updateCooldown();
         })
         .catch(err => {
@@ -248,7 +273,7 @@
         });
     });
 
-    updateCooldown(); // Vérifie le cooldown dès le chargement
+    updateCooldown();
   </script>
 </body>
 </html>
