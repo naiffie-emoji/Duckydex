@@ -155,9 +155,14 @@ if (!uid) {
 
       copyBtn.addEventListener("click", () => {
         const levelInfo = levels[uid];
-        const json = JSON.stringify({ uid: uid, level: levelInfo.level });
-        navigator.clipboard.writeText(json)
-          .then(() => alert("Infos copiés !"))
+        const baseUrl = window.location.origin + window.location.pathname;
+        const addUrl = `${baseUrl}?add=${uid}&level=${levelInfo.level}`;
+        const removeUrl = `${baseUrl}?remove=${uid}`;
+
+        const textToCopy = `Ajouter : ${addUrl}\nRetirer : ${removeUrl}`;
+        
+        navigator.clipboard.writeText(textToCopy)
+          .then(() => alert("URLs copiées dans le presse-papier !"))
           .catch(() => alert("Erreur lors de la copie."));
       });
 
