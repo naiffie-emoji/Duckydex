@@ -40,6 +40,7 @@
   <div id="zoionCard" class="card">
     <p>Chargement...</p>
   </div>
+  <button id="copyUidBtn" style="margin-top: 1rem; display: none;">📋 Copier l'UID et le niveau</button>
   <a href="collection.html" class="back-btn">⬅ Retour</a>
 </main>
 <script>
@@ -50,6 +51,7 @@ function toggleMenu() {
 const params = new URLSearchParams(window.location.search);
 const uid = params.get("uid");
 const card = document.getElementById("zoionCard");
+const copyBtn = document.getElementById("copyUidBtn");
 const XP_MAX = 100;
 
 function loadLevels() {
@@ -87,6 +89,8 @@ if (!uid) {
         saveLevels(levels);
       }
 
+      copyBtn.style.display = "inline-block"; // Affiche le bouton
+
       function updateDisplay() {
         const lvl = levels[uid].level;
         const xp = levels[uid].xp;
@@ -110,7 +114,6 @@ if (!uid) {
         const donorSelect = document.getElementById("donorSelect");
         const feedBtn = document.getElementById("feedBtn");
 
-        // Tous les autres Zōion sauf celui qu’on nourrit
         const donors = collection.filter(z => z.uid !== uid);
         donors.forEach(donor => {
           const donorDuck = data.find(d => d.id === donor.id);
@@ -133,7 +136,6 @@ if (!uid) {
           const donorLevel = levels[donorUid]?.level || 1;
           const gainedXP = xpGain(donorDuck.rarity, donorLevel);
 
-          // Ajouter XP et gérer level up
           levels[uid].xp += gainedXP;
           while (levels[uid].xp >= XP_MAX) {
             levels[uid].xp -= XP_MAX;
@@ -141,7 +143,6 @@ if (!uid) {
             alert(`${duck.name} a monté un niveau ! Niveau actuel : ${levels[uid].level}`);
           }
 
-          // Retirer le donneur
           collection = collection.filter(z => z.uid !== donorUid);
           delete levels[donorUid];
 
@@ -151,6 +152,15 @@ if (!uid) {
           updateDisplay();
         });
       }
+
+      copyBtn.addEventListener("click", () => {
+        const levelInfo = levels[uid];
+        const json = JSON.stringify({ uid: uid, level: levelInfo.level });
+        navigator.clipboard.writeText(json)
+          .then(() => alert("UID et niveau copiés !"))
+          .catch(() => alert("Erreur lors de la copie."));
+      });
+
       updateDisplay();
     })
     .catch(err => {
