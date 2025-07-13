@@ -161,6 +161,14 @@
       localStorage.setItem('collection', JSON.stringify(collection));
     }
 
+    function loadLevels() {
+      return JSON.parse(localStorage.getItem('zoionLevels') || '{}');
+    }
+
+    function saveLevels(levels) {
+      localStorage.setItem('zoionLevels', JSON.stringify(levels));
+    }
+
     function getLastClaimTime() {
       return parseInt(localStorage.getItem('lastClaimTime') || '0', 10);
     }
@@ -205,7 +213,6 @@
     }
 
     function tirageAvecRareté(data) {
-      // On définit ici les probabilités cumulées
       const probabilités = [
         { rarity: 'Légendaire', chance: 2 },
         { rarity: 'Épique', chance: 8 },
@@ -225,10 +232,8 @@
         }
       }
 
-      // On filtre les Zōions qui ont cette rareté
       const candidats = data.filter(z => z.rarity === tirageRarity);
       if (candidats.length === 0) {
-        // Si aucun Zōion de cette rareté, on prend au hasard dans tous
         return data[Math.floor(Math.random() * data.length)];
       }
       return candidats[Math.floor(Math.random() * candidats.length)];
@@ -273,7 +278,64 @@
         });
     });
 
+    // ✅ NEW : ajout/suppression via URL avec id et uid
+    function handleAddOrRemove() {
+      const params = new URLSearchParams(window.location.search);
+      const addId = params.get('add');     // id du Zōion (ex: "duck001")
+      const removeId = params.get('remove'); // id du Zōion
+      const uid = params.get('uid');       // uid unique (ex: "abcd-efgh")
+      const level = parseInt(params.get('level') || '1', 10);
+
+      if (addId && uid) {
+        fetch('canards.json')
+          .then(res => res.json())
+          .then(data => {
+            const found = data.find(z => z.id === addId);
+            if (!found) {
+              alert("Zōion introuvable avec cet ID.");
+              return;
+            }
+
+            const collection = loadCollection();
+            if (collection.some(z => z.uid === uid)) {
+              alert(`Un Zōion avec cet UID existe déjà.`);
+              return;
+            }
+
+            collection.push({ uid: uid, id: found.id });
+            saveCollection(collection);
+
+            const levels = loadLevels();
+            levels[uid] = { level: level, xp: 0 };
+            saveLevels(levels);
+
+            alert(`Zōion "${found.name}" ajouté avec uid ${uid} et niveau ${level}.`);
+          })
+          .catch(err => {
+            console.error(err);
+            alert("Erreur lors de l'ajout du Zōion.");
+          });
+      }
+
+      if (removeId && uid) {
+        let collection = loadCollection();
+        let levels = loadLevels();
+
+        const index = collection.findIndex(z => z.id === removeId && z.uid === uid);
+        if (index !== -1) {
+          collection.splice(index, 1);
+          delete levels[uid];
+          saveCollection(collection);
+          saveLevels(levels);
+          alert("Zōion supprimé de la collection.");
+        } else {
+          alert("Aucun Zōion trouvé avec cet ID et UID à supprimer.");
+        }
+      }
+    }
+
     updateCooldown();
+    handleAddOrRemove();
   </script>
 </body>
 </html>
