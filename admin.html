@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="fr">
+<!DOCTYPE html><html lang="fr">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -12,14 +11,8 @@
     margin: 0;
     padding: 2rem;
   }
-  h1 {
-    text-align: center;
-    color: #4dabf7;
-  }
-  h2 {
-    color: #38b000;
-    margin-top: 2rem;
-  }
+  h1 { text-align: center; color: #4dabf7; }
+  h2 { color: #38b000; margin-top: 2rem; }
   .hidden { display: none; }
   .section {
     margin-bottom: 2rem;
@@ -28,15 +21,14 @@
     padding: 1rem;
     background: white;
   }
-  .field {
-    margin: 1rem 0;
-  }
-  input, select, button {
+  .field { margin: 1rem 0; }
+  input, textarea, select, button {
     font-size: 1rem;
     padding: 0.5rem;
     border-radius: 6px;
     border: 1px solid #ccc;
   }
+  textarea { width: 100%; height: 100px; }
   button {
     cursor: pointer;
     background: #4dabf7;
@@ -44,12 +36,8 @@
     border: none;
     transition: background 0.3s;
   }
-  button:hover {
-    background: #339af0;
-  }
-  .links {
-    margin-top: 1rem;
-  }
+  button:hover { background: #339af0; }
+  .links { margin-top: 1rem; }
   .link-box {
     display: flex;
     align-items: center;
@@ -61,7 +49,6 @@
     background: #e9f5ff;
     border: 1px solid #4dabf7;
   }
-  /* Bouton flottant */
   #listBtn {
     position: fixed;
     bottom: 1.5rem;
@@ -79,21 +66,22 @@
 </style>
 </head>
 <body>
-<h1>Admin Zōion</h1>
-
-<div id="passwordSection">
+<h1>Admin Zōion</h1><div id="passwordSection">
   <div class="field">
     <label>Mot de passe :</label><br>
     <input type="password" id="passwordInput">
   </div>
   <button onclick="checkPassword()">Valider</button>
   <p id="errorMsg" style="color: red;"></p>
-</div>
-
-<div id="adminSection" class="hidden">
-  <!-- Partie GIVE -->
+</div><div id="adminSection" class="hidden">
   <div class="section">
-    <h2>🎁 GIVE</h2>
+    <h2>⚙️ JSON Zōion</h2>
+    <div class="field">
+      <label>Colle ici le JSON obtenu :</label><br>
+      <textarea id="jsonInput" placeholder='{"uid": "...", "id": "...", ...}'></textarea>
+    </div>
+  </div>  <div class="section">
+    <h2>🎁 GIVE ou REMOVE</h2>
     <div class="field">
       <label>Action :</label><br>
       <select id="actionSelect">
@@ -101,27 +89,16 @@
         <option value="remove">Retirer</option>
       </select>
     </div>
-    <div class="field">
-      <label>Nom du Zōion :</label><br>
-      <input type="text" id="nameInputGive" placeholder="Nom exact">
-    </div>
-    <button onclick="generateGiveLink()">Valider</button>
-    <div class="links hidden" id="giveLinkSection">
+    <button onclick="generateSingleLink()">Générer le lien</button>
+    <div class="links hidden" id="singleLinkSection">
       <div class="link-box">
-        <input type="text" class="link" id="giveLink" readonly>
-        <button onclick="copyLink('giveLink')">📋 Copier</button>
+        <input type="text" class="link" id="singleLink" readonly>
+        <button onclick="copyLink('singleLink')">📋 Copier</button>
       </div>
     </div>
-  </div>
-
-  <!-- Partie TRADE -->
-  <div class="section">
+  </div>  <div class="section">
     <h2>🔄 TRADE</h2>
-    <div class="field">
-      <label>Nom du Zōion :</label><br>
-      <input type="text" id="nameInputTrade" placeholder="Nom exact">
-    </div>
-    <button onclick="generateTradeLinks()">Valider</button>
+    <button onclick="generateTradeLinks()">Générer les liens d'échange</button>
     <div class="links hidden" id="tradeLinksSection">
       <div class="link-box">
         <input type="text" class="link" id="donorLink" readonly>
@@ -133,19 +110,10 @@
       </div>
     </div>
   </div>
-</div>
-
-<!-- Bouton flottant -->
-<button id="listBtn" onclick="window.location.href='list.html'">📜 List</button>
+</div><button id="listBtn" onclick="window.location.href='list.html'">📜 List</button>
 
 <script>
 const correctPassword = "ZOION000!";
-let duckData = [];
-
-fetch("canards.json")
-  .then(res => res.json())
-  .then(data => { duckData = data; })
-  .catch(err => { console.error("Erreur de chargement de canards.json", err); });
 
 function checkPassword() {
   const pwd = document.getElementById("passwordInput").value;
@@ -159,28 +127,38 @@ function checkPassword() {
   }
 }
 
-function generateGiveLink() {
+function parseJsonInput() {
+  try {
+    const text = document.getElementById("jsonInput").value;
+    return JSON.parse(text);
+  } catch (e) {
+    alert("JSON invalide !");
+    throw e;
+  }
+}
+
+function generateSingleLink() {
+  const duck = parseJsonInput();
   const action = document.getElementById("actionSelect").value;
-  const name = document.getElementById("nameInputGive").value.trim();
-  const duck = duckData.find(d => d.name.toLowerCase() === name.toLowerCase());
-  if (!duck) {
-    alert("Zōion non trouvé !");
+  if (!duck.id || !duck.uid || !duck.level) {
+    alert("Le JSON doit contenir id, uid et level !");
     return;
   }
-  const url = `https://naiffie-emoji.github.io/Duckydex/index.html?${action}=${duck.id}`;
-  document.getElementById("giveLink").value = url;
-  document.getElementById("giveLinkSection").classList.remove("hidden");
+  const url = `https://naiffie-emoji.github.io/Duckydex/index.html?${action}=${duck.id}&uid=${duck.uid}&level=${duck.level}`;
+  document.getElementById("singleLink").value = url;
+  document.getElementById("singleLinkSection").classList.remove("hidden");
 }
 
 function generateTradeLinks() {
-  const name = document.getElementById("nameInputTrade").value.trim();
-  const duck = duckData.find(d => d.name.toLowerCase() === name.toLowerCase());
-  if (!duck) {
-    alert("Zōion non trouvé !");
+  const duck = parseJsonInput();
+  if (!duck.id || !duck.uid || !duck.level) {
+    alert("Le JSON doit contenir id, uid et level !");
     return;
   }
-  document.getElementById("donorLink").value = `Donneur : https://naiffie-emoji.github.io/Duckydex/index.html?remove=${duck.id}`;
-  document.getElementById("buyerLink").value = `Acheteur : https://naiffie-emoji.github.io/Duckydex/index.html?add=${duck.id}`;
+  const donor = `https://naiffie-emoji.github.io/Duckydex/index.html?remove=${duck.id}&uid=${duck.uid}`;
+  const buyer = `https://naiffie-emoji.github.io/Duckydex/index.html?add=${duck.id}&uid=${duck.uid}&level=${duck.level}`;
+  document.getElementById("donorLink").value = `Donneur : ${donor}`;
+  document.getElementById("buyerLink").value = `Acheteur : ${buyer}`;
   document.getElementById("tradeLinksSection").classList.remove("hidden");
 }
 
@@ -191,6 +169,5 @@ function copyLink(inputId) {
   document.execCommand("copy");
   alert("Lien copié !");
 }
-</script>
-</body>
-  </html>
+</script></body>
+</html>
