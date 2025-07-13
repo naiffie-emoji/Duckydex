@@ -42,7 +42,6 @@
     }
     main {
       padding: 2rem;
-      padding-bottom: 6rem;
     }
     .toolbar {
       margin-bottom: 1rem;
@@ -68,16 +67,8 @@
       text-align: center;
       user-select: none;
       border: 2px solid transparent;
+      cursor: pointer;
       transition: border-color 0.3s, background-color 0.3s;
-      cursor: pointer;
-    }
-    .card img {
-      width: 100px;
-      height: 100px;
-      object-fit: contain;
-    }
-    .card.selectable {
-      cursor: pointer;
     }
     .card.selected {
       border-color: #38d9a9;
@@ -93,7 +84,7 @@
       border: none;
       border-radius: 30px;
       font-size: 1.2rem;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
       cursor: pointer;
       z-index: 1000;
       transition: background-color 0.3s;
@@ -103,18 +94,9 @@
       cursor: not-allowed;
     }
     @media (max-width: 600px) {
-      nav {
-        display: none;
-        flex-direction: column;
-        background-color: #4dabf7;
-        padding: 1rem;
-      }
-      nav.active {
-        display: flex;
-      }
-      .burger {
-        display: flex;
-      }
+      nav { display: none; flex-direction: column; background-color: #4dabf7; padding: 1rem; }
+      nav.active { display: flex; }
+      .burger { display: flex; }
     }
   </style>
 </head>
@@ -150,54 +132,43 @@
     }
 
     const collectionContainer = document.getElementById("collection");
-    const sortSelect = document.getElementById("sortSelect");
     const fightBtn = document.getElementById("fightBtn");
-
-    let collection = JSON.parse(localStorage.getItem("collection") || "[]");
-
-    if (collection.length && typeof collection[0] === "string") {
-      collection = collection.map(id => ({ uid: crypto.randomUUID(), id }));
-      localStorage.setItem("collection", JSON.stringify(collection));
-    }
+    const sortSelect = document.getElementById("sortSelect");
 
     let duckData = [];
-    let selectedUids = [];
-    let selectionMode = false;
+    let selectedUids = []; // on stocke les uid sélectionnés
+    let collection = JSON.parse(localStorage.getItem("collection") || "[]");
+    // Exemple collection: [{ uid: "xyz", id: "duck001", level: 12 }, ...]
 
     fetch("canards.json")
       .then(res => res.json())
       .then(data => {
         duckData = data;
         if (collection.length === 0) {
-          collectionContainer.innerHTML = "<p>Aucun zoion pour le moment !</p>";
-          fightBtn.disabled = true;
+          collectionContainer.innerHTML = "<p>Aucun zōion pour le moment !</p>";
         } else {
           renderCollection();
-          fightBtn.disabled = false;
         }
       })
       .catch(err => {
-        collectionContainer.innerHTML = "<p>Erreur de chargement 😢</p>";
         console.error(err);
-        fightBtn.disabled = true;
+        collectionContainer.innerHTML = "<p>Erreur de chargement 😢</p>";
       });
 
     function renderCollection() {
       collectionContainer.innerHTML = "";
 
-      let ducks = collection
-        .map(obj => {
-          const duck = duckData.find(d => d.id === obj.id);
-          return duck ? { ...duck, uid: obj.uid } : null;
-        })
-        .filter(Boolean);
+      let ducks = collection.map(obj => {
+        const duck = duckData.find(d => d.id === obj.id);
+        return duck ? { ...duck, uid: obj.uid, level: obj.level } : null;
+      }).filter(Boolean);
 
       const sortBy = sortSelect.value;
       if (sortBy === "name") {
         ducks.sort((a, b) => a.name.localeCompare(b.name));
       } else if (sortBy === "rarity") {
-        const rarityOrder = { "Légendaire": 1, "Épique": 2, "Rare": 3, "Commun": 4 };
-        ducks.sort((a, b) => rarityOrder[a.rarity] - rarityOrder[b.rarity]);
+        const rarityOrder = {"Légendaire":1, "Épique":2, "Rare":3, "Commun":4};
+        ducks.sort((a,b) => rarityOrder[a.rarity]-rarityOrder[b.rarity]);
       }
 
       ducks.forEach(duck => {
@@ -208,16 +179,10 @@
           <img src="${duck.image}" alt="${duck.name}">
           <h3>${duck.name}</h3>
           <p>${duck.rarity}</p>
+          <small>Niveau ${duck.level}</small>
         `;
 
-        if (selectionMode) {
-          card.classList.add("selectable");
-          card.addEventListener("click", () => toggleSelect(duck.uid, card));
-        } else {
-          card.addEventListener("click", () => {
-            window.location.href = "zoion.html?uid=" + duck.uid;
-          });
-        }
+        card.addEventListener("click", () => toggleSelect(duck.uid, card));
 
         if (selectedUids.includes(duck.uid)) {
           card.classList.add("selected");
@@ -225,39 +190,36 @@
 
         collectionContainer.appendChild(card);
       });
+      updateFightButtonState();
     }
 
-    function toggleSelect(uid, cardElement) {
+    function toggleSelect(uid, card) {
       const index = selectedUids.indexOf(uid);
       if (index >= 0) {
-        selectedUids.splice(index, 1);
-        cardElement.classList.remove("selected");
+        selectedUids.splice(index,1);
+        card.classList.remove("selected");
       } else {
         if (selectedUids.length >= 6) return;
         selectedUids.push(uid);
-        cardElement.classList.add("selected");
+        card.classList.add("selected");
       }
       updateFightButtonState();
     }
 
     function updateFightButtonState() {
-      fightBtn.disabled = !selectionMode || selectedUids.length === 0;
+      fightBtn.disabled = selectedUids.length === 0;
     }
 
     fightBtn.addEventListener("click", () => {
-      if (!selectionMode) {
-        selectionMode = true;
-        fightBtn.textContent = "✅ Lancer le combat";
-        renderCollection();
-        updateFightButtonState();
-        return;
-      }
-      if (selectedUids.length === 0) {
-        alert("Sélectionne au moins un zōion !");
-        return;
-      }
-      // Redirection vers combat.html sur ton VPS
-      const url = `http://54.37.50.18/combat.html?uids=${selectedUids.join(",")}`;
+      if (selectedUids.length === 0) return;
+
+      // Récupérer les id et niveaux
+      const selected = collection.filter(obj => selectedUids.includes(obj.uid));
+      const ids = selected.map(z => z.id).join(",");
+      const levels = selected.map(z => z.level).join(",");
+
+      // Rediriger vers combat.html sur le VPS
+      const url = `http://54.37.50.18/combat.html?ids=${ids}&levels=${levels}`;
       window.location.href = url;
     });
   </script>
