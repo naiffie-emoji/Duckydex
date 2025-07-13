@@ -155,14 +155,19 @@ if (!uid) {
 
       copyBtn.addEventListener("click", () => {
         const levelInfo = levels[uid];
-        const baseUrl = window.location.origin + window.location.pathname;
-        const addUrl = `${baseUrl}?add=${uid}&level=${levelInfo.level}`;
-        const removeUrl = `${baseUrl}?remove=${uid}`;
+        const jsonData = {
+          uid: uid,
+          id: currentZoion.id,
+          name: duck.name,
+          rarity: duck.rarity,
+          level: levelInfo.level,
+          xp: levelInfo.xp,
+          image: duck.image
+        };
 
-        const textToCopy = `Ajouter : ${addUrl}\nRetirer : ${removeUrl}`;
-        
-        navigator.clipboard.writeText(textToCopy)
-          .then(() => alert("URLs copiées dans le presse-papier !"))
+        const jsonString = JSON.stringify(jsonData, null, 2);
+        navigator.clipboard.writeText(jsonString)
+          .then(() => alert("Informations JSON copiées dans le presse-papier !"))
           .catch(() => alert("Erreur lors de la copie."));
       });
 
