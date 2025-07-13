@@ -40,7 +40,7 @@
   <div id="zoionCard" class="card">
     <p>Chargement...</p>
   </div>
-  <button id="copyUidBtn" style="margin-top: 1rem; display: none;">📋 Copier l'UID et le niveau</button>
+  <button id="copyUidBtn" style="margin-top: 1rem; display: none;">📋 Copier les informations</button>
   <a href="collection.html" class="back-btn">⬅ Retour</a>
 </main>
 <script>
@@ -157,7 +157,7 @@ if (!uid) {
         const levelInfo = levels[uid];
         const json = JSON.stringify({ uid: uid, level: levelInfo.level });
         navigator.clipboard.writeText(json)
-          .then(() => alert("UID et niveau copiés !"))
+          .then(() => alert("Infos copiés !"))
           .catch(() => alert("Erreur lors de la copie."));
       });
 
