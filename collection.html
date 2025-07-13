@@ -155,8 +155,9 @@
 
     let collection = JSON.parse(localStorage.getItem("collection") || "[]");
 
+    // Si collection contient juste des strings (ids) → on crée des uids
     if (collection.length && typeof collection[0] === "string") {
-      collection = collection.map(id => ({ uid: crypto.randomUUID(), id }));
+      collection = collection.map(id => ({ uid: crypto.randomUUID(), id, level: 1 }));
       localStorage.setItem("collection", JSON.stringify(collection));
     }
 
@@ -188,7 +189,7 @@
       let ducks = collection
         .map(obj => {
           const duck = duckData.find(d => d.id === obj.id);
-          return duck ? { ...duck, uid: obj.uid } : null;
+          return duck ? { ...duck, uid: obj.uid, level: obj.level || 1 } : null;
         })
         .filter(Boolean);
 
@@ -208,6 +209,7 @@
           <img src="${duck.image}" alt="${duck.name}">
           <h3>${duck.name}</h3>
           <p>${duck.rarity}</p>
+          <small>Niveau: ${duck.level}</small>
         `;
 
         if (selectionMode) {
@@ -247,7 +249,7 @@
     fightBtn.addEventListener("click", () => {
       if (!selectionMode) {
         selectionMode = true;
-        fightBtn.textContent = "✅ Lancer le combat";
+        fightBtn.textContent = "✅ Lancer";
         renderCollection();
         updateFightButtonState();
         return;
@@ -256,8 +258,14 @@
         alert("Sélectionne au moins un zōion !");
         return;
       }
-      // Redirection vers combat.html sur ton VPS
-      const url = `http://54.37.50.18/combat.html?uids=${selectedUids.join(",")}`;
+
+      // récupérer les ids (pas uids) et niveaux pour les envoyer au VPS
+      const selected = collection.filter(obj => selectedUids.includes(obj.uid));
+      const ids = selected.map(z => z.id);
+      const levels = selected.map(z => z.level || 1);
+
+      // Redirection vers le VPS avec ids et levels
+      const url = `http://54.37.50.18/combat.html?ids=${ids.join(",")}&levels=${levels.join(",")}`;
       window.location.href = url;
     });
   </script>
