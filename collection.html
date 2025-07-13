@@ -83,10 +83,6 @@
       border-color: #38d9a9;
       background-color: #e0f7f1;
     }
-    #fightSection {
-      margin-top: 2rem;
-      text-align: center;
-    }
     #fightBtn {
       position: fixed;
       bottom: 1.5rem;
@@ -106,10 +102,6 @@
       background: #faa;
       cursor: not-allowed;
     }
-    #levelSelectSection {
-      display: none;
-      margin-top: 2rem;
-    }
     @media (max-width: 600px) {
       nav {
         display: none;
@@ -123,7 +115,7 @@
       .burger {
         display: flex;
       }
-      }
+    }
   </style>
 </head>
 <body>
@@ -148,13 +140,6 @@
       </select>
     </div>
     <div class="collection" id="collection"></div>
-    <div id="fightSection">
-      <div id="levelSelectSection" style="display:none;">
-        <label for="levelSelect">Choisir un niveau :</label>
-        <select id="levelSelect"></select>
-        <button id="startCombatBtn" disabled>🚀 Lancer le combat</button>
-      </div>
-    </div>
   </main>
 
   <button id="fightBtn" disabled>⚔️ Combattre</button>
@@ -167,17 +152,12 @@
     const collectionContainer = document.getElementById("collection");
     const sortSelect = document.getElementById("sortSelect");
     const fightBtn = document.getElementById("fightBtn");
-    const levelSelectSection = document.getElementById("levelSelectSection");
-    const levelSelect = document.getElementById("levelSelect");
-    const startCombatBtn = document.getElementById("startCombatBtn");
 
     let collection = JSON.parse(localStorage.getItem("collection") || "[]");
 
-    // 🚀 Migration automatique si collection n’a pas de uid
     if (collection.length && typeof collection[0] === "string") {
       collection = collection.map(id => ({ uid: crypto.randomUUID(), id }));
       localStorage.setItem("collection", JSON.stringify(collection));
-      console.log("Migration effectuée :", collection);
     }
 
     let duckData = [];
@@ -253,35 +233,21 @@
         selectedUids.splice(index, 1);
         cardElement.classList.remove("selected");
       } else {
-        if (selectedUids.length >= 4) return;
+        if (selectedUids.length >= 6) return;
         selectedUids.push(uid);
         cardElement.classList.add("selected");
       }
       updateFightButtonState();
-      levelSelectSection.style.display = "none";
-      startCombatBtn.disabled = true;
     }
 
     function updateFightButtonState() {
       fightBtn.disabled = !selectionMode || selectedUids.length === 0;
     }
 
-    function showLevelSelect() {
-      levelSelect.innerHTML = "";
-      for (let i = 1; i <= 30; i++) {
-        const option = document.createElement("option");
-        option.value = i;
-        option.textContent = "Niveau " + i;
-        levelSelect.appendChild(option);
-      }
-      levelSelectSection.style.display = "block";
-      startCombatBtn.disabled = selectedUids.length === 0;
-    }
-
     fightBtn.addEventListener("click", () => {
       if (!selectionMode) {
         selectionMode = true;
-        fightBtn.textContent = "✅ Choisir un niveau";
+        fightBtn.textContent = "✅ Lancer le combat";
         renderCollection();
         updateFightButtonState();
         return;
@@ -290,18 +256,8 @@
         alert("Sélectionne au moins un zōion !");
         return;
       }
-      showLevelSelect();
-      fightBtn.disabled = true;
-    });
-
-    levelSelect.addEventListener("change", () => {
-      startCombatBtn.disabled = false;
-    });
-
-    startCombatBtn.addEventListener("click", () => {
-      const level = levelSelect.value;
-      if (!level || selectedUids.length === 0) return;
-      const url = `start-combat.html?uids=${selectedUids.join(",")}&level=${level}`;
+      // Redirection vers combat.html sur ton VPS
+      const url = `http://54.37.50.18/combat.html?uids=${selectedUids.join(",")}`;
       window.location.href = url;
     });
   </script>
