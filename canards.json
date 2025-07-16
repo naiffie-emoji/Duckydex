@@ -154,5 +154,41 @@
     "name": "Féralyss",
     "rarity": "Légendaire",
     "image": "assets/duck026.png"
+      },
+        {
+    "id": "duck027",
+    "name": "Kurimba",
+    "rarity": "Commun",
+    "image": "assets/duck027.png"
+    },
+        {
+    "id": "duck028",
+    "name": "flosimba",
+    "rarity": "Rare",
+    "image": "assets/duck028.png"
+      },
+      {
+    "id": "duck029",
+    "name": "Rukayor",
+    "rarity": "Épique",
+    "image": "assets/duck029.png"
+      },
+      {
+    "id": "duck030",
+    "name": "Tesmaul",
+    "rarity": "Rare",
+    "image": "assets/duck03p.png"
+      },
+      {
+    "id": "duck026",
+    "name": "acus",
+    "rarity": "Commun",
+    "image": "assets/duck026.png"
+      },
+      {
+    "id": "duck026",
+    "name": "Féralyss",
+    "rarity": "Légendaire",
+    "image": "assets/duck026.png"
       }
 ]
