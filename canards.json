@@ -177,18 +177,18 @@
     "id": "duck030",
     "name": "Tesmaul",
     "rarity": "Rare",
-    "image": "assets/duck03p.png"
+    "image": "assets/duck030.png"
       },
       {
-    "id": "duck026",
-    "name": "acus",
+    "id": "duck031",
+    "name": "leplanta ",
     "rarity": "Commun",
-    "image": "assets/duck026.png"
+    "image": "assets/duck031.png"
       },
       {
-    "id": "duck026",
-    "name": "Féralyss",
-    "rarity": "Légendaire",
-    "image": "assets/duck026.png"
+    "id": "duck032",
+    "name": "Acus",
+    "rarity": "Rare",
+    "image": "assets/duck032.png"
       }
 ]
