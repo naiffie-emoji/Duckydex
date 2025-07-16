@@ -190,5 +190,17 @@
     "name": "Acus",
     "rarity": "Rare",
     "image": "assets/duck032.png"
-      }
+      },
+        {
+    "id": "duck033",
+    "name": "Lacrimantia",
+    "rarity": "Épique",
+    "image": "assets/duck033.png"
+      },
+        {
+    "id": "duck034",
+    "name": "Muvoro",
+    "rarity": "Commun",
+    "image": "assets/duck034.png"
+        }
 ]
