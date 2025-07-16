@@ -85,7 +85,7 @@
     },
     {
     "id": "duck015",
-    "name": "Canatak",
+    "name": "Sphaciesa",
     "rarity": "Commun",
     "image": "assets/duck015.png"
     },
@@ -163,7 +163,7 @@
     },
         {
     "id": "duck028",
-    "name": "flosimba",
+    "name": "Flosimba",
     "rarity": "Rare",
     "image": "assets/duck028.png"
       },
@@ -181,7 +181,7 @@
       },
       {
     "id": "duck031",
-    "name": "leplanta ",
+    "name": "Leplanta ",
     "rarity": "Commun",
     "image": "assets/duck031.png"
       },
