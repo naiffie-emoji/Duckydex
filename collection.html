@@ -116,71 +116,6 @@
         display: flex;
       }
     }
-    #tradeBtn {
-      position: fixed;
-      bottom: 1.5rem;
-      left: 1.5rem;
-      padding: 12px 24px;
-      background: #38d9a9;
-      color: white;
-      border: none;
-      border-radius: 30px;
-      font-size: 1.2rem;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-      cursor: pointer;
-      z-index: 1000;
-      transition: background-color 0.3s;
-    }
-    #tradeBtn:disabled {
-      background: #a6e6d9;
-      cursor: not-allowed;
-    }
-
-    /* Popup pour le lien d’échange */
-    #tradePopup {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 1.5rem 2rem;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      z-index: 1500;
-      max-width: 90%;
-      width: 400px;
-      text-align: center;
-    }
-    #tradePopup p {
-      word-break: break-all;
-      margin-bottom: 1rem;
-      font-family: monospace;
-      font-size: 0.9rem;
-    }
-    #tradePopup button {
-      margin: 0 0.5rem;
-      padding: 8px 16px;
-      font-size: 1rem;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-    #tradePopup button#copyLinkBtn {
-      background-color: #4dabf7;
-      color: white;
-    }
-    #tradePopup button#copyLinkBtn:hover {
-      background-color: #357abd;
-    }
-    #tradePopup button#closePopupBtn {
-      background-color: #fa5252;
-      color: white;
-    }
-    #tradePopup button#closePopupBtn:hover {
-      background-color: #c94343;
-    }
   </style>
 </head>
 <body>
@@ -207,16 +142,7 @@
     <div class="collection" id="collection"></div>
   </main>
 
-  <button id="tradeBtn" disabled>🔄 Échanger</button>
   <button id="fightBtn" disabled>⚔️ Combattre</button>
-
-  <!-- Popup échange -->
-  <div id="tradePopup" role="dialog" aria-modal="true" aria-labelledby="tradePopupTitle">
-    <h2 id="tradePopupTitle">Lien d’échange</h2>
-    <p id="tradeLink"></p>
-    <button id="copyLinkBtn">Copier</button>
-    <button id="closePopupBtn">Fermer</button>
-  </div>
 
   <script>
     function toggleMenu() {
@@ -226,7 +152,6 @@
     const collectionContainer = document.getElementById("collection");
     const sortSelect = document.getElementById("sortSelect");
     const fightBtn = document.getElementById("fightBtn");
-    const tradeBtn = document.getElementById("tradeBtn");
 
     let collection = JSON.parse(localStorage.getItem("collection") || "[]");
 
@@ -239,7 +164,6 @@
     let duckData = [];
     let selectedUids = [];
     let selectionMode = false;
-    let mode = null; // "fight" ou "trade"
 
     fetch("canards.json")
       .then(res => res.json())
@@ -248,18 +172,15 @@
         if (collection.length === 0) {
           collectionContainer.innerHTML = "<p>Aucun zoion pour le moment !</p>";
           fightBtn.disabled = true;
-          tradeBtn.disabled = true;
         } else {
           renderCollection();
           fightBtn.disabled = false;
-          tradeBtn.disabled = false;
         }
       })
       .catch(err => {
         collectionContainer.innerHTML = "<p>Erreur de chargement 😢</p>";
         console.error(err);
         fightBtn.disabled = true;
-        tradeBtn.disabled = true;
       });
 
     function renderCollection() {
@@ -309,62 +230,28 @@
     }
 
     function toggleSelect(uid, cardElement) {
-      if (mode === "trade") {
-        // En mode échange, ne sélectionner qu’un seul Zōion à la fois
-        if (selectedUids.includes(uid)) {
-          selectedUids = [];
-          cardElement.classList.remove("selected");
-        } else {
-          if (selectedUids.length === 1) {
-            // désélectionne la précédente
-            const prevUid = selectedUids[0];
-            const prevCard = document.querySelector(`.card.selected[data-uid="${prevUid}"]`);
-            if (prevCard) prevCard.classList.remove("selected");
-            selectedUids = [uid];
-            cardElement.classList.add("selected");
-          } else {
-            selectedUids.push(uid);
-            cardElement.classList.add("selected");
-          }
-        }
+      const index = selectedUids.indexOf(uid);
+      if (index >= 0) {
+        selectedUids.splice(index, 1);
+        cardElement.classList.remove("selected");
       } else {
-        // En mode fight, sélection multiple max 6
-        const index = selectedUids.indexOf(uid);
-        if (index >= 0) {
-          selectedUids.splice(index, 1);
-          cardElement.classList.remove("selected");
-        } else {
-          if (selectedUids.length >= 6) return;
-          selectedUids.push(uid);
-          cardElement.classList.add("selected");
-        }
+        if (selectedUids.length >= 6) return;
+        selectedUids.push(uid);
+        cardElement.classList.add("selected");
       }
-      updateButtonsState();
+      updateFightButtonState();
     }
 
-    function updateButtonsState() {
-      if (mode === "trade") {
-        tradeBtn.disabled = selectedUids.length !== 1;
-        fightBtn.disabled = true;
-      } else if (mode === "fight") {
-        fightBtn.disabled = selectedUids.length === 0;
-        tradeBtn.disabled = true;
-      } else {
-        fightBtn.disabled = collection.length === 0;
-        tradeBtn.disabled = collection.length === 0;
-      }
+    function updateFightButtonState() {
+      fightBtn.disabled = !selectionMode || selectedUids.length === 0;
     }
 
-    // --- GESTION BOUTON COMBATTRE ---
     fightBtn.addEventListener("click", () => {
-      if (mode !== "fight") {
-        mode = "fight";
+      if (!selectionMode) {
         selectionMode = true;
         fightBtn.textContent = "✅ Lancer";
-        tradeBtn.disabled = true;
-        selectedUids = [];
         renderCollection();
-        updateButtonsState();
+        updateFightButtonState();
         return;
       }
       if (selectedUids.length === 0) {
@@ -372,73 +259,15 @@
         return;
       }
 
+      // récupérer les ids (pas uids) et niveaux pour les envoyer au VPS
       const selected = collection.filter(obj => selectedUids.includes(obj.uid));
       const ids = selected.map(z => z.id);
       const levels = selected.map(z => z.level || 1);
 
+      // Redirection vers le VPS avec ids et levels
       const url = `http://54.37.50.18/combat.html?ids=${ids.join(",")}&levels=${levels.join(",")}`;
       window.location.href = url;
     });
-
-    // --- GESTION BOUTON ECHANGER ---
-    tradeBtn.addEventListener("click", () => {
-      if (mode !== "trade") {
-        mode = "trade";
-        selectionMode = true;
-        tradeBtn.disabled = true; // désactivé tant qu'on a pas sélectionné 1 zoion
-        fightBtn.disabled = true;
-        selectedUids = [];
-        renderCollection();
-        updateButtonsState();
-        return;
-      }
-
-      if (selectedUids.length !== 1) {
-        alert("Sélectionne un seul zōion à échanger !");
-        return;
-      }
-
-      // On génère un lien d’échange (à adapter selon ton API / token)
-      const uid = selectedUids[0];
-      const zoion = collection.find(z => z.uid === uid);
-      if (!zoion) return alert("Zōion introuvable.");
-
-      // Par exemple on crée un lien avec uid, id, level dans l’URL
-      // Tu peux remplacer par appel à ton API pour créer un trade et récupérer un token
-      const link = `${window.location.origin}/trade-claim.html?uid=${encodeURIComponent(zoion.uid)}&id=${encodeURIComponent(zoion.id)}&level=${encodeURIComponent(zoion.level || 1)}`;
-
-      // Afficher la popup avec le lien
-      showTradePopup(link);
-    });
-
-    // --- POPUP ECHANGE ---
-    const tradePopup = document.getElementById("tradePopup");
-    const tradeLink = document.getElementById("tradeLink");
-    const copyLinkBtn = document.getElementById("copyLinkBtn");
-    const closePopupBtn = document.getElementById("closePopupBtn");
-
-    function showTradePopup(link) {
-      tradeLink.textContent = link;
-      tradePopup.style.display = "block";
-    }
-
-    copyLinkBtn.addEventListener("click", () => {
-      navigator.clipboard.writeText(tradeLink.textContent)
-        .then(() => alert("Lien copié dans le presse-papier !"))
-        .catch(() => alert("Erreur lors de la copie."));
-    });
-
-    closePopupBtn.addEventListener("click", () => {
-      tradePopup.style.display = "none";
-      mode = null;
-      selectionMode = false;
-      selectedUids = [];
-      renderCollection();
-      updateButtonsState();
-    });
-
-    // Initial state
-    updateButtonsState();
   </script>
 </body>
 </html>
