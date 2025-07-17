@@ -202,5 +202,29 @@
     "name": "Muvoro",
     "rarity": "Commun",
     "image": "assets/duck034.png"
-        }
+        },
+          {
+    "id": "duck035",
+    "name": "Lynxiou",
+    "rarity": "Épique",
+    "image": "assets/duck035.png"
+          },
+          {
+    "id": "duck036",
+    "name": "Griflynx",
+    "rarity": "Épique",
+    "image": "assets/duck036.png"
+          },
+          {
+    "id": "duck037",
+    "name": "Ferralyx",
+    "rarity": "Légendaire",
+    "image": "assets/duck037.png"
+          },
+          {
+    "id": "duck038",
+    "name": "Leoxens",
+    "rarity": "Légendaire",
+    "image": "assets/duck038.png"
+          }
 ]
