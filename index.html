@@ -129,6 +129,56 @@
       z-index: 1;
     }
 
+    /* === OVERLAY ANIMATION COSMIQUE === */
+    #cosmic-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .cosmic-card {
+      width: 250px;
+      height: 350px;
+      perspective: 1000px;
+    }
+
+    .cosmic-card-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transition: transform 1s;
+      transform-style: preserve-3d;
+    }
+
+    .cosmic-card.flipped .cosmic-card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .cosmic-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 12px;
+      background-size: cover;
+      background-position: center;
+      box-shadow: 0 0 20px #ffc0fb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 24px;
+      padding: 10px;
+    }
+
+    .cosmic-back {
+      transform: rotateY(180deg);
+    }
+
     @media (min-width: 600px) {
       nav {
         display: flex !important;
@@ -162,6 +212,16 @@
     <p id="timerText"></p>
     <section id="result"></section>
   </main>
+
+  <!-- OVERLAY COSMIQUE -->
+  <div id="cosmic-overlay">
+    <div class="cosmic-card" id="cosmic-card">
+      <div class="cosmic-card-inner">
+        <div class="cosmic-face" id="cosmic-front"></div>
+        <div class="cosmic-face cosmic-back" id="cosmic-back"></div>
+      </div>
+    </div>
+  </div>
 
   <script>
     function toggleMenu() {
@@ -301,6 +361,28 @@
               <span>Rareté : ${randomZoion.rarity}</span>
             </div>
           `;
+
+          if (isCosmique) {
+            const overlay = document.getElementById('cosmic-overlay');
+            const front = document.getElementById('cosmic-front');
+            const back = document.getElementById('cosmic-back');
+            const card = document.getElementById('cosmic-card');
+
+            front.style.backgroundImage = `url('${randomZoion.image}')`;
+            back.style.backgroundImage = `url('${randomZoion.image}')`;
+
+            overlay.style.display = 'flex';
+
+            setTimeout(() => {
+              card.classList.add('flipped');
+            }, 1000);
+
+            setTimeout(() => {
+              card.classList.remove('flipped');
+              overlay.style.display = 'none';
+            }, 3000);
+          }
+
           updateCooldown();
         })
         .catch(err => {
