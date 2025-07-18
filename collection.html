@@ -83,6 +83,10 @@
       border-color: #38d9a9;
       background-color: #e0f7f1;
     }
+    .card.cosmic {
+      background: #000;
+      color: #fff;
+    }
     #fightBtn {
       position: fixed;
       bottom: 1.5rem;
@@ -155,7 +159,6 @@
 
     let collection = JSON.parse(localStorage.getItem("collection") || "[]");
 
-    // Si collection contient juste des strings (ids) → on crée des uids
     if (collection.length && typeof collection[0] === "string") {
       collection = collection.map(id => ({ uid: crypto.randomUUID(), id, level: 1 }));
       localStorage.setItem("collection", JSON.stringify(collection));
@@ -197,13 +200,16 @@
       if (sortBy === "name") {
         ducks.sort((a, b) => a.name.localeCompare(b.name));
       } else if (sortBy === "rarity") {
-        const rarityOrder = { "Légendaire": 1, "Épique": 2, "Rare": 3, "Commun": 4 };
+        const rarityOrder = { "Cosmique": 0, "Légendaire": 1, "Épique": 2, "Rare": 3, "Commun": 4 };
         ducks.sort((a, b) => rarityOrder[a.rarity] - rarityOrder[b.rarity]);
       }
 
       ducks.forEach(duck => {
         const card = document.createElement("div");
         card.className = "card";
+        if (duck.rarity === "Cosmique") {
+          card.classList.add("cosmic");
+        }
         card.dataset.uid = duck.uid;
         card.innerHTML = `
           <img src="${duck.image}" alt="${duck.name}">
@@ -259,12 +265,10 @@
         return;
       }
 
-      // récupérer les ids (pas uids) et niveaux pour les envoyer au VPS
       const selected = collection.filter(obj => selectedUids.includes(obj.uid));
       const ids = selected.map(z => z.id);
       const levels = selected.map(z => z.level || 1);
 
-      // Redirection vers le VPS avec ids et levels
       const url = `http://54.37.50.18/combat.html?ids=${ids.join(",")}&levels=${levels.join(",")}`;
       window.location.href = url;
     });
