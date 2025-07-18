@@ -226,5 +226,11 @@
     "name": "Leoxens",
     "rarity": "Légendaire",
     "image": "assets/duck038.png"
-          }
+          },
+            {
+    "id": "cosmique001",
+    "name": "Cosmosy",
+    "rarity": "Cosmique",
+    "image": "assets/cosmique001.png"
+            }
 ]
