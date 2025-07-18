@@ -58,10 +58,6 @@
       border-radius: 8px;
       cursor: pointer;
     }
-    button:disabled {
-      background-color: #a5d8ff;
-      cursor: not-allowed;
-    }
     #result {
       margin-top: 30px;
     }
@@ -179,7 +175,6 @@
   <main>
     <h2>Obtiens un nouveau Zōion !</h2>
     <button id="claimButton">Tirer un Zōion</button>
-    <p id="timerText"></p>
     <section id="result"></section>
   </main>
   <div id="cosmic-overlay">
@@ -197,8 +192,6 @@
 
     const claimButton = document.getElementById('claimButton');
     const resultSection = document.getElementById('result');
-    const timerText = document.getElementById('timerText');
-    const COOLDOWN_SECONDS = 2 * 60 * 60; // 2h
 
     function generateUUID() {
       return 'xxxx-xxxx-4xxx-yxxx'.replace(/[xy]/g, c => {
@@ -216,57 +209,12 @@
       localStorage.setItem('collection', JSON.stringify(collection));
     }
 
-    function getLastClaimTime() {
-      return parseInt(localStorage.getItem('lastClaimTime') || '0', 10);
-    }
-
-    function setLastClaimTime(timestamp) {
-      localStorage.setItem('lastClaimTime', timestamp.toString());
-    }
-
-    function updateCooldown() {
-      const now = Date.now();
-      const last = getLastClaimTime();
-      const elapsed = Math.floor((now - last) / 1000);
-      const remaining = COOLDOWN_SECONDS - elapsed;
-
-      if (remaining > 0) {
-        claimButton.disabled = true;
-        updateTimerText(remaining);
-        const interval = setInterval(() => {
-          const now = Date.now();
-          const elapsed = Math.floor((now - last) / 1000);
-          const remaining = COOLDOWN_SECONDS - elapsed;
-
-          if (remaining <= 0) {
-            clearInterval(interval);
-            timerText.textContent = '';
-            claimButton.disabled = false;
-          } else {
-            updateTimerText(remaining);
-          }
-        }, 1000);
-      } else {
-        claimButton.disabled = false;
-        timerText.textContent = '';
-      }
-    }
-
-    function updateTimerText(seconds) {
-      const h = Math.floor(seconds / 3600);
-      const m = Math.floor((seconds % 3600) / 60);
-      const s = seconds % 60;
-      timerText.textContent = `Patiente ${h}h ${m}min ${s}s avant le prochain tirage...`;
-    }
-
     function tirageAvecRareté(data) {
       const candidats = data.filter(z => z.rarity === 'Cosmique');
       return candidats.length ? candidats[Math.floor(Math.random() * candidats.length)] : data[Math.floor(Math.random() * data.length)];
     }
 
     claimButton.addEventListener('click', () => {
-      claimButton.disabled = true;
-
       fetch('canards.json')
         .then(res => res.json())
         .then(data => {
@@ -280,7 +228,6 @@
           const collection = loadCollection();
           collection.push(newZoion);
           saveCollection(collection);
-          setLastClaimTime(Date.now());
 
           const isCosmique = randomZoion.rarity === 'Cosmique';
 
@@ -312,17 +259,12 @@
               overlay.style.display = 'none';
             }, 3000);
           }
-
-          updateCooldown();
         })
         .catch(err => {
           console.error(err);
           resultSection.innerHTML = '<p>Erreur lors du tirage du Zōion.</p>';
-          claimButton.disabled = false;
         });
     });
-
-    updateCooldown();
   </script>
 </body>
 </html>
