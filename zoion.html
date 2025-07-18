@@ -14,6 +14,7 @@
   nav a { color: white; text-decoration: none; font-weight: bold; }
   main { padding: 2rem; display: flex; flex-direction: column; align-items: center; }
   .card { background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 6px rgba(0,0,0,0.1); text-align: center; max-width: 300px; }
+  .card.cosmic { background: #05214a; color: white; }
   .xp-bar-container { background: #ddd; border-radius: 10px; width: 100%; height: 20px; margin: 1rem 0; overflow: hidden; }
   .xp-bar { height: 100%; background: #38d9a9; width: 0%; transition: width 0.5s ease; }
   select, button { margin-top: 1rem; padding: 0.5rem 1rem; font-size: 1rem; }
@@ -89,12 +90,18 @@ if (!uid) {
         saveLevels(levels);
       }
 
-      copyBtn.style.display = "inline-block"; // Affiche le bouton
+      copyBtn.style.display = "inline-block";
 
       function updateDisplay() {
         const lvl = levels[uid].level;
         const xp = levels[uid].xp;
         const xpPercent = Math.min(100, (xp / XP_MAX) * 100);
+
+        // Appliquer style cosmique si nécessaire
+        card.classList.remove("cosmic");
+        if (duck.rarity === "Cosmique") {
+          card.classList.add("cosmic");
+        }
 
         card.innerHTML = `
           <img src="${duck.image}" alt="${duck.name}" style="max-width: 150px; margin-bottom: 1rem;">
