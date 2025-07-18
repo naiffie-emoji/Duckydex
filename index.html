@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Duckydex</title>
-  <link rel="icon" type="image/png" href="filet-canard.png">
+  <link rel="icon" type="image/png" href="filet-canard.png" />
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -84,6 +84,7 @@
       margin-top: 20px;
       background: white;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      position: relative;
     }
 
     .card img {
@@ -99,6 +100,33 @@
     .card span {
       font-weight: bold;
       color: #555;
+    }
+
+    /* === STYLE SPÉCIAL COSMIQUE === */
+    .cosmique-card {
+      background-size: cover;
+      background-position: center;
+      color: white;
+      border: 3px solid #ffc0fb;
+    }
+
+    .cosmique-card img {
+      display: none;
+    }
+
+    .cosmique-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 12px;
+      z-index: 0;
+    }
+
+    .cosmique-card h3,
+    .cosmique-card span {
+      position: relative;
+      z-index: 1;
     }
 
     @media (min-width: 600px) {
@@ -214,10 +242,11 @@
 
     function tirageAvecRareté(data) {
       const probabilités = [
+        { rarity: 'Cosmique', chance: 0.1 },
         { rarity: 'Légendaire', chance: 2 },
         { rarity: 'Épique', chance: 8 },
         { rarity: 'Rare', chance: 20 },
-        { rarity: 'Commun', chance: 70 }
+        { rarity: 'Commun', chance: 69 }
       ];
 
       const rand = Math.random() * 100;
@@ -262,8 +291,11 @@
           saveCollection(collection);
           setLastClaimTime(Date.now());
 
+          const isCosmique = randomZoion.rarity === 'Cosmique';
+
           resultSection.innerHTML = `
-            <div class="card">
+            <div class="card ${isCosmique ? 'cosmique-card' : ''}" 
+                 style="${isCosmique ? `background-image: url('${randomZoion.image}');` : ''}">
               <img src="${randomZoion.image}" alt="${randomZoion.name}">
               <h3>${randomZoion.name}</h3>
               <span>Rareté : ${randomZoion.rarity}</span>
@@ -278,12 +310,11 @@
         });
     });
 
-    // ✅ NEW : ajout/suppression via URL avec id et uid
     function handleAddOrRemove() {
       const params = new URLSearchParams(window.location.search);
-      const addId = params.get('add');     // id du Zōion (ex: "duck001")
-      const removeId = params.get('remove'); // id du Zōion
-      const uid = params.get('uid');       // uid unique (ex: "abcd-efgh")
+      const addId = params.get('add');
+      const removeId = params.get('remove');
+      const uid = params.get('uid');
       const level = parseInt(params.get('level') || '1', 10);
 
       if (addId && uid) {
