@@ -19,7 +19,7 @@ fetch('canards.json')
   .then(response => response.json())
   .then(data => {
     canards = data;
-    handleURLParams(); // 👈 Traite les paramètres add/remove
+    handleURLParams();
     checkCooldown();
   })
   .catch(err => {
@@ -55,7 +55,6 @@ function handleURLParams() {
     }
   }
 
-  // 🧼 Nettoie l'URL après traitement (sans recharger)
   if (addId || removeId) {
     const cleanUrl = window.location.origin + window.location.pathname;
     history.replaceState(null, "", cleanUrl);
@@ -113,10 +112,11 @@ function updateTimer(ms) {
 
 function claimDuck() {
   const rarityPool = [
-    { rarity: "Légendaire", chance: 1 },
+    { rarity: "Cosmique", chance: 0.1 },
+    { rarity: "Légendaire", chance: 1.9 },
     { rarity: "Épique", chance: 4 },
     { rarity: "Rare", chance: 15 },
-    { rarity: "Commun", chance: 80 }
+    { rarity: "Commun", chance: 79 } // Total = 100
   ];
 
   const rand = Math.random() * 100;
@@ -156,4 +156,4 @@ function showDuck(duck) {
       <span>${duck.rarity}</span>
     </div>
   `;
-                         }
+      }
