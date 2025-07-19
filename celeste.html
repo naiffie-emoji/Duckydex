@@ -94,7 +94,7 @@
     let reverseAlphabet = {};
     let traductionsRestantes = 5;
     let modeActif = null;
-    let lettresTraduites = new Set();
+    let lettresTraduites = new Map(); // Clé = symbole, valeur = lettre d’origine
 
     async function init() {
       try {
@@ -130,12 +130,13 @@
       container.innerHTML = '';
       texteCode.split('').forEach((caractere, i) => {
         const span = document.createElement('span');
-        span.textContent = caractere;
         span.dataset.index = i;
 
-        const lettre = reverseAlphabet[caractere];
-        if (lettre && lettresTraduites.has(lettre)) {
+        if (lettresTraduites.has(caractere)) {
+          span.textContent = lettresTraduites.get(caractere);
           span.classList.add('traduit');
+        } else {
+          span.textContent = caractere;
         }
 
         if (caractere.trim() !== '') {
@@ -150,9 +151,10 @@
     }
 
     function traduireSymbole(symbole) {
-      const lettre = reverseAlphabet[symbole];
-      if (!lettre || traductionsRestantes <= 0) return;
-      lettresTraduites.add(lettre);
+      if (!reverseAlphabet[symbole] || traductionsRestantes <= 0) return;
+      if (lettresTraduites.has(symbole)) return;
+
+      lettresTraduites.set(symbole, reverseAlphabet[symbole]);
       traductionsRestantes--;
       afficherTexteCode();
       majCompteur();
@@ -170,8 +172,7 @@
         i++;
       }
 
-      const tentativeLettres = motTente.split('').map(c => reverseAlphabet[c] || c).join('').toLowerCase();
-
+      const tentativeLettres = motTente.toLowerCase();
       if (tentativeLettres === motCible) {
         alert("Bravo ! Vous avez trouvé le mot céleste : " + motCible);
         setTimeout(() => {
@@ -188,7 +189,7 @@
     function activerTraduction() {
       if (traductionsRestantes <= 0) return;
       modeActif = "traduire";
-      alert("Cliquez sur un symbole à traduire (toutes ses occurrences seront révélées en rouge).");
+      alert("Cliquez sur un symbole pour le traduire (toutes ses occurrences seront affichées en rouge).");
     }
 
     function modeTrouver() {
