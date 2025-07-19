@@ -94,7 +94,7 @@
     let reverseAlphabet = {};  
     let traductionsRestantes = 5;  
     let modeActif = null;  
-    let lettresTraduites = new Map(); // Clé = symbole, valeur = lettre d’origine  
+    let lettresTraduites = new Map();  
   
     async function init() {  
       try {  
@@ -118,7 +118,6 @@
         texteCode = texteClair.toUpperCase().split('').map(c => alphabet[c] || c).join('');  
         afficherTexteCode();  
         majCompteur();  
-  
       } catch (e) {  
         document.getElementById('ancien').textContent = e.message;  
         console.error(e);  
@@ -164,28 +163,28 @@
     function tenterTrouverMot(indexClique) {  
       const spanElts = document.querySelectorAll('#ancien span');  
       let motTrouve = '';  
-      let i = indexClique;  
   
+      // Aller vers le début du mot (en arrière)  
+      let debut = indexClique;  
+      while (debut > 0 && spanElts[debut - 1].textContent !== ' ') {  
+        debut--;  
+      }  
+  
+      // Reconstruire le mot complet à partir de ce début  
+      let i = debut;  
       while (i < spanElts.length) {  
         const span = spanElts[i];  
         const c = span.textContent;  
-  
-        // On arrête au prochain espace  
         if (c === ' ') break;  
   
-        // Si c est une lettre traduite (couleur rouge), on prend directement la lettre traduite (c)  
-        // Sinon on prend la lettre codée correspondante pour la conversion inverse  
-        // Pour détecter si c est traduit, on peut vérifier la classe 'traduit'  
         if (span.classList.contains('traduit')) {  
           motTrouve += c.toLowerCase();  
         } else {  
-          // Lettre non traduite, donc c est un symbole, on essaie de récupérer la lettre claire via reverseAlphabet  
           motTrouve += (reverseAlphabet[c] || c).toLowerCase();  
         }  
-  
         i++;  
       }  
-  alert(motTrouve +"-" + motCible);
+  
       if (motTrouve === motCible.toLowerCase()) {  
         alert("Bravo ! Vous avez trouvé le mot céleste : " + motCible);  
         setTimeout(() => {  
