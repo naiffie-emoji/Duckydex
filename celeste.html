@@ -163,28 +163,30 @@
   
     function tenterTrouverMot(indexClique) {  
       const spanElts = document.querySelectorAll('#ancien span');  
-      let motCode = '';  
+      let motTrouve = '';  
       let i = indexClique;  
   
       while (i < spanElts.length) {  
-        const c = spanElts[i].textContent;  
+        const span = spanElts[i];  
+        const c = span.textContent;  
+  
+        // On arrête au prochain espace  
         if (c === ' ') break;  
-        motCode += c;  
+  
+        // Si c est une lettre traduite (couleur rouge), on prend directement la lettre traduite (c)  
+        // Sinon on prend la lettre codée correspondante pour la conversion inverse  
+        // Pour détecter si c est traduit, on peut vérifier la classe 'traduit'  
+        if (span.classList.contains('traduit')) {  
+          motTrouve += c.toLowerCase();  
+        } else {  
+          // Lettre non traduite, donc c est un symbole, on essaie de récupérer la lettre claire via reverseAlphabet  
+          motTrouve += (reverseAlphabet[c] || c).toLowerCase();  
+        }  
+  
         i++;  
       }  
   
-      // Convertir chaque caractère affiché en lettre normale (via reverseAlphabet si c’est un symbole)  
-      const tentativeLettres = motCode  
-        .split('')  
-        .map(char => {  
-          // Si char est une lettre traduite, la conversion inverse fonctionne  
-          // Sinon garder tel quel  
-          return reverseAlphabet[char] || char;  
-        })  
-        .join('')  
-        .toLowerCase();  
-  
-      if (tentativeLettres === motCible) {  
+      if (motTrouve === motCible.toLowerCase()) {  
         alert("Bravo ! Vous avez trouvé le mot céleste : " + motCible);  
         setTimeout(() => {  
           window.location.href = "https://naiffie-emoji.github.io/Duckydex/index.html?add=cosmique001&uid=7077-0f30-420d-b7db&level=1";  
