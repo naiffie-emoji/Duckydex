@@ -232,5 +232,11 @@
     "name": "Cosmosy",
     "rarity": "Cosmique",
     "image": "assets/cosmique001.png"
+            },
+            {
+    "id": "duck039",
+    "name": "Psittik",
+    "rarity": "Rare",
+    "image": "assets/duck039.png"
             }
 ]
