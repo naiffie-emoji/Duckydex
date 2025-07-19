@@ -133,7 +133,8 @@
         span.textContent = caractere;
         span.dataset.index = i;
 
-        if (lettresTraduites.has(caractere)) {
+        const lettre = reverseAlphabet[caractere];
+        if (lettre && lettresTraduites.has(lettre)) {
           span.classList.add('traduit');
         }
 
@@ -149,8 +150,9 @@
     }
 
     function traduireSymbole(symbole) {
-      if (!reverseAlphabet[symbole] || traductionsRestantes <= 0) return;
-      lettresTraduites.add(symbole);
+      const lettre = reverseAlphabet[symbole];
+      if (!lettre || traductionsRestantes <= 0) return;
+      lettresTraduites.add(lettre);
       traductionsRestantes--;
       afficherTexteCode();
       majCompteur();
