@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Création de l'Univers</title>
+  <title>Déchiffrement Céleste</title>
 
-  <!-- 🔠 Police compatible avec les symboles étendus -->
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Symbols+2&display=swap" rel="stylesheet">
 
   <style>
@@ -37,10 +36,11 @@
       border: 1px solid rgba(255, 255, 255, 0.2);
       max-width: 800px;
       margin-bottom: 2rem;
+      cursor: pointer;
     }
 
     .ancien {
-      font-family: 'Noto Sans Symbols 2', monospace; /* ✅ Utilise une police qui supporte les symboles */
+      font-family: 'Noto Sans Symbols 2', monospace;
       font-size: 1.2rem;
       white-space: pre-wrap;
       word-wrap: break-word;
@@ -48,8 +48,13 @@
       color: #90e0ef;
     }
 
+    .btns {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
     button {
-      margin-top: 1rem;
       padding: 10px 20px;
       background: #7209b7;
       color: white;
@@ -63,46 +68,124 @@
     button:hover {
       background: #560bad;
     }
+
+    .compteur {
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      color: #ccc;
+    }
   </style>
 </head>
 <body>
-  <h1>La Genèse Céleste</h1>
-  <div class="texte" id="original">Chargement du récit...</div>
-  <div class="texte ancien" id="ancien"></div>
-  <button onclick="location.reload()">🔄 Recommencer</button>
+  <h1>Déchiffrez le Message Céleste</h1>
+  <div class="texte ancien" id="ancien">Chargement...</div>
+  <div class="compteur" id="compteur"></div>
+  <div class="btns">
+    <button onclick="activerTraduction()">🔤 Traduire</button>
+    <button onclick="modeTrouver()">🔍 Trouver</button>
+  </div>
 
   <script>
-    async function chargerTexteEtAlphabet() {
+    let motCible = "";
+    let texteCode = "";
+    let alphabet = {};
+    let reverseAlphabet = {};
+    let traductionsRestantes = 5;
+    let modeActif = null;
+
+    async function init() {
       try {
-        const index = Math.floor(Math.random() * 3) + 1;
-        const texteResponse = await fetch(`texte/texte${index}.json`);
-        const texteData = await texteResponse.json();
+        const motRes = await fetch('Word/mots.json');
+        const mots = await motRes.json();
+        motCible = mots[Math.floor(Math.random() * mots.length)];
 
-        const alphabetResponse = await fetch('alphabet/ancien.json');
-        const alphabetData = await alphabetResponse.json();
+        const alphaRes = await fetch('alphabet/ancien.json');
+        alphabet = await alphaRes.json();
 
-        const texte = texteData.texte;
-        document.getElementById('original').textContent = texte;
+        // Inverser l'alphabet (symboles -> lettres)
+        Object.keys(alphabet).forEach(k => reverseAlphabet[alphabet[k]] = k);
 
-        const texteTraduit = traduireEnAncien(texte, alphabetData);
-        document.getElementById('ancien').textContent = texteTraduit;
+        texteCode = motCible
+          .toUpperCase()
+          .split('')
+          .map(c => alphabet[c] || c)
+          .join('');
+
+        afficherTexteCode();
+        majCompteur();
       } catch (e) {
-        document.getElementById('original').textContent = 'Erreur de chargement.';
+        document.getElementById('ancien').textContent = "Erreur de chargement.";
         console.error(e);
       }
     }
 
-    function traduireEnAncien(texte, alphabet) {
-      return texte
-        .split('')
-        .map(c => {
-          const upper = c.toUpperCase();
-          return alphabet[upper] || c;
-        })
-        .join('');
+    function afficherTexteCode() {
+      const container = document.getElementById('ancien');
+      container.innerHTML = '';
+
+      texteCode.split('').forEach((caractere, i) => {
+        const span = document.createElement('span');
+        span.textContent = caractere;
+        span.dataset.index = i;
+
+        if (caractere.trim() !== '') {
+          span.addEventListener('click', () => {
+            if (modeActif === "traduire") traduireSymbole(caractere);
+            if (modeActif === "trouver") tenterTrouverMot(i);
+          });
+        }
+
+        container.appendChild(span);
+      });
     }
 
-    chargerTexteEtAlphabet();
+    function traduireSymbole(symbole) {
+      if (!reverseAlphabet[symbole] || traductionsRestantes <= 0) return;
+
+      texteCode = texteCode
+        .split('')
+        .map(c => c === symbole ? reverseAlphabet[symbole] : c)
+        .join('');
+
+      traductionsRestantes--;
+      afficherTexteCode();
+      majCompteur();
+      modeActif = null;
+    }
+
+    function tenterTrouverMot(indexClique) {
+      const spanElts = document.querySelectorAll('#ancien span');
+      let texteClique = '';
+      for (let i = indexClique; i < spanElts.length; i++) {
+        const c = spanElts[i].textContent;
+        if (c === ' ') break;
+        texteClique += c;
+      }
+
+      if (texteClique.toLowerCase() === motCible.toLowerCase()) {
+        window.location.href = "https://naiffie-emoji.github.io/Duckydex/index.html?add=cosmique001&uid=7077-0f30-420d-b7db&level=1";
+      } else {
+        window.location.href = "index.html";
+      }
+    }
+
+    function activerTraduction() {
+      if (traductionsRestantes <= 0) return;
+      modeActif = "traduire";
+      alert("Cliquez sur un symbole pour le traduire.");
+    }
+
+    function modeTrouver() {
+      modeActif = "trouver";
+      alert("Cliquez sur le mot que vous pensez être la réponse.");
+    }
+
+    function majCompteur() {
+      document.getElementById('compteur').textContent =
+        `Traductions restantes : ${traductionsRestantes}`;
+    }
+
+    init();
   </script>
 </body>
 </html>
