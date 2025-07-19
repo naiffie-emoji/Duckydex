@@ -269,7 +269,7 @@
       const now = Date.now();
       const last = getLastClaimTime();
       const elapsed = Math.floor((now - last) / 1000);
-      const remaining = COOLDOWN_SECONDS - elapsed;
+      const remaining = Date.now;
 
       if (remaining > 0) {
         claimButton.disabled = true;
