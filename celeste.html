@@ -1,219 +1,217 @@
-<!DOCTYPE html>  
-<html lang="fr">  
-<head>  
-  <meta charset="UTF-8" />  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>  
-  <title>Déchiffrement Céleste</title>  
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Symbols+2&display=swap" rel="stylesheet">  
-  <style>  
-    body {  
-      margin: 0;  
-      padding: 0;  
-      font-family: 'Segoe UI', sans-serif;  
-      background: radial-gradient(ellipse at center, #0b0f2b 0%, #000000 100%);  
-      color: #fff;  
-      display: flex;  
-      flex-direction: column;  
-      align-items: center;  
-      justify-content: center;  
-      min-height: 100vh;  
-      text-align: center;  
-      padding: 2rem;  
-    }  
-    h1 {  
-      font-size: 2rem;  
-      color: #ffc0fb;  
-      margin-bottom: 1rem;  
-    }  
-    .texte {  
-      background: rgba(255, 255, 255, 0.05);  
-      padding: 1rem 1.5rem;  
-      border-radius: 12px;  
-      border: 1px solid rgba(255, 255, 255, 0.2);  
-      max-width: 800px;  
-      margin-bottom: 2rem;  
-      cursor: pointer;  
-    }  
-    .ancien {  
-      font-family: 'Noto Sans Symbols 2', monospace;  
-      font-size: 1.2rem;  
-      white-space: pre-wrap;  
-      word-wrap: break-word;  
-      line-height: 1.6;  
-      color: #90e0ef;  
-    }  
-    .btns {  
-      display: flex;  
-      gap: 1rem;  
-      flex-wrap: wrap;  
-    }  
-    button {  
-      padding: 10px 20px;  
-      background: #7209b7;  
-      color: white;  
-      border: none;  
-      border-radius: 8px;  
-      font-size: 1rem;  
-      cursor: pointer;  
-      transition: background 0.3s ease;  
-    }  
-    button:hover {  
-      background: #560bad;  
-    }  
-    .compteur {  
-      margin-bottom: 1rem;  
-      font-size: 0.9rem;  
-      color: #ccc;  
-    }  
-    .traduit {  
-      color: #ff5555;  
-      font-weight: bold;  
-    }  
-    .motcible {  
-      font-size: 1rem;  
-      color: #00f7ff;  
-      margin-bottom: 1rem;  
-    }  
-  </style>  
-</head>  
-<body>  
-  <h1>Déchiffrez le Message Céleste</h1>  
-  <div class="motcible" id="mot-code">Mot à retrouver : ...</div>  
-  <div class="texte ancien" id="ancien">Chargement...</div>  
-  <div class="compteur" id="compteur"></div>  
-  <div class="btns">  
-    <button onclick="activerTraduction()">🔤 Traduire</button>  
-    <button onclick="modeTrouver()">🔍 Trouver</button>  
-  </div>  
-  
-  <script>  
-    let motCible = "";  
-    let texteClair = "";  
-    let texteCode = "";  
-    let alphabet = {};  
-    let reverseAlphabet = {};  
-    let traductionsRestantes = 5;  
-    let modeActif = null;  
-    let lettresTraduites = new Map();  
-  
-    async function init() {  
-      try {  
-        const motRes = await fetch('Word/mots.json');  
-        if (!motRes.ok) throw new Error("Erreur : Word/mots.json");  
-        const mots = await motRes.json();  
-        motCible = mots[Math.floor(Math.random() * mots.length)].toLowerCase();  
-        document.getElementById('mot-code').textContent = "Mot à retrouver : " + motCible;  
-  
-        const alphaRes = await fetch('alphabet/ancien.json');  
-        if (!alphaRes.ok) throw new Error("Erreur : alphabet/ancien.json");  
-        alphabet = await alphaRes.json();  
-        Object.keys(alphabet).forEach(k => reverseAlphabet[alphabet[k]] = k);  
-  
-        const randTexte = Math.floor(Math.random() * 3) + 1;  
-        const texteRes = await fetch(`texte/texte${randTexte}.json`);  
-        if (!texteRes.ok) throw new Error("Erreur : texte/texteX.json");  
-        const data = await texteRes.json();  
-        texteClair = data.texte || "";  
-  
-        texteCode = texteClair.toUpperCase().split('').map(c => alphabet[c] || c).join('');  
-        afficherTexteCode();  
-        majCompteur();  
-      } catch (e) {  
-        document.getElementById('ancien').textContent = e.message;  
-        console.error(e);  
-      }  
-    }  
-  
-    function afficherTexteCode() {  
-      const container = document.getElementById('ancien');  
-      container.innerHTML = '';  
-      texteCode.split('').forEach((caractere, i) => {  
-        const span = document.createElement('span');  
-        span.dataset.index = i;  
-  
-        if (lettresTraduites.has(caractere)) {  
-          span.textContent = lettresTraduites.get(caractere);  
-          span.classList.add('traduit');  
-        } else {  
-          span.textContent = caractere;  
-        }  
-  
-        if (caractere.trim() !== '') {  
-          span.addEventListener('click', () => {  
-            if (modeActif === "traduire") traduireSymbole(caractere);  
-            if (modeActif === "trouver") tenterTrouverMot(i);  
-          });  
-        }  
-  
-        container.appendChild(span);  
-      });  
-    }  
-  
-    function traduireSymbole(symbole) {  
-      if (!reverseAlphabet[symbole] || traductionsRestantes <= 0) return;  
-      if (lettresTraduites.has(symbole)) return;  
-  
-      lettresTraduites.set(symbole, reverseAlphabet[symbole]);  
-      traductionsRestantes--;  
-      afficherTexteCode();  
-      majCompteur();  
-      modeActif = null;  
-    }  
-  
-    function tenterTrouverMot(indexClique) {  
-      const spanElts = document.querySelectorAll('#ancien span');  
-      let motTrouve = '';  
-  
-      // Aller vers le début du mot (en arrière)  
-      let debut = indexClique;  
-      while (debut > 0 && spanElts[debut - 1].textContent !== ' ') {  
-        debut--;  
-      }  
-  
-      // Reconstruire le mot complet à partir de ce début  
-      let i = debut;  
-      while (i < spanElts.length) {  
-        const span = spanElts[i];  
-        const c = span.textContent;  
-        if (c === ' ') break;  
-  
-        if (span.classList.contains('traduit')) {  
-          motTrouve += c.toLowerCase();  
-        } else {  
-          motTrouve += (reverseAlphabet[c] || c).toLowerCase();  
-        }  
-        i++;  
-      }  
-  
-      if (motTrouve === motCible.toLowerCase()) {  
-        alert("Bravo ! Vous avez trouvé le mot céleste : " + motCible);  
-        setTimeout(() => {  
-          window.location.href = "https://naiffie-emoji.github.io/Duckydex/index.html?add=cosmique001&uid=7077-0f30-420d-b7db&level=1";  
-        }, 500);  
-      } else {  
-        alert("Ce n'était pas le bon mot... Le message reste un mystère !");  
-        setTimeout(() => {  
-          window.location.href = "index.html";  
-        }, 500);  
-      }  
-    }  
-  
-    function activerTraduction() {  
-      if (traductionsRestantes <= 0) return;  
-      modeActif = "traduire";  
-      alert("Cliquez sur un symbole pour le traduire (toutes ses occurrences seront affichées en rouge).");  
-    }  
-  
-    function modeTrouver() {  
-      modeActif = "trouver";  
-      alert("Cliquez sur le mot que vous pensez être la réponse.");  
-    }  
-  
-    function majCompteur() {  
-      document.getElementById('compteur').textContent = `Traductions restantes : ${traductionsRestantes}`;  
-    }  
-  
-    init();  
-  </script>  
-</body>  
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Déchiffrement Céleste</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Symbols+2&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: radial-gradient(ellipse at center, #0b0f2b 0%, #000000 100%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      padding: 2rem;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #ffc0fb;
+      margin-bottom: 1rem;
+    }
+    .texte {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      max-width: 800px;
+      margin-bottom: 2rem;
+      cursor: pointer;
+    }
+    .ancien {
+      font-family: 'Noto Sans Symbols 2', monospace;
+      font-size: 1.2rem;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      line-height: 1.6;
+      color: #90e0ef;
+    }
+    .btns {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    button {
+      padding: 10px 20px;
+      background: #7209b7;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #560bad;
+    }
+    .compteur {
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+    .traduit {
+      color: #ff5555;
+      font-weight: bold;
+    }
+    .motcible {
+      font-size: 1rem;
+      color: #00f7ff;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Déchiffrez le Message Céleste</h1>
+  <div class="motcible" id="mot-code">Mot à retrouver : ...</div>
+  <div class="texte ancien" id="ancien">Chargement...</div>
+  <div class="compteur" id="compteur"></div>
+  <div class="btns">
+    <button onclick="activerTraduction()">🔤 Traduire</button>
+    <button onclick="modeTrouver()">🔍 Trouver</button>
+  </div>
+
+  <script>
+    let motCible = "";
+    let texteClair = "";
+    let texteCode = "";
+    let alphabet = {};
+    let reverseAlphabet = {};
+    let traductionsRestantes = 5;
+    let modeActif = null;
+    let lettresTraduites = new Map();
+
+    async function init() {
+      try {
+        const motRes = await fetch('Word/mots.json');
+        if (!motRes.ok) throw new Error("Erreur : Word/mots.json");
+        const mots = await motRes.json();
+        motCible = mots[Math.floor(Math.random() * mots.length)].toLowerCase();
+        document.getElementById('mot-code').textContent = "Mot à retrouver : " + motCible;
+
+        const alphaRes = await fetch('alphabet/ancien.json');
+        if (!alphaRes.ok) throw new Error("Erreur : alphabet/ancien.json");
+        alphabet = await alphaRes.json();
+        Object.keys(alphabet).forEach(k => reverseAlphabet[alphabet[k]] = k);
+
+        const randTexte = Math.floor(Math.random() * 3) + 1;
+        const texteRes = await fetch(`texte/texte${randTexte}.json`);
+        if (!texteRes.ok) throw new Error("Erreur : texte/texteX.json");
+        const data = await texteRes.json();
+        texteClair = data.texte || "";
+
+        texteCode = texteClair.toUpperCase().split('').map(c => alphabet[c] || c).join('');
+        afficherTexteCode();
+        majCompteur();
+      } catch (e) {
+        document.getElementById('ancien').textContent = e.message;
+        console.error(e);
+      }
+    }
+
+    function afficherTexteCode() {
+      const container = document.getElementById('ancien');
+      container.innerHTML = '';
+      texteCode.split('').forEach((caractere, i) => {
+        const span = document.createElement('span');
+        span.dataset.index = i;
+
+        if (lettresTraduites.has(caractere)) {
+          span.textContent = lettresTraduites.get(caractere);
+          span.classList.add('traduit');
+        } else {
+          span.textContent = caractere;
+        }
+
+        if (caractere.trim() !== '') {
+          span.addEventListener('click', () => {
+            if (modeActif === "traduire") traduireSymbole(caractere);
+            if (modeActif === "trouver") tenterTrouverMot(i);
+          });
+        }
+
+        container.appendChild(span);
+      });
+    }
+
+    function traduireSymbole(symbole) {
+      if (!reverseAlphabet[symbole] || traductionsRestantes <= 0) return;
+      if (lettresTraduites.has(symbole)) return;
+
+      lettresTraduites.set(symbole, reverseAlphabet[symbole]);
+      traductionsRestantes--;
+      afficherTexteCode();
+      majCompteur();
+      modeActif = null;
+    }
+
+    function tenterTrouverMot(indexClique) {
+      const spanElts = document.querySelectorAll('#ancien span');
+      let motTrouve = '';
+
+      let debut = indexClique;
+      while (debut > 0 && spanElts[debut - 1].textContent !== ' ') {
+        debut--;
+      }
+
+      let i = debut;
+      while (i < spanElts.length) {
+        const span = spanElts[i];
+        const c = span.textContent;
+        if (c === ' ') break;
+
+        if (span.classList.contains('traduit')) {
+          motTrouve += c.toLowerCase();
+        } else {
+          motTrouve += (reverseAlphabet[c] || c).toLowerCase();
+        }
+        i++;
+      }
+
+      if (motTrouve === motCible.toLowerCase()) {
+        alert("Bravo ! Vous avez trouvé le mot céleste : " + motCible);
+        setTimeout(() => {
+          window.location.href = "https://naiffie-emoji.github.io/Duckydex/index.html?add=cosmique001&uid=7077-0f30-420d-b7db&level=1";
+        }, 500);
+      } else {
+        alert("Ce n'était pas le bon mot... Le message reste un mystère !");
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 500);
+      }
+    }
+
+    function activerTraduction() {
+      if (traductionsRestantes <= 0) return;
+      modeActif = "traduire";
+      alert("Cliquez sur un symbole pour le traduire (toutes ses occurrences seront affichées en rouge).");
+    }
+
+    function modeTrouver() {
+      modeActif = "trouver";
+      alert("Cliquez sur le mot que vous pensez être la réponse.");
+    }
+
+    function majCompteur() {
+      document.getElementById('compteur').textContent = `Traductions restantes : ${traductionsRestantes}`;
+    }
+
+    init();
+  </script>
+</body>
 </html>
