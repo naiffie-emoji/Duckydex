@@ -12,6 +12,7 @@
       background: #f0f8ff;
       color: #333;
     }
+
     header {
       background-color: #4dabf7;
       color: white;
@@ -20,30 +21,36 @@
       justify-content: space-between;
       align-items: center;
     }
+
     .burger {
       display: none;
       flex-direction: column;
       gap: 4px;
       cursor: pointer;
     }
+
     .burger span {
       width: 25px;
       height: 3px;
       background: white;
     }
+
     nav {
       display: flex;
       gap: 1rem;
     }
+
     nav a {
       color: white;
       text-decoration: none;
       font-weight: bold;
     }
+
     main {
       padding: 2rem;
       padding-bottom: 6rem;
     }
+
     .toolbar {
       margin-bottom: 1rem;
       display: flex;
@@ -51,15 +58,18 @@
       align-items: center;
       gap: 1rem;
     }
+
     select {
       padding: 5px 10px;
       font-size: 1rem;
     }
+
     .collection {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 1rem;
     }
+
     .card {
       background: white;
       border-radius: 12px;
@@ -72,48 +82,52 @@
       cursor: pointer;
       position: relative;
       overflow: hidden;
+      z-index: 0;
     }
+
     .card img {
       width: 100px;
       height: 100px;
       object-fit: contain;
     }
+
     .card.selectable {
       cursor: pointer;
     }
+
     .card.selected {
       border-color: #38d9a9;
       background-color: #e0f7f1;
     }
 
-    /* --- Style pour les cartes cosmiques --- */
     .card.cosmic {
-      color: #fff;
       background: #05214a;
+      color: #fff;
     }
+
+    /* 🎨 Bordure dégradée tournante uniquement pour Cosmic */
     .card.cosmic::before {
       content: '';
       position: absolute;
-      width: 100px;
-      height: 140%;
+      top: -25%;
+      left: -25%;
+      width: 150%;
+      height: 150%;
       background-image: linear-gradient(180deg, rgb(0, 183, 255), rgb(255, 48, 255));
-      animation: rotBGimg 3s linear infinite;
-      z-index: 0;
-      transform-origin: center;
+      animation: rotBG 3s linear infinite;
+      z-index: -2;
     }
+
     .card.cosmic::after {
       content: '';
       position: absolute;
-      background: #05214a;
       inset: 5px;
+      background: #05214a;
       border-radius: 10px;
-      z-index: 1;
+      z-index: -1;
     }
-    .card.cosmic * {
-      position: relative;
-      z-index: 2;
-    }
-    @keyframes rotBGimg {
+
+    @keyframes rotBG {
       from {
         transform: rotate(0deg);
       }
@@ -137,6 +151,7 @@
       z-index: 1000;
       transition: background-color 0.3s;
     }
+
     #fightBtn:disabled {
       background: #faa;
       cursor: not-allowed;
