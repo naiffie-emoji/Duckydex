@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Création de l'Univers</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: radial-gradient(ellipse at center, #0b0f2b 0%, #000000 100%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: #ffc0fb;
+      margin-bottom: 1rem;
+    }
+
+    .texte {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      max-width: 800px;
+      margin-bottom: 2rem;
+    }
+
+    .ancien {
+      font-family: 'Courier New', monospace;
+      font-size: 1.2rem;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      line-height: 1.6;
+      color: #90e0ef;
+    }
+
+    button {
+      margin-top: 1rem;
+      padding: 10px 20px;
+      background: #7209b7;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #560bad;
+    }
+  </style>
+</head>
+<body>
+  <h1>La Genèse Céleste</h1>
+  <div class="texte" id="original">Chargement du récit...</div>
+  <div class="texte ancien" id="ancien"></div>
+  <button onclick="location.reload()">🔄 Recommencer</button>
+
+  <script>
+    async function chargerTexteEtAlphabet() {
+      try {
+        const index = Math.floor(Math.random() * 3) + 1;
+        const texteResponse = await fetch(`texte/texte${index}.json`);
+        const texteData = await texteResponse.json();
+
+        const alphabetResponse = await fetch('alphabet/ancien.json');
+        const alphabetData = await alphabetResponse.json();
+
+        const texte = texteData.texte;
+        document.getElementById('original').textContent = texte;
+
+        const texteTraduit = traduireEnAncien(texte, alphabetData);
+        document.getElementById('ancien').textContent = texteTraduit;
+      } catch (e) {
+        document.getElementById('original').textContent = 'Erreur de chargement.';
+        console.error(e);
+      }
+    }
+
+    function traduireEnAncien(texte, alphabet) {
+      return texte
+        .split('')
+        .map(c => {
+          const upper = c.toUpperCase();
+          if (alphabet[upper]) return alphabet[upper];
+          return c; // keep punctuation, space, etc.
+        })
+        .join('');
+    }
+
+    chargerTexteEtAlphabet();
+  </script>
+</body>
+</html>
