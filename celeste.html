@@ -65,10 +65,20 @@
       font-size: 0.9rem;
       color: #ccc;
     }
+    .traduit {
+      color: #ff5555;
+      font-weight: bold;
+    }
+    .motcible {
+      font-size: 1rem;
+      color: #00f7ff;
+      margin-bottom: 1rem;
+    }
   </style>
 </head>
 <body>
   <h1>Déchiffrez le Message Céleste</h1>
+  <div class="motcible" id="mot-code">Mot à retrouver : ...</div>
   <div class="texte ancien" id="ancien">Chargement...</div>
   <div class="compteur" id="compteur"></div>
   <div class="btns">
@@ -84,35 +94,35 @@
     let reverseAlphabet = {};
     let traductionsRestantes = 5;
     let modeActif = null;
+    let lettresTraduites = new Set();
 
     async function init() {
       try {
-        // 1. Charger les mots
+        // Charger le mot
         const motRes = await fetch('Word/mots.json');
         if (!motRes.ok) throw new Error("Erreur : Word/mots.json");
         const mots = await motRes.json();
         motCible = mots[Math.floor(Math.random() * mots.length)].toLowerCase();
 
-        // 2. Charger alphabet
+        // Charger alphabet
         const alphaRes = await fetch('alphabet/ancien.json');
         if (!alphaRes.ok) throw new Error("Erreur : alphabet/ancien.json");
         alphabet = await alphaRes.json();
         Object.keys(alphabet).forEach(k => reverseAlphabet[alphabet[k]] = k);
 
-        // 3. Charger texte aléatoire
+        // Afficher le mot cible en version codée
+        const motCode = motCible.toUpperCase().split('').map(c => alphabet[c] || c).join('');
+        document.getElementById('mot-code').textContent = "Mot à retrouver : " + motCode;
+
+        // Charger texte aléatoire
         const randTexte = Math.floor(Math.random() * 3) + 1;
         const texteRes = await fetch(`texte/texte${randTexte}.json`);
         if (!texteRes.ok) throw new Error("Erreur : texte/texteX.json");
         const data = await texteRes.json();
         texteClair = data.texte || "";
 
-        // 4. Chiffrer le texte
-        texteCode = texteClair
-          .toUpperCase()
-          .split('')
-          .map(c => alphabet[c] || c)
-          .join('');
-
+        // Chiffrer texte
+        texteCode = texteClair.toUpperCase().split('').map(c => alphabet[c] || c).join('');
         afficherTexteCode();
         majCompteur();
 
@@ -125,13 +135,14 @@
     function afficherTexteCode() {
       const container = document.getElementById('ancien');
       container.innerHTML = '';
-      const chars = texteCode.split('');
-      const motOri = texteClair.split(''); // Pour calculer index de mot clair
-
-      chars.forEach((caractere, i) => {
+      texteCode.split('').forEach((caractere, i) => {
         const span = document.createElement('span');
         span.textContent = caractere;
         span.dataset.index = i;
+
+        if (lettresTraduites.has(caractere)) {
+          span.classList.add('traduit');
+        }
 
         if (caractere.trim() !== '') {
           span.addEventListener('click', () => {
@@ -146,12 +157,7 @@
 
     function traduireSymbole(symbole) {
       if (!reverseAlphabet[symbole] || traductionsRestantes <= 0) return;
-
-      texteCode = texteCode
-        .split('')
-        .map(c => c === symbole ? reverseAlphabet[symbole] : c)
-        .join('');
-
+      lettresTraduites.add(symbole);
       traductionsRestantes--;
       afficherTexteCode();
       majCompteur();
@@ -162,8 +168,6 @@
       const spanElts = document.querySelectorAll('#ancien span');
       let motTente = '';
       let i = indexClique;
-
-      // Lire jusqu'à espace ou fin
       while (i < spanElts.length) {
         const c = spanElts[i].textContent;
         if (c === ' ') break;
@@ -171,13 +175,7 @@
         i++;
       }
 
-      // Déchiffrer tentative si elle contient encore des symboles
-      const tentativeLettres = motTente
-        .split('')
-        .map(c => reverseAlphabet[c] || c)
-        .join('')
-        .toLowerCase();
-
+      const tentativeLettres = motTente.split('').map(c => reverseAlphabet[c] || c).join('').toLowerCase();
       if (tentativeLettres === motCible) {
         window.location.href = "https://naiffie-emoji.github.io/Duckydex/index.html?add=cosmique001&uid=7077-0f30-420d-b7db&level=1";
       } else {
@@ -188,17 +186,16 @@
     function activerTraduction() {
       if (traductionsRestantes <= 0) return;
       modeActif = "traduire";
-      alert("Cliquez sur un symbole à traduire (toutes ses occurrences seront révélées).");
+      alert("Cliquez sur un symbole à traduire (toutes ses occurrences seront révélées en rouge).");
     }
 
     function modeTrouver() {
       modeActif = "trouver";
-      alert("Cliquez sur un mot que vous pensez être la réponse.");
+      alert("Cliquez sur le mot que vous pensez être la réponse.");
     }
 
     function majCompteur() {
-      document.getElementById('compteur').textContent =
-        `Traductions restantes : ${traductionsRestantes}`;
+      document.getElementById('compteur').textContent = `Traductions restantes : ${traductionsRestantes}`;
     }
 
     init();
