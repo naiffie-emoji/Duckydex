@@ -6,75 +6,75 @@
   <title>Déchiffrement Céleste</title>  
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Symbols+2&display=swap" rel="stylesheet">  
   <style>  
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: radial-gradient(ellipse at center, #0b0f2b 0%, #000000 100%);
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      text-align: center;
-      padding: 2rem;
-    }
-    h1 {
-      font-size: 2rem;
-      color: #ffc0fb;
-      margin-bottom: 1rem;
-    }
-    .texte {
-      background: rgba(255, 255, 255, 0.05);
-      padding: 1rem 1.5rem;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      max-width: 800px;
-      margin-bottom: 2rem;
-      cursor: pointer;
-    }
-    .ancien {
-      font-family: 'Noto Sans Symbols 2', monospace;
-      font-size: 1.2rem;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      line-height: 1.6;
-      color: #90e0ef;
-    }
-    .btns {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-    button {
-      padding: 10px 20px;
-      background: #7209b7;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    button:hover {
-      background: #560bad;
-    }
-    .compteur {
-      margin-bottom: 1rem;
-      font-size: 0.9rem;
-      color: #ccc;
-    }
-    .traduit {
-      color: #ff5555;
-      font-weight: bold;
-    }
-    .motcible {
-      font-size: 1rem;
-      color: #00f7ff;
-      margin-bottom: 1rem;
-    }
-  </style>
+    body {  
+      margin: 0;  
+      padding: 0;  
+      font-family: 'Segoe UI', sans-serif;  
+      background: radial-gradient(ellipse at center, #0b0f2b 0%, #000000 100%);  
+      color: #fff;  
+      display: flex;  
+      flex-direction: column;  
+      align-items: center;  
+      justify-content: center;  
+      min-height: 100vh;  
+      text-align: center;  
+      padding: 2rem;  
+    }  
+    h1 {  
+      font-size: 2rem;  
+      color: #ffc0fb;  
+      margin-bottom: 1rem;  
+    }  
+    .texte {  
+      background: rgba(255, 255, 255, 0.05);  
+      padding: 1rem 1.5rem;  
+      border-radius: 12px;  
+      border: 1px solid rgba(255, 255, 255, 0.2);  
+      max-width: 800px;  
+      margin-bottom: 2rem;  
+      cursor: pointer;  
+    }  
+    .ancien {  
+      font-family: 'Noto Sans Symbols 2', monospace;  
+      font-size: 1.2rem;  
+      white-space: pre-wrap;  
+      word-wrap: break-word;  
+      line-height: 1.6;  
+      color: #90e0ef;  
+    }  
+    .btns {  
+      display: flex;  
+      gap: 1rem;  
+      flex-wrap: wrap;  
+    }  
+    button {  
+      padding: 10px 20px;  
+      background: #7209b7;  
+      color: white;  
+      border: none;  
+      border-radius: 8px;  
+      font-size: 1rem;  
+      cursor: pointer;  
+      transition: background 0.3s ease;  
+    }  
+    button:hover {  
+      background: #560bad;  
+    }  
+    .compteur {  
+      margin-bottom: 1rem;  
+      font-size: 0.9rem;  
+      color: #ccc;  
+    }  
+    .traduit {  
+      color: #ff5555;  
+      font-weight: bold;  
+    }  
+    .motcible {  
+      font-size: 1rem;  
+      color: #00f7ff;  
+      margin-bottom: 1rem;  
+    }  
+  </style>  
 </head>  
 <body>  
   <h1>Déchiffrez le Message Céleste</h1>  
@@ -95,7 +95,6 @@
     let traductionsRestantes = 5;  
     let modeActif = null;  
     let lettresTraduites = new Map();  
-    let premiereTraductionAffichee = false;
   
     async function init() {  
       try {  
@@ -156,12 +155,6 @@
   
       lettresTraduites.set(symbole, reverseAlphabet[symbole]);  
       traductionsRestantes--;  
-
-      if (traductionsRestantes === 4 && !premiereTraductionAffichee) {
-        premiereTraductionAffichee = true;
-        alert("Cliquez sur un symbole pour le traduire (toutes ses occurrences seront affichées en rouge).");
-      }
-
       afficherTexteCode();  
       majCompteur();  
       modeActif = null;  
@@ -171,22 +164,19 @@
       const spanElts = document.querySelectorAll('#ancien span');  
       let motTrouve = '';  
   
+      // Aller vers le début du mot  
       let debut = indexClique;  
       while (debut > 0 && spanElts[debut - 1].textContent !== ' ') {  
         debut--;  
       }  
   
+      // Recomposer le mot  
       let i = debut;  
       while (i < spanElts.length) {  
         const span = spanElts[i];  
         const c = span.textContent;  
         if (c === ' ') break;  
-  
-        if (span.classList.contains('traduit')) {  
-          motTrouve += c.toLowerCase();  
-        } else {  
-          motTrouve += (reverseAlphabet[c] || c).toLowerCase();  
-        }  
+        motTrouve += (span.classList.contains('traduit') ? c : (reverseAlphabet[c] || c)).toLowerCase();  
         i++;  
       }  
   
@@ -205,7 +195,10 @@
   
     function activerTraduction() {  
       if (traductionsRestantes <= 0) return;  
-      modeActif = "traduire";
+      if (traductionsRestantes === 5) {  
+        alert("Cliquez sur un symbole pour le traduire (toutes ses occurrences seront affichées en rouge).");  
+      }  
+      modeActif = "traduire";  
     }  
   
     function modeTrouver() {  
