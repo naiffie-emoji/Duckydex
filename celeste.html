@@ -163,16 +163,22 @@
 
     function tenterTrouverMot(indexClique) {
       const spanElts = document.querySelectorAll('#ancien span');
-      let motTente = '';
+      let motCode = '';
       let i = indexClique;
+
       while (i < spanElts.length) {
         const c = spanElts[i].textContent;
         if (c === ' ') break;
-        motTente += c;
+        motCode += c;
         i++;
       }
 
-      const tentativeLettres = motTente.toLowerCase();
+      const tentativeLettres = motCode
+        .split('')
+        .map(char => reverseAlphabet[char] || char) // Reconvertir chaque symbole en lettre
+        .join('')
+        .toLowerCase();
+
       if (tentativeLettres === motCible) {
         alert("Bravo ! Vous avez trouvé le mot céleste : " + motCible);
         setTimeout(() => {
