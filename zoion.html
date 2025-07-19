@@ -13,12 +13,71 @@
   nav { display: flex; gap: 1rem; }
   nav a { color: white; text-decoration: none; font-weight: bold; }
   main { padding: 2rem; display: flex; flex-direction: column; align-items: center; }
-  .card { background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 6px rgba(0,0,0,0.1); text-align: center; max-width: 300px; }
-  .card.cosmic { background: #05214a; color: white; }
-  .xp-bar-container { background: #ddd; border-radius: 10px; width: 100%; height: 20px; margin: 1rem 0; overflow: hidden; }
-  .xp-bar { height: 100%; background: #38d9a9; width: 0%; transition: width 0.5s ease; }
-  select, button { margin-top: 1rem; padding: 0.5rem 1rem; font-size: 1rem; }
-  .back-btn { margin-top: 2rem; padding: 0.5rem 1rem; background-color: #4dabf7; color: white; border: none; border-radius: 8px; text-decoration: none; font-size: 1rem; }
+  .card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    text-align: center;
+    max-width: 300px;
+    position: relative;
+    z-index: 1;
+  }
+  .card.cosmic {
+    background: #05214a;
+    color: white;
+  }
+
+  /* Bande dégradée tournante */
+  .card.cosmic::before {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    z-index: -1;
+    border-radius: 16px;
+    background: conic-gradient(from 0deg, #38d9a9, #4dabf7, #845ef7, #38d9a9);
+    animation: spin 4s linear infinite;
+    mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask-composite: destination-out;
+    padding: 4px;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(1turn); }
+  }
+
+  .xp-bar-container {
+    background: #ddd;
+    border-radius: 10px;
+    width: 100%;
+    height: 20px;
+    margin: 1rem 0;
+    overflow: hidden;
+  }
+  .xp-bar {
+    height: 100%;
+    background: #38d9a9;
+    width: 0%;
+    transition: width 0.5s ease;
+  }
+  select, button {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+  }
+  .back-btn {
+    margin-top: 2rem;
+    padding: 0.5rem 1rem;
+    background-color: #4dabf7;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 1rem;
+  }
   @media (max-width: 600px) {
     nav { display: none; flex-direction: column; background-color: #4dabf7; padding: 1rem; }
     nav.active { display: flex; }
@@ -44,6 +103,7 @@
   <button id="copyUidBtn" style="margin-top: 1rem; display: none;">📋 Copier les informations</button>
   <a href="collection.html" class="back-btn">⬅ Retour</a>
 </main>
+
 <script>
 function toggleMenu() {
   document.getElementById("menu").classList.toggle("active");
