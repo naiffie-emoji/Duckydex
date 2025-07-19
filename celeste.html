@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Création de l'Univers</title>
+
+  <!-- 🔠 Police compatible avec les symboles étendus -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Symbols+2&display=swap" rel="stylesheet">
+
   <style>
     body {
       margin: 0;
@@ -36,7 +40,7 @@
     }
 
     .ancien {
-      font-family: 'Courier New', monospace;
+      font-family: 'Noto Sans Symbols 2', monospace; /* ✅ Utilise une police qui supporte les symboles */
       font-size: 1.2rem;
       white-space: pre-wrap;
       word-wrap: break-word;
@@ -93,8 +97,7 @@
         .split('')
         .map(c => {
           const upper = c.toUpperCase();
-          if (alphabet[upper]) return alphabet[upper];
-          return c; // keep punctuation, space, etc.
+          return alphabet[upper] || c;
         })
         .join('');
     }
