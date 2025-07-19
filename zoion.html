@@ -12,6 +12,7 @@
     background: #f0f8ff;
     color: #333;
   }
+
   header {
     background-color: #4dabf7;
     color: white;
@@ -20,26 +21,31 @@
     justify-content: space-between;
     align-items: center;
   }
+
   .burger {
     display: none;
     flex-direction: column;
     gap: 4px;
     cursor: pointer;
   }
+
   .burger span {
     width: 25px;
     height: 3px;
     background: white;
   }
+
   nav {
     display: flex;
     gap: 1rem;
   }
+
   nav a {
     color: white;
     text-decoration: none;
     font-weight: bold;
   }
+
   main {
     padding: 2rem;
     display: flex;
@@ -47,61 +53,49 @@
     align-items: center;
   }
 
-  /* CONTENEUR ANIMÉ */
-  .card-wrapper {
-    position: relative;
-    display: inline-block;
-    padding: 4px;
-    border-radius: 16px;
-  }
-
-  .card-wrapper::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 16px;
-    padding: 3px;
-    background: conic-gradient(
-      from 0deg,
-      #ff007f,
-      #7f00ff,
-      #00bfff,
-      #00ff7f,
-      #ffff00,
-      #ff007f
-    );
-    -webkit-mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    animation: rotate 3s linear infinite;
-    z-index: -1;
-    display: none;
-  }
-
-  .card-wrapper.cosmic::before {
-    display: block;
-  }
-
-  @keyframes rotate {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
   .card {
+    position: relative;
     background: white;
     border-radius: 12px;
     padding: 2rem;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     text-align: center;
     max-width: 300px;
+    width: 100%;
+    z-index: 1;
   }
 
   .card.cosmic {
     background: #05214a;
     color: white;
+  }
+
+  /* Bande dégradée tournante */
+  .card.cosmic::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    z-index: -1;
+    border-radius: 16px;
+    background: conic-gradient(from 0deg, #0ff, #00f, #f0f, #0ff);
+    animation: spin 4s linear infinite;
+    padding: 2px;
+    mask: 
+      linear-gradient(#000 0 0) content-box, 
+      linear-gradient(#000 0 0);
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box, 
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    -webkit-mask-composite: destination-out;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0turn); }
+    100% { transform: rotate(1turn); }
   }
 
   .xp-bar-container {
@@ -120,8 +114,7 @@
     transition: width 0.5s ease;
   }
 
-  select,
-  button {
+  select, button {
     margin-top: 1rem;
     padding: 0.5rem 1rem;
     font-size: 1rem;
@@ -139,18 +132,9 @@
   }
 
   @media (max-width: 600px) {
-    nav {
-      display: none;
-      flex-direction: column;
-      background-color: #4dabf7;
-      padding: 1rem;
-    }
-    nav.active {
-      display: flex;
-    }
-    .burger {
-      display: flex;
-    }
+    nav { display: none; flex-direction: column; background-color: #4dabf7; padding: 1rem; }
+    nav.active { display: flex; }
+    .burger { display: flex; }
   }
 </style>
 </head>
@@ -166,14 +150,13 @@
   </nav>
 </header>
 <main>
-  <div id="zoionCardWrapper" class="card-wrapper">
-    <div id="zoionCard" class="card">
-      <p>Chargement...</p>
-    </div>
+  <div id="zoionCard" class="card">
+    <p>Chargement...</p>
   </div>
   <button id="copyUidBtn" style="margin-top: 1rem; display: none;">📋 Copier les informations</button>
   <a href="collection.html" class="back-btn">⬅ Retour</a>
 </main>
+
 <script>
 function toggleMenu() {
   document.getElementById("menu").classList.toggle("active");
@@ -182,7 +165,6 @@ function toggleMenu() {
 const params = new URLSearchParams(window.location.search);
 const uid = params.get("uid");
 const card = document.getElementById("zoionCard");
-const wrapper = document.getElementById("zoionCardWrapper");
 const copyBtn = document.getElementById("copyUidBtn");
 const XP_MAX = 100;
 
@@ -229,10 +211,8 @@ if (!uid) {
         const xpPercent = Math.min(100, (xp / XP_MAX) * 100);
 
         card.classList.remove("cosmic");
-        wrapper.classList.remove("cosmic");
         if (duck.rarity === "Cosmique") {
           card.classList.add("cosmic");
-          wrapper.classList.add("cosmic");
         }
 
         card.innerHTML = `
