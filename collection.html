@@ -70,6 +70,8 @@
       border: 2px solid transparent;
       transition: border-color 0.3s, background-color 0.3s;
       cursor: pointer;
+      position: relative;
+      overflow: hidden;
     }
     .card img {
       width: 100px;
@@ -83,10 +85,43 @@
       border-color: #38d9a9;
       background-color: #e0f7f1;
     }
+
+    /* --- Style pour les cartes cosmiques --- */
     .card.cosmic {
-      background: #05214a;
       color: #fff;
+      background: #05214a;
     }
+    .card.cosmic::before {
+      content: '';
+      position: absolute;
+      width: 100px;
+      height: 140%;
+      background-image: linear-gradient(180deg, rgb(0, 183, 255), rgb(255, 48, 255));
+      animation: rotBGimg 3s linear infinite;
+      z-index: 0;
+      transform-origin: center;
+    }
+    .card.cosmic::after {
+      content: '';
+      position: absolute;
+      background: #05214a;
+      inset: 5px;
+      border-radius: 10px;
+      z-index: 1;
+    }
+    .card.cosmic * {
+      position: relative;
+      z-index: 2;
+    }
+    @keyframes rotBGimg {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
     #fightBtn {
       position: fixed;
       bottom: 1.5rem;
@@ -106,6 +141,7 @@
       background: #faa;
       cursor: not-allowed;
     }
+
     @media (max-width: 600px) {
       nav {
         display: none;
