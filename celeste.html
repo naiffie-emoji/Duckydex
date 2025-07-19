@@ -98,30 +98,23 @@
 
     async function init() {
       try {
-        // Charger le mot
         const motRes = await fetch('Word/mots.json');
         if (!motRes.ok) throw new Error("Erreur : Word/mots.json");
         const mots = await motRes.json();
         motCible = mots[Math.floor(Math.random() * mots.length)].toLowerCase();
+        document.getElementById('mot-code').textContent = "Mot à retrouver : " + motCible;
 
-        // Charger alphabet
         const alphaRes = await fetch('alphabet/ancien.json');
         if (!alphaRes.ok) throw new Error("Erreur : alphabet/ancien.json");
         alphabet = await alphaRes.json();
         Object.keys(alphabet).forEach(k => reverseAlphabet[alphabet[k]] = k);
 
-        // Afficher le mot cible en version codée
-        const motCode = motCible.toUpperCase().split('').map(c => alphabet[c] || c).join('');
-        document.getElementById('mot-code').textContent = "Mot à retrouver : " + motCode;
-
-        // Charger texte aléatoire
         const randTexte = Math.floor(Math.random() * 3) + 1;
         const texteRes = await fetch(`texte/texte${randTexte}.json`);
         if (!texteRes.ok) throw new Error("Erreur : texte/texteX.json");
         const data = await texteRes.json();
         texteClair = data.texte || "";
 
-        // Chiffrer texte
         texteCode = texteClair.toUpperCase().split('').map(c => alphabet[c] || c).join('');
         afficherTexteCode();
         majCompteur();
@@ -176,10 +169,17 @@
       }
 
       const tentativeLettres = motTente.split('').map(c => reverseAlphabet[c] || c).join('').toLowerCase();
+
       if (tentativeLettres === motCible) {
-        window.location.href = "https://naiffie-emoji.github.io/Duckydex/index.html?add=cosmique001&uid=7077-0f30-420d-b7db&level=1";
+        alert("Bravo ! Vous avez trouvé le mot céleste : " + motCible);
+        setTimeout(() => {
+          window.location.href = "https://naiffie-emoji.github.io/Duckydex/index.html?add=cosmique001&uid=7077-0f30-420d-b7db&level=1";
+        }, 500);
       } else {
-        window.location.href = "index.html";
+        alert("Ce n'était pas le bon mot... Le message reste un mystère !");
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 500);
       }
     }
 
