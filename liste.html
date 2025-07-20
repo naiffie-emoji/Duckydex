@@ -44,12 +44,16 @@
       background: #222;
       border-radius: 12px;
       padding: 10px;
-      box-shadow: 0 0 10px #444;
+      box-shadow: 0 0 10px #4dabf7;
       text-align: center;
       transition: transform 0.5s, opacity 0.5s;
       transform-origin: center center;
       opacity: 0.4;
       pointer-events: none;
+    }
+
+    .card.no-shadow {
+      box-shadow: none !important;
     }
 
     .card img {
@@ -73,43 +77,45 @@
 
     .card.active {
       transform: scale(1.3);
-      z-index: 3;
+      z-index: 5;
       opacity: 1;
       pointer-events: auto;
     }
 
     .card.left {
       transform: translateX(-180px) scale(1);
-      z-index: 2;
+      z-index: 4;
       opacity: 0.7;
     }
 
     .card.right {
       transform: translateX(180px) scale(1);
-      z-index: 2;
+      z-index: 4;
       opacity: 0.7;
     }
 
     .card.far-left {
       transform: translateX(-360px) scale(0.8);
-      z-index: 1;
+      z-index: 3;
       opacity: 0.3;
     }
 
     .card.far-right {
       transform: translateX(360px) scale(0.8);
-      z-index: 1;
+      z-index: 3;
       opacity: 0.3;
     }
 
     .card.off-left {
       transform: translateX(-600px) scale(0.6);
       opacity: 0;
+      z-index: 1;
     }
 
     .card.off-right {
       transform: translateX(600px) scale(0.6);
       opacity: 0;
+      z-index: 1;
     }
 
     .controls {
@@ -156,7 +162,7 @@
         const nextBtn = document.getElementById('next');
         let index = 0;
 
-        // Créer les éléments DOM
+        // Créer les cartes DOM
         data.forEach(z => {
           const div = document.createElement('div');
           div.className = 'card';
@@ -170,9 +176,19 @@
 
         const cards = Array.from(container.children);
 
+        function applyNoShadow() {
+          cards.forEach(card => card.classList.add('no-shadow'));
+        }
+
+        function removeNoShadow() {
+          cards.forEach(card => card.classList.remove('no-shadow'));
+        }
+
         function updateCarousel(direction = null) {
+          applyNoShadow(); // désactiver les ombres pendant l’animation
+
           cards.forEach((card, i) => {
-            card.className = 'card'; // reset
+            card.className = 'card'; // reset classes
             const rel = (i - index + cards.length) % cards.length;
 
             if (rel === 0) card.classList.add('active');
@@ -182,6 +198,7 @@
             else if (rel === 2) card.classList.add('far-right');
           });
 
+          // Ajout transition de sortie
           if (direction === 'right') {
             const leftMost = (index - 3 + cards.length) % cards.length;
             cards[leftMost].classList.add('off-left');
@@ -191,6 +208,11 @@
             const rightMost = (index + 3) % cards.length;
             cards[rightMost].classList.add('off-right');
           }
+
+          // Rétablir l’ombre après l’animation
+          setTimeout(() => {
+            removeNoShadow();
+          }, 500);
         }
 
         prevBtn.addEventListener('click', () => {
