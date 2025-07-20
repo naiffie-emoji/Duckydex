@@ -17,7 +17,7 @@
       overflow: hidden;
       height: 100%;
       touch-action: none;
-      color-scheme: only light; /* <- empêche iOS de forcer le mode sombre */
+      color-scheme: only light;
     }
 
     .carousel {
@@ -67,7 +67,7 @@
       font-weight: bold;
       font-size: 1em;
       margin-bottom: 4px;
-      color: white !important; /* <- Forçage de la couleur blanche */
+      color: white !important;
     }
 
     .card .rarity {
@@ -139,7 +139,6 @@
       background: #555;
     }
 
-    /* ----- Mobile adaptation ----- */
     @media (max-width: 768px) {
       .cards {
         height: 200px;
@@ -205,7 +204,10 @@
         const carousel = document.getElementById('carousel');
         let index = 0;
 
-        data.forEach(z => {
+        // Filtrage : on exclut les Zōions avec une rareté "Soon"
+        const filteredData = data.filter(z => z.rarity !== 'Soon');
+
+        filteredData.forEach(z => {
           const div = document.createElement('div');
           div.className = 'card';
           div.innerHTML = `
