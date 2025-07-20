@@ -126,7 +126,7 @@
       z-index: -1;
     }
 
-    .card.soon {
+    .card.unicorn {
       background: linear-gradient(to bottom, #599fc7, #97ba60);
       color: white;
     }
@@ -329,7 +329,7 @@
       if (sortBy === "name") {
         ducks.sort((a, b) => a.name.localeCompare(b.name));
       } else if (sortBy === "rarity") {
-        const rarityOrder = { "Cosmique": 0, "Légendaire": 1, "Épique": 2, "Rare": 3, "Commun": 4, "Soon": 5 };
+        const rarityOrder = { "Cosmique": 0, "Légendaire": 1, "Épique": 2, "Rare": 3, "Commun": 4, "Unicorn": 5 };
         ducks.sort((a, b) => rarityOrder[a.rarity] - rarityOrder[b.rarity]);
       }
 
@@ -338,8 +338,8 @@
         card.className = "card";
         if (duck.rarity === "Cosmique") {
           card.classList.add("cosmic");
-        } else if (duck.rarity === "Soon") {
-          card.classList.add("soon");
+        } else if (duck.rarity === "Unicorn") {
+          card.classList.add("unicorn");
         }
 
         card.dataset.uid = duck.uid;
@@ -378,4 +378,4 @@
     });
   </script>
 </body>
-  </html>
+</html>
