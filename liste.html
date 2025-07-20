@@ -25,6 +25,7 @@
       align-items: center;
       justify-content: center;
       perspective: 1000px;
+      touch-action: pan-y;
     }
 
     .cards {
@@ -114,7 +115,7 @@
 
     .controls {
       position: absolute;
-      bottom: 30px;
+      bottom: 20px;
       width: 100%;
       text-align: center;
     }
@@ -134,10 +135,57 @@
     .controls button:hover {
       background: #555;
     }
+
+    /* ----- Mobile adaptation ----- */
+    @media (max-width: 768px) {
+      .cards {
+        height: 200px;
+      }
+
+      .card {
+        width: 120px;
+        height: 180px;
+        padding: 6px;
+      }
+
+      .card img {
+        height: 80px;
+        margin-bottom: 4px;
+      }
+
+      .card.left {
+        transform: translateX(-140px) scale(1);
+      }
+
+      .card.right {
+        transform: translateX(140px) scale(1);
+      }
+
+      .card.far-left {
+        transform: translateX(-260px) scale(0.8);
+      }
+
+      .card.far-right {
+        transform: translateX(260px) scale(0.8);
+      }
+
+      .card.off-left {
+        transform: translateX(-400px) scale(0.6);
+      }
+
+      .card.off-right {
+        transform: translateX(400px) scale(0.6);
+      }
+
+      .controls button {
+        padding: 8px 14px;
+        font-size: 16px;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="carousel">
+  <div class="carousel" id="carousel">
     <div class="cards" id="carousel-cards">
       <!-- Cartes Zōions injectées dynamiquement ici -->
     </div>
@@ -154,6 +202,7 @@
         const container = document.getElementById('carousel-cards');
         const prevBtn = document.getElementById('prev');
         const nextBtn = document.getElementById('next');
+        const carousel = document.getElementById('carousel');
         let index = 0;
 
         // Créer les éléments DOM
@@ -201,6 +250,26 @@
         nextBtn.addEventListener('click', () => {
           index = (index + 1) % cards.length;
           updateCarousel('right');
+        });
+
+        // Swipe support
+        let startX = 0;
+
+        carousel.addEventListener('touchstart', (e) => {
+          startX = e.touches[0].clientX;
+        });
+
+        carousel.addEventListener('touchend', (e) => {
+          const endX = e.changedTouches[0].clientX;
+          const diff = endX - startX;
+
+          if (diff > 40) {
+            index = (index - 1 + cards.length) % cards.length;
+            updateCarousel('left');
+          } else if (diff < -40) {
+            index = (index + 1) % cards.length;
+            updateCarousel('right');
+          }
         });
 
         updateCarousel();
