@@ -251,10 +251,10 @@
     "rarity": "Rare",
     "image": "assets/duck041.png"
               },
-                {
+              {
     "id": "duck042",
-    "name": "tipi",
+    "name": "Titi",
     "rarity": "Rare",
-    "image": "assets/duck041.png"
-                }
+    "image": "assets/duck042.png"
+  }
 ]
