@@ -17,6 +17,7 @@
       overflow: hidden;
       height: 100%;
       touch-action: none;
+      color-scheme: only light; /* <- empêche iOS de forcer le mode sombre */
     }
 
     .carousel {
@@ -66,7 +67,7 @@
       font-weight: bold;
       font-size: 1em;
       margin-bottom: 4px;
-      color: white; /* <-- couleur blanche */
+      color: white !important; /* <- Forçage de la couleur blanche */
     }
 
     .card .rarity {
@@ -180,16 +181,14 @@
       }
 
       .controls {
-        display: none; /* Masquer les boutons sur mobile */
+        display: none;
       }
     }
   </style>
 </head>
 <body>
   <div class="carousel" id="carousel">
-    <div class="cards" id="carousel-cards">
-      <!-- Cartes Zōions injectées dynamiquement ici -->
-    </div>
+    <div class="cards" id="carousel-cards"></div>
     <div class="controls">
       <button id="prev">←</button>
       <button id="next">→</button>
@@ -252,7 +251,6 @@
           updateCarousel('right');
         });
 
-        // Swipe support
         let startX = 0;
 
         carousel.addEventListener('touchstart', (e) => {
