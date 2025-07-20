@@ -252,19 +252,19 @@
     "image": "assets/duck041.png"
               },
               {
-    "id": "unicorn042",
+    "id": "unicorn001",
     "name": "Unicornia",
     "rarity": "Soon",
     "image": "assets/unicorne042.png"
   },
                 {
-    "id": "Unicorn043",
+    "id": "unicorn002",
     "name": "Majestorn",
     "rarity": "Soon",
     "image": "assets/Unicorne043.png"
                 },
                 {
-    "id": "unicorn044",
+    "id": "unicorn003",
     "name": "Ferocorne",
     "rarity": "Soon",
     "image": "assets/unicorne044.png"
