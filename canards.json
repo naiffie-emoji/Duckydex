@@ -238,5 +238,17 @@
     "name": "Psittik",
     "rarity": "Rare",
     "image": "assets/duck039.png"
-            }
+            },
+              {
+    "id": "duck040",
+    "name": "Pluminoza",
+    "rarity": "Rare",
+    "image": "assets/duck040.png"
+              },
+              {
+    "id": "duck041",
+    "name": "Scalazior",
+    "rarity": "Rare",
+    "image": "assets/duck041.png"
+              }
 ]
