@@ -144,25 +144,51 @@
       z-index: 1000;
     }
 
-    #fightBtn, #questBtn {
+    #moreBtn {
       padding: 12px 24px;
-      background: #fa5252;
+      background: #868e96;
       color: white;
       border: none;
       border-radius: 30px;
       font-size: 1.2rem;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
       cursor: pointer;
-      transition: background-color 0.3s;
     }
 
-    #fightBtn:disabled {
-      background: #faa;
-      cursor: not-allowed;
+    #moreMenu {
+      display: none;
+      position: absolute;
+      bottom: 60px;
+      right: 0;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      overflow: hidden;
+      z-index: 1001;
+    }
+
+    #moreMenu a {
+      display: block;
+      padding: 10px 16px;
+      text-decoration: none;
+      color: #333;
+      background: white;
+      transition: background 0.2s;
+    }
+
+    #moreMenu a:hover {
+      background: #f1f3f5;
     }
 
     #questBtn {
+      padding: 12px 24px;
       background: #5c7cfa;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
       position: relative;
     }
 
@@ -238,7 +264,12 @@
         <a href="celeste.html">✨ Quête céleste</a>
       </div>
     </div>
-    <button id="fightBtn" disabled>⚔️ Combattre</button>
+    <div style="position: relative;">
+      <button id="moreBtn">⋯</button>
+      <div id="moreMenu">
+        <a href="liste.html">🗂 Liste</a>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -248,9 +279,10 @@
 
     const collectionContainer = document.getElementById("collection");
     const sortSelect = document.getElementById("sortSelect");
-    const fightBtn = document.getElementById("fightBtn");
     const questBtn = document.getElementById("questBtn");
     const questMenu = document.getElementById("questMenu");
+    const moreBtn = document.getElementById("moreBtn");
+    const moreMenu = document.getElementById("moreMenu");
 
     let collection = JSON.parse(localStorage.getItem("collection") || "[]");
 
@@ -269,16 +301,13 @@
         duckData = data;
         if (collection.length === 0) {
           collectionContainer.innerHTML = "<p>Aucun zoion pour le moment !</p>";
-          fightBtn.disabled = true;
         } else {
           renderCollection();
-          fightBtn.disabled = false;
         }
       })
       .catch(err => {
         collectionContainer.innerHTML = "<p>Erreur de chargement 😢</p>";
         console.error(err);
-        fightBtn.disabled = true;
       });
 
     function renderCollection() {
@@ -313,68 +342,30 @@
           <small>Niveau: ${duck.level}</small>
         `;
 
-        if (selectionMode) {
-          card.classList.add("selectable");
-          card.addEventListener("click", () => toggleSelect(duck.uid, card));
-        } else {
-          card.addEventListener("click", () => {
-            window.location.href = "zoion.html?uid=" + duck.uid;
-          });
-        }
-
-        if (selectedUids.includes(duck.uid)) {
-          card.classList.add("selected");
-        }
+        card.addEventListener("click", () => {
+          window.location.href = "zoion.html?uid=" + duck.uid;
+        });
 
         collectionContainer.appendChild(card);
       });
     }
 
-    function toggleSelect(uid, cardElement) {
-      const index = selectedUids.indexOf(uid);
-      if (index >= 0) {
-        selectedUids.splice(index, 1);
-        cardElement.classList.remove("selected");
-      } else {
-        if (selectedUids.length >= 6) return;
-        selectedUids.push(uid);
-        cardElement.classList.add("selected");
-      }
-      updateFightButtonState();
-    }
-
-    function updateFightButtonState() {
-      fightBtn.disabled = !selectionMode || selectedUids.length === 0;
-    }
-
-    fightBtn.addEventListener("click", () => {
-      if (!selectionMode) {
-        selectionMode = true;
-        fightBtn.textContent = "✅ Lancer";
-        renderCollection();
-        updateFightButtonState();
-        return;
-      }
-      if (selectedUids.length === 0) {
-        alert("Sélectionne au moins un zōion !");
-        return;
-      }
-
-      const selected = collection.filter(obj => selectedUids.includes(obj.uid));
-      const ids = selected.map(z => z.id);
-      const levels = selected.map(z => z.level || 1);
-
-      const url = `http://54.37.50.18/combat.html?ids=${ids.join(",")}&levels=${levels.join(",")}`;
-      window.location.href = url;
-    });
-
     questBtn.addEventListener("click", () => {
       questMenu.style.display = questMenu.style.display === "block" ? "none" : "block";
+      moreMenu.style.display = "none";
+    });
+
+    moreBtn.addEventListener("click", () => {
+      moreMenu.style.display = moreMenu.style.display === "block" ? "none" : "block";
+      questMenu.style.display = "none";
     });
 
     window.addEventListener("click", (e) => {
       if (!questBtn.contains(e.target) && !questMenu.contains(e.target)) {
         questMenu.style.display = "none";
+      }
+      if (!moreBtn.contains(e.target) && !moreMenu.contains(e.target)) {
+        moreMenu.style.display = "none";
       }
     });
   </script>
