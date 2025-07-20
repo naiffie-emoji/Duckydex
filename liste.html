@@ -102,6 +102,16 @@
       opacity: 0.3;
     }
 
+    .card.off-left {
+      transform: translateX(-600px) scale(0.6);
+      opacity: 0;
+    }
+
+    .card.off-right {
+      transform: translateX(600px) scale(0.6);
+      opacity: 0;
+    }
+
     .controls {
       position: absolute;
       bottom: 30px;
@@ -160,33 +170,37 @@
 
         const cards = Array.from(container.children);
 
-        function updateCarousel() {
+        function updateCarousel(direction = null) {
           cards.forEach((card, i) => {
             card.className = 'card'; // reset
-            const relativeIndex = (i - index + cards.length) % cards.length;
+            const rel = (i - index + cards.length) % cards.length;
 
-            if (relativeIndex === 0) {
-              card.classList.add('active');
-            } else if (relativeIndex === cards.length - 1) {
-              card.classList.add('left');
-            } else if (relativeIndex === 1) {
-              card.classList.add('right');
-            } else if (relativeIndex === cards.length - 2) {
-              card.classList.add('far-left');
-            } else if (relativeIndex === 2) {
-              card.classList.add('far-right');
-            }
+            if (rel === 0) card.classList.add('active');
+            else if (rel === cards.length - 1) card.classList.add('left');
+            else if (rel === 1) card.classList.add('right');
+            else if (rel === cards.length - 2) card.classList.add('far-left');
+            else if (rel === 2) card.classList.add('far-right');
           });
+
+          if (direction === 'right') {
+            const leftMost = (index - 3 + cards.length) % cards.length;
+            cards[leftMost].classList.add('off-left');
+          }
+
+          if (direction === 'left') {
+            const rightMost = (index + 3) % cards.length;
+            cards[rightMost].classList.add('off-right');
+          }
         }
 
         prevBtn.addEventListener('click', () => {
           index = (index - 1 + cards.length) % cards.length;
-          updateCarousel();
+          updateCarousel('left');
         });
 
         nextBtn.addEventListener('click', () => {
           index = (index + 1) % cards.length;
-          updateCarousel();
+          updateCarousel('right');
         });
 
         updateCarousel();
