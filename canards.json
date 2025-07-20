@@ -255,18 +255,18 @@
     "id": "unicorn001",
     "name": "Unicornia",
     "rarity": "Soon",
-    "image": "assets/unicorne042.png"
+    "image": "assets/unicorne001.png"
   },
                 {
     "id": "unicorn002",
     "name": "Majestorn",
     "rarity": "Soon",
-    "image": "assets/Unicorne043.png"
+    "image": "assets/unicorne002.png"
                 },
                 {
     "id": "unicorn003",
     "name": "Ferocorne",
     "rarity": "Soon",
-    "image": "assets/unicorne044.png"
+    "image": "assets/unicorne003.png"
                 }
 ]
