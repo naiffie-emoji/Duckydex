@@ -9,12 +9,14 @@
       box-sizing: border-box;
     }
 
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
       background: #111;
       font-family: Arial, sans-serif;
-      overflow: hidden;
-      color: white;
+      overflow: hidden;         /* Empêche le scroll */
+      height: 100%;
+      touch-action: none;       /* Empêche le scroll + gestures */
     }
 
     .carousel {
@@ -25,7 +27,6 @@
       align-items: center;
       justify-content: center;
       perspective: 1000px;
-      touch-action: pan-y;
     }
 
     .cards {
@@ -205,7 +206,6 @@
         const carousel = document.getElementById('carousel');
         let index = 0;
 
-        // Créer les éléments DOM
         data.forEach(z => {
           const div = document.createElement('div');
           div.className = 'card';
@@ -221,7 +221,7 @@
 
         function updateCarousel(direction = null) {
           cards.forEach((card, i) => {
-            card.className = 'card'; // reset
+            card.className = 'card';
             const rel = (i - index + cards.length) % cards.length;
 
             if (rel === 0) card.classList.add('active');
