@@ -13,6 +13,7 @@
       width: 100%;
       overflow: hidden;
       touch-action: none;
+      font-family: sans-serif;
     }
 
     .viewport {
@@ -83,6 +84,29 @@
     .zoion.flipped img {
       transform: scaleX(-1);
     }
+
+    /* === Bouton Timer Fixe === */
+    .timer-button {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #ffffffcc;
+      color: #000;
+      border: none;
+      font-size: 20px;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+      cursor: pointer;
+      z-index: 999;
+      transition: background 0.3s;
+    }
+
+    .timer-button:hover {
+      background: #ffffffee;
+    }
   </style>
 </head>
 <body>
@@ -92,6 +116,9 @@
       <div id="grid" class="grid-overlay"></div>
     </div>
   </div>
+
+  <!-- Bouton Timer -->
+  <button class="timer-button" onclick="showTimer()">⏱</button>
 
   <script>
     const rarityWeights = {
@@ -149,12 +176,29 @@
       const elapsed = now - lastSpawn;
 
       if (elapsed >= SPAWN_INTERVAL) {
-        await generateNewZoions(); // Génère et stocke
+        await generateNewZoions();
         localStorage.setItem('lastSpawnTime', now.toString());
       }
 
-      loadZoionsFromStorage(); // Affiche ceux déjà générés
+      loadZoionsFromStorage();
     };
+
+    function showTimer() {
+      const last = parseInt(localStorage.getItem('lastSpawnTime') || '0');
+      const now = Date.now();
+      const remaining = SPAWN_INTERVAL - (now - last);
+
+      if (remaining <= 0) {
+        alert("Des Zoions peuvent déjà réapparaître !");
+        return;
+      }
+
+      const hours = Math.floor(remaining / 3600000);
+      const minutes = Math.floor((remaining % 3600000) / 60000);
+      const seconds = Math.floor((remaining % 60000) / 1000);
+
+      alert(`Prochaine réapparition dans : ${hours}h ${minutes}m ${seconds}s`);
+    }
 
     function centerMap() {
       const viewW = viewport.clientWidth;
