@@ -87,6 +87,9 @@
     let mapWidth = 0;
     let mapHeight = 0;
 
+    let lastTapTime = 0;
+    let lastTappedChunk = null;
+
     map.onload = () => {
       mapWidth = map.naturalWidth;
       mapHeight = map.naturalHeight;
@@ -119,21 +122,25 @@
             console.log(`Chunk sélectionné : ${x},${y}`);
           });
 
-          // Double-clic ordinateur
+          // Double-clic (ordinateur)
           div.addEventListener('dblclick', (e) => {
             e.stopPropagation();
             window.location.href = "https://naiffie-emoji.github.io/Duckydex/index.html";
           });
 
-          // Double tap mobile
-          let lastTap = 0;
+          // Double tap (mobile) — uniquement si même chunk
           div.addEventListener('touchend', (e) => {
             const currentTime = new Date().getTime();
-            const tapLength = currentTime - lastTap;
-            if (tapLength < 300 && tapLength > 0) {
+            const tapGap = currentTime - lastTapTime;
+
+            if (lastTappedChunk === div && tapGap < 300) {
               window.location.href = "https://naiffie-emoji.github.io/Duckydex/index.html";
+              lastTappedChunk = null;
+              lastTapTime = 0;
+            } else {
+              lastTappedChunk = div;
+              lastTapTime = currentTime;
             }
-            lastTap = currentTime;
           });
 
           grid.appendChild(div);
