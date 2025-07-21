@@ -63,6 +63,7 @@
       flex-direction: column;
       align-items: center;
       transition: left 2s linear, top 2s linear;
+      cursor: pointer;
     }
 
     .zoion-name {
@@ -152,6 +153,7 @@
       centerMap();
       updateTransform();
       fetchAndGenerateZoions();
+      setInterval(fetchAndGenerateZoions, 10800000); // 3 heures
     };
 
     function centerMap() {
@@ -210,13 +212,18 @@
       zoion.appendChild(img);
       container.appendChild(zoion);
 
+      // Lien vers fight.html?id=...
+      zoion.addEventListener('click', () => {
+        window.location.href = `fight.html?id=${encodeURIComponent(data.id)}`;
+      });
+
       performAction(zoion);
     }
 
     function performAction(zoion) {
       const actions = ['wait', 'walk', 'flip'];
       const action = actions[Math.floor(Math.random() * actions.length)];
-      const duration = action === 'wait' ? 5000 : action === 'walk' ? 2000 : 2000;
+      const duration = action === 'wait' ? 5000 : 2000;
 
       if (action === 'flip') {
         zoion.classList.toggle('flipped');
