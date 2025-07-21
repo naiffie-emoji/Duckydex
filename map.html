@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Carte Interactive</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=no">
   <style>
     html, body {
       margin: 0;
@@ -76,6 +76,9 @@
 
     let selectedChunk = null;
     let scale = 2; // Zoom par défaut
+    let minScale = 1; // Zoom minimum autorisé
+    let maxScale = 4; // Zoom maximum autorisé
+
     let originX = 0;
     let originY = 0;
     let isDragging = false;
@@ -122,14 +125,16 @@
         }
       }
 
-      // Centre initial avec zoom
+      centerMap();
+      updateTransform();
+    };
+
+    function centerMap() {
       const viewW = viewport.clientWidth;
       const viewH = viewport.clientHeight;
       originX = (viewW - mapWidth * scale) / 2;
       originY = (viewH - mapHeight * scale) / 2;
-
-      updateTransform();
-    };
+    }
 
     function updateTransform() {
       clampPosition();
@@ -137,15 +142,15 @@
     }
 
     function clampPosition() {
-      const maxX = 0;
-      const maxY = 0;
       const minX = viewport.clientWidth - mapWidth * scale;
       const minY = viewport.clientHeight - mapHeight * scale;
+      const maxX = 0;
+      const maxY = 0;
       originX = Math.max(minX, Math.min(maxX, originX));
       originY = Math.max(minY, Math.min(maxY, originY));
     }
 
-    // Souris
+    // Souris (PC)
     viewport.addEventListener('mousedown', (e) => {
       isDragging = true;
       startX = e.clientX;
@@ -154,8 +159,8 @@
 
     viewport.addEventListener('mousemove', (e) => {
       if (isDragging) {
-        originX += (e.clientX - startX);
-        originY += (e.clientY - startY);
+        originX += e.clientX - startX;
+        originY += e.clientY - startY;
         startX = e.clientX;
         startY = e.clientY;
         updateTransform();
@@ -165,7 +170,7 @@
     viewport.addEventListener('mouseup', () => isDragging = false);
     viewport.addEventListener('mouseleave', () => isDragging = false);
 
-    // Zoom souris
+    // Zoom PC
     viewport.addEventListener('wheel', (e) => {
       e.preventDefault();
       const rect = viewport.getBoundingClientRect();
@@ -174,14 +179,14 @@
 
       const delta = e.deltaY > 0 ? 0.9 : 1.1;
       scale *= delta;
-      scale = Math.max(0.5, Math.min(4, scale));
+      scale = Math.max(minScale, Math.min(maxScale, scale));
 
       originX = e.clientX - offsetX * scale;
       originY = e.clientY - offsetY * scale;
       updateTransform();
     });
 
-    // Touchscreen
+    // Mobile : zoom + drag
     let lastDist = null;
     viewport.addEventListener('touchstart', (e) => {
       if (e.touches.length === 2) {
@@ -199,7 +204,7 @@
         if (lastDist) {
           const delta = dist / lastDist;
           scale *= delta;
-          scale = Math.max(0.5, Math.min(4, scale));
+          scale = Math.max(minScale, Math.min(maxScale, scale));
           lastDist = dist;
         }
       } else if (e.touches.length === 1) {
