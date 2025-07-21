@@ -12,6 +12,7 @@
       height: 100%;
       width: 100%;
       overflow: hidden;
+      touch-action: none;
     }
 
     .viewport {
@@ -75,16 +76,14 @@
     const viewport = document.getElementById('viewport');
 
     let selectedChunk = null;
-    let scale = 5; // Zoom par défaut
-    let minScale = 4; // Zoom minimum autorisé
-    let maxScale = 6; // Zoom maximum autorisé
-
+    let scale = 5;        // Zoom initial
+    let minScale = 4;     // Zoom minimum
+    let maxScale = 6;     // Zoom maximum
     let originX = 0;
     let originY = 0;
     let isDragging = false;
     let startX = 0;
     let startY = 0;
-
     let mapWidth = 0;
     let mapHeight = 0;
 
@@ -117,7 +116,6 @@
             if (selectedChunk) selectedChunk.classList.remove('selected');
             div.classList.add('selected');
             selectedChunk = div;
-
             console.log(`Chunk sélectionné : ${x},${y}`);
           });
 
@@ -150,7 +148,7 @@
       originY = Math.max(minY, Math.min(maxY, originY));
     }
 
-    // Souris (PC)
+    // Souris
     viewport.addEventListener('mousedown', (e) => {
       isDragging = true;
       startX = e.clientX;
@@ -186,7 +184,7 @@
       updateTransform();
     });
 
-    // Mobile : zoom + drag
+    // Mobile
     let lastDist = null;
     viewport.addEventListener('touchstart', (e) => {
       if (e.touches.length === 2) {
