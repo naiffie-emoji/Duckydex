@@ -64,6 +64,7 @@
       align-items: center;
       transition: left 2s linear, top 2s linear;
       cursor: pointer;
+      z-index: 5;
     }
 
     .zoion-name {
@@ -74,12 +75,14 @@
       border-radius: 4px;
       margin-bottom: 4px;
       user-select: none;
+      pointer-events: none;
     }
 
     .zoion img {
       width: 48px;
       height: 48px;
       transition: transform 0.5s;
+      pointer-events: none;
     }
 
     .zoion.flipped img {
@@ -97,11 +100,11 @@
 
   <script>
     const rarityWeights = {
-      "Commun": 5,
+      "Commun": 8,
       "Rare": 3,
-      "Épique": 2,
-      "Légendaire": 1,
-      "Cosmique": 0.5
+      "Épique": 1,
+      "Légendaire": 0.5,
+      "Cosmique": 0.1
     };
 
     const chunksX = 30;
@@ -153,7 +156,7 @@
       centerMap();
       updateTransform();
       fetchAndGenerateZoions();
-      setInterval(fetchAndGenerateZoions, 10800000); // 3 heures
+      setInterval(fetchAndGenerateZoions, 10800000); // toutes les 3h
     };
 
     function centerMap() {
@@ -212,10 +215,19 @@
       zoion.appendChild(img);
       container.appendChild(zoion);
 
-      // Lien vers fight.html?id=...
-      zoion.addEventListener('click', () => {
+      const goToFight = () => {
+        zoion.remove();
         window.location.href = `fight.html?id=${encodeURIComponent(data.id)}`;
-      });
+      };
+
+      // Gestion clic souris
+      zoion.addEventListener('click', goToFight);
+
+      // Gestion tap tactile
+      zoion.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        goToFight();
+      }, { passive: false });
 
       performAction(zoion);
     }
