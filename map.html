@@ -76,9 +76,9 @@
     const viewport = document.getElementById('viewport');
 
     let selectedChunk = null;
-    let scale = 5;        // Zoom initial
-    let minScale = 4;     // Zoom minimum
-    let maxScale = 6;     // Zoom maximum
+    let scale = 5;
+    let minScale = 4;
+    let maxScale = 6;
     let originX = 0;
     let originY = 0;
     let isDragging = false;
@@ -117,6 +117,12 @@
             div.classList.add('selected');
             selectedChunk = div;
             console.log(`Chunk sélectionné : ${x},${y}`);
+          });
+
+          // Double-clic : redirection
+          div.addEventListener('dblclick', (e) => {
+            e.stopPropagation();
+            window.location.href = "https://naiffie-emoji.github.io/Duckydex/index.html";
           });
 
           grid.appendChild(div);
