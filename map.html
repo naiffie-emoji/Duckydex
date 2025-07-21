@@ -2,27 +2,25 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Carte Interactive</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Carte interactive</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      background: #000;
-      height: 100%;
-      width: 100%;
       overflow: hidden;
-    }
-
-    .viewport {
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-      position: relative;
+      background: black;
       touch-action: none;
     }
 
-    .map-container {
+    #map-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      cursor: grab;
+    }
+
+    #map {
       position: absolute;
       top: 0;
       left: 0;
@@ -30,188 +28,109 @@
       image-rendering: pixelated;
     }
 
-    .map-image {
-      display: block;
-      max-width: none;
-      user-select: none;
-      pointer-events: none;
-    }
-
-    .grid-overlay {
+    .chunk-highlight {
       position: absolute;
-      top: 0;
-      left: 0;
-      display: grid;
-      pointer-events: none;
-    }
-
-    .chunk {
-      pointer-events: auto;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-sizing: border-box;
-    }
-
-    .chunk.selected {
       border: 2px solid white;
-      z-index: 10;
+      box-sizing: border-box;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
-  <div class="viewport" id="viewport">
-    <div class="map-container" id="mapContainer">
-      <img id="map" class="map-image" src="carte/map.png" alt="Carte">
-      <div id="grid" class="grid-overlay"></div>
-    </div>
+  <div id="map-container">
+    <img id="map" src="carte/map.png" alt="Carte">
+    <div id="highlight" class="chunk-highlight" style="display: none;"></div>
   </div>
 
   <script>
-    const chunksX = 30;
-    const chunksY = 20;
-
     const map = document.getElementById('map');
-    const grid = document.getElementById('grid');
-    const container = document.getElementById('mapContainer');
-    const viewport = document.getElementById('viewport');
+    const container = document.getElementById('map-container');
+    const highlight = document.getElementById('highlight');
 
-    let selectedChunk = null;
+    const zoom = 2; // Zoom par défaut
+    const chunkSize = 16;
+    const sectionWidth = 30 * chunkSize;
+    const sectionHeight = 20 * chunkSize;
 
-    let scale = 1;
-    let originX = 0;
-    let originY = 0;
     let isDragging = false;
-    let startX = 0;
-    let startY = 0;
+    let startX = 0, startY = 0;
+    let offsetX = 0, offsetY = 0;
 
     map.onload = () => {
-      const width = map.naturalWidth;
-      const height = map.naturalHeight;
-
-      container.style.width = width + "px";
-      container.style.height = height + "px";
-
-      const chunkWidth = width / chunksX;
-      const chunkHeight = height / chunksY;
-
-      grid.style.width = width + 'px';
-      grid.style.height = height + 'px';
-      grid.style.gridTemplateColumns = `repeat(${chunksX}, ${chunkWidth}px)`;
-      grid.style.gridTemplateRows = `repeat(${chunksY}, ${chunkHeight}px)`;
-
-      for (let y = 0; y < chunksY; y++) {
-        for (let x = 0; x < chunksX; x++) {
-          const div = document.createElement('div');
-          div.classList.add('chunk');
-          div.dataset.x = x;
-          div.dataset.y = y;
-          div.style.width = chunkWidth + 'px';
-          div.style.height = chunkHeight + 'px';
-
-          div.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (selectedChunk) {
-              selectedChunk.classList.remove('selected');
-            }
-            div.classList.add('selected');
-            selectedChunk = div;
-
-            console.log(`Chunk sélectionné : ${x},${y}`);
-          });
-
-          grid.appendChild(div);
-        }
-      }
-
-      // Centre la carte
-      const viewWidth = viewport.clientWidth;
-      const viewHeight = viewport.clientHeight;
-      originX = (viewWidth - width) / 2;
-      originY = (viewHeight - height) / 2;
-
-      updateTransform();
+      map.style.transform = `scale(${zoom})`;
+      map.width *= zoom;
+      map.height *= zoom;
     };
 
-    // Déplacement (PC)
-    viewport.addEventListener('mousedown', (e) => {
+    // Drag avec souris ou tactile
+    const startDrag = (x, y) => {
       isDragging = true;
-      startX = e.clientX;
-      startY = e.clientY;
-    });
+      startX = x - offsetX;
+      startY = y - offsetY;
+      container.style.cursor = 'grabbing';
+    };
 
-    viewport.addEventListener('mousemove', (e) => {
-      if (isDragging) {
-        originX += (e.clientX - startX) / scale;
-        originY += (e.clientY - startY) / scale;
-        startX = e.clientX;
-        startY = e.clientY;
-        updateTransform();
-      }
-    });
+    const drag = (x, y) => {
+      if (!isDragging) return;
+      offsetX = x - startX;
+      offsetY = y - startY;
+      clampOffset();
+      updateMapPosition();
+    };
 
-    viewport.addEventListener('mouseup', () => isDragging = false);
-    viewport.addEventListener('mouseleave', () => isDragging = false);
+    const endDrag = () => {
+      isDragging = false;
+      container.style.cursor = 'grab';
+    };
 
-    // Zoom souris
-    viewport.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      const rect = viewport.getBoundingClientRect();
-      const offsetX = (e.clientX - rect.left - originX) / scale;
-      const offsetY = (e.clientY - rect.top - originY) / scale;
+    const clampOffset = () => {
+      const maxX = 0;
+      const maxY = 0;
+      const minX = container.clientWidth - map.width;
+      const minY = container.clientHeight - map.height;
+      offsetX = Math.min(maxX, Math.max(minX, offsetX));
+      offsetY = Math.min(maxY, Math.max(minY, offsetY));
+    };
 
-      const delta = e.deltaY > 0 ? 0.9 : 1.1;
-      scale *= delta;
-      scale = Math.max(0.2, Math.min(5, scale));
+    const updateMapPosition = () => {
+      map.style.left = offsetX + 'px';
+      map.style.top = offsetY + 'px';
+    };
 
-      originX = e.clientX - offsetX * scale;
-      originY = e.clientY - offsetY * scale;
-      updateTransform();
-    });
+    // Souris
+    container.addEventListener('mousedown', e => startDrag(e.clientX, e.clientY));
+    container.addEventListener('mousemove', e => drag(e.clientX, e.clientY));
+    container.addEventListener('mouseup', endDrag);
+    container.addEventListener('mouseleave', endDrag);
 
-    // Zoom mobile (pinch + drag)
-    let lastDist = null;
-    viewport.addEventListener('touchstart', (e) => {
-      if (e.touches.length === 2) {
-        lastDist = getTouchDist(e);
-      } else if (e.touches.length === 1) {
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-      }
-    });
-
-    viewport.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-      if (e.touches.length === 2) {
-        const dist = getTouchDist(e);
-        if (lastDist) {
-          const delta = dist / lastDist;
-          scale *= delta;
-          scale = Math.max(0.2, Math.min(5, scale));
-          lastDist = dist;
-        }
-      } else if (e.touches.length === 1) {
-        const dx = e.touches[0].clientX - startX;
-        const dy = e.touches[0].clientY - startY;
-        originX += dx / scale;
-        originY += dy / scale;
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-      }
-      updateTransform();
+    // Tactile
+    container.addEventListener('touchstart', e => {
+      const touch = e.touches[0];
+      startDrag(touch.clientX, touch.clientY);
     }, { passive: false });
+    container.addEventListener('touchmove', e => {
+      const touch = e.touches[0];
+      drag(touch.clientX, touch.clientY);
+    }, { passive: false });
+    container.addEventListener('touchend', endDrag);
 
-    viewport.addEventListener('touchend', () => {
-      lastDist = null;
+    // Sélection d’un chunk (section)
+    container.addEventListener('click', (e) => {
+      const clickX = (e.clientX - offsetX) / zoom;
+      const clickY = (e.clientY - offsetY) / zoom;
+
+      const sectionX = Math.floor(clickX / sectionWidth);
+      const sectionY = Math.floor(clickY / sectionHeight);
+
+      const highlightX = sectionX * sectionWidth * zoom + offsetX;
+      const highlightY = sectionY * sectionHeight * zoom + offsetY;
+
+      highlight.style.left = highlightX + 'px';
+      highlight.style.top = highlightY + 'px';
+      highlight.style.width = sectionWidth * zoom + 'px';
+      highlight.style.height = sectionHeight * zoom + 'px';
+      highlight.style.display = 'block';
     });
-
-    function getTouchDist(e) {
-      const dx = e.touches[0].clientX - e.touches[1].clientX;
-      const dy = e.touches[0].clientY - e.touches[1].clientY;
-      return Math.sqrt(dx * dx + dy * dy);
-    }
-
-    function updateTransform() {
-      container.style.transform = `translate(${originX}px, ${originY}px) scale(${scale})`;
-    }
   </script>
 </body>
 </html>
