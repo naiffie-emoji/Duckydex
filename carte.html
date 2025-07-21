@@ -56,6 +56,25 @@
       border: 2px solid white;
       z-index: 10;
     }
+
+    .duck {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: sans-serif;
+      font-size: 12px;
+      color: white;
+      pointer-events: none;
+      transform-origin: center;
+      transition: transform 0.5s ease;
+    }
+
+    .duck img {
+      width: 48px;
+      height: 48px;
+      image-rendering: pixelated;
+    }
   </style>
 </head>
 <body>
@@ -67,6 +86,18 @@
   </div>
 
   <script>
+    const duckData = [
+      { name: "The canard", image: "assets/duck001.png" },
+      { name: "Lucky duck", image: "assets/duck002.png" },
+      { name: "So'", image: "assets/duck003.png" },
+      { name: "Leoli", image: "assets/duck004.png" },
+      { name: "Léachat", image: "assets/duck005.png" },
+      { name: "Aqua", image: "assets/duck006.png" },
+      { name: "Mérédith", image: "assets/duck007.png" },
+      { name: "Donalduck", image: "assets/duck012.png" },
+      { name: "Angeline", image: "assets/duck018.png" }
+    ];
+
     const chunksX = 30;
     const chunksY = 20;
 
@@ -109,14 +140,13 @@
           div.dataset.y = y;
           div.style.width = chunkWidth + 'px';
           div.style.height = chunkHeight + 'px';
-
-          // Aucun événement ajouté ici
           grid.appendChild(div);
         }
       }
 
       centerMap();
       updateTransform();
+      spawnDucks();
     };
 
     function centerMap() {
@@ -140,7 +170,7 @@
       originY = Math.max(minY, Math.min(maxY, originY));
     }
 
-    // Souris
+    // Drag souris
     viewport.addEventListener('mousedown', (e) => {
       isDragging = true;
       startX = e.clientX;
@@ -176,7 +206,7 @@
       updateTransform();
     });
 
-    // Mobile pinch + drag
+    // Pinch Mobile
     let lastDist = null;
     viewport.addEventListener('touchstart', (e) => {
       if (e.touches.length === 2) {
@@ -216,6 +246,49 @@
       const dx = e.touches[0].clientX - e.touches[1].clientX;
       const dy = e.touches[0].clientY - e.touches[1].clientY;
       return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function spawnDucks() {
+      const count = Math.floor(Math.random() * 3) + 1;
+      for (let i = 0; i < count; i++) {
+        const duck = duckData[Math.floor(Math.random() * duckData.length)];
+        const duckEl = document.createElement('div');
+        duckEl.classList.add('duck');
+        duckEl.style.left = Math.random() * (mapWidth - 64) + 'px';
+        duckEl.style.top = Math.random() * (mapHeight - 64) + 'px';
+
+        duckEl.innerHTML = `<div>${duck.name}</div><img src="${duck.image}" alt="${duck.name}">`;
+        container.appendChild(duckEl);
+
+        animateDuck(duckEl);
+      }
+    }
+
+    function animateDuck(duckEl) {
+      function nextAction() {
+        const actions = [
+          { name: 'wait', duration: 5000 },
+          { name: 'walk', duration: 4000 },
+          { name: 'flip', duration: 2000 }
+        ];
+        const action = actions[Math.floor(Math.random() * actions.length)];
+
+        if (action.name === 'wait') {
+          setTimeout(nextAction, action.duration);
+        } else if (action.name === 'walk') {
+          const dx = Math.random() * 40 - 20;
+          const dy = Math.random() * 40 - 20;
+          const currLeft = parseFloat(duckEl.style.left);
+          const currTop = parseFloat(duckEl.style.top);
+          duckEl.style.left = Math.max(0, Math.min(mapWidth - 64, currLeft + dx)) + 'px';
+          duckEl.style.top = Math.max(0, Math.min(mapHeight - 64, currTop + dy)) + 'px';
+          setTimeout(nextAction, action.duration);
+        } else if (action.name === 'flip') {
+          duckEl.style.transform = duckEl.style.transform === 'scaleX(-1)' ? 'scaleX(1)' : 'scaleX(-1)';
+          setTimeout(nextAction, action.duration);
+        }
+      }
+      nextAction();
     }
   </script>
 </body>
