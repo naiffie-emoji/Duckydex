@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Carte Interactive</title>
+  <style>
+    body {
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .map-container {
+      position: relative;
+      image-rendering: pixelated;
+    }
+
+    .map-image {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+
+    .grid-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: grid;
+      pointer-events: none; /* autorise le clic à travers */
+      border: 1px solid transparent;
+    }
+
+    .chunk {
+      pointer-events: auto;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-sizing: border-box;
+    }
+
+    .chunk.selected {
+      border: 2px solid white;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div class="map-container">
+    <img id="map" class="map-image" src="carte/map.png" alt="Carte">
+    <div id="grid" class="grid-overlay"></div>
+  </div>
+
+  <script>
+    const chunksX = 30;
+    const chunksY = 20;
+
+    const map = document.getElementById('map');
+    const grid = document.getElementById('grid');
+
+    let selectedChunk = null;
+
+    map.onload = () => {
+      const width = map.width;
+      const height = map.height;
+
+      const chunkWidth = width / chunksX;
+      const chunkHeight = height / chunksY;
+
+      // Configure la grille
+      grid.style.width = width + 'px';
+      grid.style.height = height + 'px';
+      grid.style.gridTemplateColumns = `repeat(${chunksX}, 1fr)`;
+      grid.style.gridTemplateRows = `repeat(${chunksY}, 1fr)`;
+
+      // Crée les chunks
+      for (let y = 0; y < chunksY; y++) {
+        for (let x = 0; x < chunksX; x++) {
+          const div = document.createElement('div');
+          div.classList.add('chunk');
+          div.dataset.x = x;
+          div.dataset.y = y;
+          div.style.width = chunkWidth + 'px';
+          div.style.height = chunkHeight + 'px';
+
+          div.addEventListener('click', () => {
+            if (selectedChunk) {
+              selectedChunk.classList.remove('selected');
+            }
+            div.classList.add('selected');
+            selectedChunk = div;
+
+            console.log(`Chunk sélectionné : ${x},${y}`);
+          });
+
+          grid.appendChild(div);
+        }
+      }
+    };
+  </script>
+</body>
+</html>
