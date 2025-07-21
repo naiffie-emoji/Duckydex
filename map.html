@@ -3,25 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <title>Carte Interactive</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
-      background: #000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+    html, body {
       margin: 0;
+      padding: 0;
+      background: #000;
+      overflow: hidden;
+      height: 100%;
+    }
+
+    .viewport {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      touch-action: none;
+      position: relative;
     }
 
     .map-container {
-      position: relative;
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform-origin: top left;
       image-rendering: pixelated;
     }
 
     .map-image {
       display: block;
-      max-width: 100%;
-      height: auto;
+      max-width: none;
     }
 
     .grid-overlay {
@@ -29,13 +39,12 @@
       top: 0;
       left: 0;
       display: grid;
-      pointer-events: none; /* autorise le clic à travers */
-      border: 1px solid transparent;
+      pointer-events: none;
     }
 
     .chunk {
       pointer-events: auto;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       box-sizing: border-box;
     }
 
@@ -46,9 +55,11 @@
   </style>
 </head>
 <body>
-  <div class="map-container">
-    <img id="map" class="map-image" src="carte/map.png" alt="Carte">
-    <div id="grid" class="grid-overlay"></div>
+  <div class="viewport" id="viewport">
+    <div class="map-container" id="mapContainer">
+      <img id="map" class="map-image" src="carte/map.png" alt="Carte">
+      <div id="grid" class="grid-overlay"></div>
+    </div>
   </div>
 
   <script>
@@ -57,12 +68,24 @@
 
     const map = document.getElementById('map');
     const grid = document.getElementById('grid');
+    const container = document.getElementById('mapContainer');
+    const viewport = document.getElementById('viewport');
 
     let selectedChunk = null;
 
+    let scale = 1;
+    let originX = 0;
+    let originY = 0;
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+
     map.onload = () => {
-      const width = map.width;
-      const height = map.height;
+      const width = map.naturalWidth;
+      const height = map.naturalHeight;
+
+      container.style.width = width + "px";
+      container.style.height = height + "px";
 
       const chunkWidth = width / chunksX;
       const chunkHeight = height / chunksY;
@@ -70,8 +93,8 @@
       // Configure la grille
       grid.style.width = width + 'px';
       grid.style.height = height + 'px';
-      grid.style.gridTemplateColumns = `repeat(${chunksX}, 1fr)`;
-      grid.style.gridTemplateRows = `repeat(${chunksY}, 1fr)`;
+      grid.style.gridTemplateColumns = `repeat(${chunksX}, ${chunkWidth}px)`;
+      grid.style.gridTemplateRows = `repeat(${chunksY}, ${chunkHeight}px)`;
 
       // Crée les chunks
       for (let y = 0; y < chunksY; y++) {
@@ -83,7 +106,8 @@
           div.style.width = chunkWidth + 'px';
           div.style.height = chunkHeight + 'px';
 
-          div.addEventListener('click', () => {
+          div.addEventListener('click', (e) => {
+            e.stopPropagation();
             if (selectedChunk) {
               selectedChunk.classList.remove('selected');
             }
@@ -96,7 +120,85 @@
           grid.appendChild(div);
         }
       }
+
+      updateTransform();
     };
+
+    // Déplacement (drag)
+    viewport.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
+    });
+
+    viewport.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        originX += (e.clientX - startX) / scale;
+        originY += (e.clientY - startY) / scale;
+        startX = e.clientX;
+        startY = e.clientY;
+        updateTransform();
+      }
+    });
+
+    viewport.addEventListener('mouseup', () => isDragging = false);
+    viewport.addEventListener('mouseleave', () => isDragging = false);
+
+    // Zoom souris
+    viewport.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? 0.9 : 1.1;
+      scale *= delta;
+      scale = Math.max(0.2, Math.min(5, scale));
+      updateTransform();
+    });
+
+    // Zoom mobile (pinch)
+    let lastDist = null;
+    viewport.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 2) {
+        lastDist = getTouchDist(e);
+      } else if (e.touches.length === 1) {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+      }
+    });
+
+    viewport.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      if (e.touches.length === 2) {
+        const dist = getTouchDist(e);
+        if (lastDist) {
+          const delta = dist / lastDist;
+          scale *= delta;
+          scale = Math.max(0.2, Math.min(5, scale));
+          updateTransform();
+        }
+        lastDist = dist;
+      } else if (e.touches.length === 1) {
+        const dx = e.touches[0].clientX - startX;
+        const dy = e.touches[0].clientY - startY;
+        originX += dx / scale;
+        originY += dy / scale;
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        updateTransform();
+      }
+    }, { passive: false });
+
+    viewport.addEventListener('touchend', () => {
+      lastDist = null;
+    });
+
+    function getTouchDist(e) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function updateTransform() {
+      container.style.transform = `translate(${originX}px, ${originY}px) scale(${scale})`;
+    }
   </script>
 </body>
 </html>
