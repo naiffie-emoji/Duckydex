@@ -62,7 +62,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      transition: transform 0.5s;
+      transition: left 4s linear, top 4s linear;
     }
 
     .zoion-name {
@@ -95,18 +95,13 @@
   </div>
 
   <script>
-    const canards = [ // extrait de canards.json
-      { name: "The canard", image: "assets/duck001.png" },
-      { name: "Lucky duck", image: "assets/duck002.png" },
-      { name: "So'", image: "assets/duck003.png" },
-      { name: "Leoli", image: "assets/duck004.png" },
-      { name: "Léachat", image: "assets/duck005.png" },
-      { name: "Aqua", image: "assets/duck006.png" },
-      { name: "Mérédith", image: "assets/duck007.png" },
-      { name: "Ménagé", image: "assets/duck008.png" },
-      { name: "Rouge rubis", image: "assets/duck009.png" },
-      { name: "Shotos", image: "assets/duck010.png" },
-    ];
+    const rarityWeights = {
+      "Commun": 5,
+      "Rare": 3,
+      "Épique": 2,
+      "Légendaire": 1,
+      "Cosmique": 0.5
+    };
 
     const chunksX = 30;
     const chunksY = 20;
@@ -156,7 +151,7 @@
 
       centerMap();
       updateTransform();
-      generateZoions();
+      fetchAndGenerateZoions();
     };
 
     function centerMap() {
@@ -174,34 +169,48 @@
     function clampPosition() {
       const minX = viewport.clientWidth - mapWidth * scale;
       const minY = viewport.clientHeight - mapHeight * scale;
-      const maxX = 0;
-      const maxY = 0;
-      originX = Math.max(minX, Math.min(maxX, originX));
-      originY = Math.max(minY, Math.min(maxY, originY));
+      originX = Math.max(minX, Math.min(0, originX));
+      originY = Math.max(minY, Math.min(0, originY));
     }
 
-    function generateZoions() {
-      const number = Math.floor(Math.random() * 3) + 1;
-      for (let i = 0; i < number; i++) {
-        const zoionData = canards[Math.floor(Math.random() * canards.length)];
-        const zoion = document.createElement('div');
-        zoion.classList.add('zoion');
-        zoion.style.left = `${Math.random() * (mapWidth - 48)}px`;
-        zoion.style.top = `${Math.random() * (mapHeight - 48)}px`;
+    async function fetchAndGenerateZoions() {
+      try {
+        const response = await fetch('canards.json');
+        const canards = await response.json();
 
-        const name = document.createElement('div');
-        name.className = 'zoion-name';
-        name.textContent = zoionData.name;
+        const weighted = canards.flatMap(c => {
+          const weight = rarityWeights[c.rarity] || 1;
+          return Array(Math.round(weight * 10)).fill(c);
+        });
 
-        const img = document.createElement('img');
-        img.src = zoionData.image;
-
-        zoion.appendChild(name);
-        zoion.appendChild(img);
-        container.appendChild(zoion);
-
-        performAction(zoion);
+        const number = Math.floor(Math.random() * 3) + 1;
+        for (let i = 0; i < number; i++) {
+          const duck = weighted[Math.floor(Math.random() * weighted.length)];
+          createZoion(duck);
+        }
+      } catch (err) {
+        console.error("Erreur de chargement des canards :", err);
       }
+    }
+
+    function createZoion(data) {
+      const zoion = document.createElement('div');
+      zoion.classList.add('zoion');
+      zoion.style.left = `${Math.random() * (mapWidth - 48)}px`;
+      zoion.style.top = `${Math.random() * (mapHeight - 48)}px`;
+
+      const name = document.createElement('div');
+      name.className = 'zoion-name';
+      name.textContent = data.name;
+
+      const img = document.createElement('img');
+      img.src = data.image;
+
+      zoion.appendChild(name);
+      zoion.appendChild(img);
+      container.appendChild(zoion);
+
+      performAction(zoion);
     }
 
     function performAction(zoion) {
@@ -212,8 +221,8 @@
       if (action === 'flip') {
         zoion.classList.toggle('flipped');
       } else if (action === 'walk') {
-        const deltaX = (Math.random() - 0.5) * 100;
-        const deltaY = (Math.random() - 0.5) * 100;
+        const deltaX = (Math.random() - 0.5) * 300;
+        const deltaY = (Math.random() - 0.5) * 300;
         const currentX = parseFloat(zoion.style.left);
         const currentY = parseFloat(zoion.style.top);
         const newX = Math.min(Math.max(currentX + deltaX, 0), mapWidth - 48);
