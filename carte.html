@@ -52,11 +52,6 @@
       box-sizing: border-box;
     }
 
-    .chunk.selected {
-      border: 2px solid white;
-      z-index: 10;
-    }
-
     .zoion {
       position: absolute;
       display: flex;
@@ -100,13 +95,14 @@
 
   <script>
     const rarityWeights = {
-      "Commun": 8,
+      "Commun": 5,
       "Rare": 3,
-      "Épique": 1,
-      "Légendaire": 0.5,
-      "Cosmique": 0.1
+      "Épique": 2,
+      "Légendaire": 1,
+      "Cosmique": 0.5
     };
 
+    const SPAWN_INTERVAL = 10800000; // 3h
     const chunksX = 30;
     const chunksY = 20;
 
@@ -115,18 +111,12 @@
     const container = document.getElementById('mapContainer');
     const viewport = document.getElementById('viewport');
 
-    let scale = 5;
-    let minScale = 4;
-    let maxScale = 6;
-    let originX = 0;
-    let originY = 0;
-    let isDragging = false;
-    let startX = 0;
-    let startY = 0;
-    let mapWidth = 0;
-    let mapHeight = 0;
+    let scale = 5, minScale = 4, maxScale = 6;
+    let originX = 0, originY = 0;
+    let isDragging = false, startX = 0, startY = 0;
+    let mapWidth = 0, mapHeight = 0;
 
-    map.onload = () => {
+    map.onload = async () => {
       mapWidth = map.naturalWidth;
       mapHeight = map.naturalHeight;
 
@@ -145,8 +135,6 @@
         for (let x = 0; x < chunksX; x++) {
           const div = document.createElement('div');
           div.classList.add('chunk');
-          div.dataset.x = x;
-          div.dataset.y = y;
           div.style.width = chunkWidth + 'px';
           div.style.height = chunkHeight + 'px';
           grid.appendChild(div);
@@ -155,8 +143,17 @@
 
       centerMap();
       updateTransform();
-      fetchAndGenerateZoions();
-      setInterval(fetchAndGenerateZoions, 10800000); // toutes les 3h
+
+      const now = Date.now();
+      const lastSpawn = parseInt(localStorage.getItem('lastSpawnTime') || '0');
+      const elapsed = now - lastSpawn;
+
+      if (elapsed >= SPAWN_INTERVAL) {
+        await generateNewZoions(); // Génère et stocke
+        localStorage.setItem('lastSpawnTime', now.toString());
+      }
+
+      loadZoionsFromStorage(); // Affiche ceux déjà générés
     };
 
     function centerMap() {
@@ -178,7 +175,7 @@
       originY = Math.max(minY, Math.min(0, originY));
     }
 
-    async function fetchAndGenerateZoions() {
+    async function generateNewZoions() {
       try {
         const response = await fetch('canards.json');
         const canards = await response.json();
@@ -189,20 +186,31 @@
         });
 
         const number = Math.floor(Math.random() * 3) + 1;
+        const zoions = [];
+
         for (let i = 0; i < number; i++) {
           const duck = weighted[Math.floor(Math.random() * weighted.length)];
-          createZoion(duck);
+          const x = Math.random() * (mapWidth - 48);
+          const y = Math.random() * (mapHeight - 48);
+          zoions.push({ ...duck, x, y });
         }
+
+        localStorage.setItem('zoions', JSON.stringify(zoions));
       } catch (err) {
-        console.error("Erreur de chargement des canards :", err);
+        console.error("Erreur de génération des zoions :", err);
       }
+    }
+
+    function loadZoionsFromStorage() {
+      const data = JSON.parse(localStorage.getItem('zoions') || '[]');
+      data.forEach(zoion => createZoion(zoion));
     }
 
     function createZoion(data) {
       const zoion = document.createElement('div');
       zoion.classList.add('zoion');
-      zoion.style.left = `${Math.random() * (mapWidth - 48)}px`;
-      zoion.style.top = `${Math.random() * (mapHeight - 48)}px`;
+      zoion.style.left = `${data.x}px`;
+      zoion.style.top = `${data.y}px`;
 
       const name = document.createElement('div');
       name.className = 'zoion-name';
@@ -217,19 +225,23 @@
 
       const goToFight = () => {
         zoion.remove();
+        removeZoionFromStorage(data.id);
         window.location.href = `fight.html?id=${encodeURIComponent(data.id)}`;
       };
 
-      // Gestion clic souris
       zoion.addEventListener('click', goToFight);
-
-      // Gestion tap tactile
       zoion.addEventListener('touchend', (e) => {
         e.preventDefault();
         goToFight();
       }, { passive: false });
 
       performAction(zoion);
+    }
+
+    function removeZoionFromStorage(id) {
+      const list = JSON.parse(localStorage.getItem('zoions') || '[]');
+      const updated = list.filter(z => z.id !== id);
+      localStorage.setItem('zoions', JSON.stringify(updated));
     }
 
     function performAction(zoion) {
@@ -279,11 +291,10 @@
       const rect = viewport.getBoundingClientRect();
       const offsetX = (e.clientX - rect.left - originX) / scale;
       const offsetY = (e.clientY - rect.top - originY) / scale;
-
       const delta = e.deltaY > 0 ? 0.9 : 1.1;
+
       scale *= delta;
       scale = Math.max(minScale, Math.min(maxScale, scale));
-
       originX = e.clientX - offsetX * scale;
       originY = e.clientY - offsetY * scale;
       updateTransform();
