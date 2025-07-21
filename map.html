@@ -119,10 +119,21 @@
             console.log(`Chunk sélectionné : ${x},${y}`);
           });
 
-          // Double-clic : redirection
+          // Double-clic ordinateur
           div.addEventListener('dblclick', (e) => {
             e.stopPropagation();
             window.location.href = "https://naiffie-emoji.github.io/Duckydex/index.html";
+          });
+
+          // Double tap mobile
+          let lastTap = 0;
+          div.addEventListener('touchend', (e) => {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            if (tapLength < 300 && tapLength > 0) {
+              window.location.href = "https://naiffie-emoji.github.io/Duckydex/index.html";
+            }
+            lastTap = currentTime;
           });
 
           grid.appendChild(div);
@@ -190,7 +201,7 @@
       updateTransform();
     });
 
-    // Mobile
+    // Mobile pinch + drag
     let lastDist = null;
     viewport.addEventListener('touchstart', (e) => {
       if (e.touches.length === 2) {
