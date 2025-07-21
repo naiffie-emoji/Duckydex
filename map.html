@@ -56,12 +56,17 @@
       border: 2px solid white;
       z-index: 10;
     }
+
+    canvas {
+      display: none;
+    }
   </style>
 </head>
 <body>
   <div class="viewport" id="viewport">
     <div class="map-container" id="mapContainer">
       <img id="map" class="map-image" src="carte/map.png" alt="Carte">
+      <canvas id="canvas"></canvas>
       <div id="grid" class="grid-overlay"></div>
     </div>
   </div>
@@ -74,6 +79,8 @@
     const grid = document.getElementById('grid');
     const container = document.getElementById('mapContainer');
     const viewport = document.getElementById('viewport');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
 
     let selectedChunk = null;
     let scale = 5;
@@ -93,6 +100,10 @@
     map.onload = () => {
       mapWidth = map.naturalWidth;
       mapHeight = map.naturalHeight;
+
+      canvas.width = mapWidth;
+      canvas.height = mapHeight;
+      ctx.drawImage(map, 0, 0);
 
       container.style.width = mapWidth + "px";
       container.style.height = mapHeight + "px";
@@ -122,19 +133,25 @@
             console.log(`Chunk sélectionné : ${x},${y}`);
           });
 
-          // Double-clic (ordinateur)
+          function handleDoubleTap() {
+            if (checkChunkColor(x, y, chunkWidth, chunkHeight)) {
+              window.location.href = "https://naiffie-emoji.github.io/Duckydex/index.html";
+            } else {
+              console.log("Couleur #a0ff40 non trouvée dans ce chunk.");
+            }
+          }
+
           div.addEventListener('dblclick', (e) => {
             e.stopPropagation();
-            window.location.href = "https://naiffie-emoji.github.io/Duckydex/index.html";
+            handleDoubleTap();
           });
 
-          // Double tap (mobile) — uniquement si même chunk
           div.addEventListener('touchend', (e) => {
             const currentTime = new Date().getTime();
             const tapGap = currentTime - lastTapTime;
 
             if (lastTappedChunk === div && tapGap < 300) {
-              window.location.href = "https://naiffie-emoji.github.io/Duckydex/index.html";
+              handleDoubleTap();
               lastTappedChunk = null;
               lastTapTime = 0;
             } else {
@@ -150,6 +167,27 @@
       centerMap();
       updateTransform();
     };
+
+    function checkChunkColor(x, y, chunkWidth, chunkHeight) {
+      const imageData = ctx.getImageData(
+        x * chunkWidth,
+        y * chunkHeight,
+        chunkWidth,
+        chunkHeight
+      );
+
+      const targetR = 160, targetG = 255, targetB = 64;
+
+      for (let i = 0; i < imageData.data.length; i += 4) {
+        const r = imageData.data[i];
+        const g = imageData.data[i + 1];
+        const b = imageData.data[i + 2];
+        if (r === targetR && g === targetG && b === targetB) {
+          return true;
+        }
+      }
+      return false;
+    }
 
     function centerMap() {
       const viewW = viewport.clientWidth;
@@ -172,7 +210,6 @@
       originY = Math.max(minY, Math.min(maxY, originY));
     }
 
-    // Souris
     viewport.addEventListener('mousedown', (e) => {
       isDragging = true;
       startX = e.clientX;
@@ -192,7 +229,6 @@
     viewport.addEventListener('mouseup', () => isDragging = false);
     viewport.addEventListener('mouseleave', () => isDragging = false);
 
-    // Zoom PC
     viewport.addEventListener('wheel', (e) => {
       e.preventDefault();
       const rect = viewport.getBoundingClientRect();
@@ -208,7 +244,6 @@
       updateTransform();
     });
 
-    // Mobile pinch + drag
     let lastDist = null;
     viewport.addEventListener('touchstart', (e) => {
       if (e.touches.length === 2) {
