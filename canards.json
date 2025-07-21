@@ -268,5 +268,35 @@
     "name": "Ferocorne",
     "rarity": "Soon",
     "image": "assets/unicorn003.png"
-                }
+                },
+                  {
+    "id": "duck042",
+    "name": "Koburo",
+    "rarity": "Légendaire",
+    "image": "assets/duck042.png"
+                  },
+                    {
+    "id": "duck043",
+    "name": "Kuramyos",
+    "rarity": "Légendaire",
+    "image": "assets/duck043.png"
+                    },
+                  {
+    "id": "duck044",
+    "name": "Frigouin",
+    "rarity": "Rare",
+    "image": "assets/duck044.png"
+                  },
+                    {
+    "id": "duck045",
+    "name": "Glacigouin",
+    "rarity": "Rare",
+    "image": "assets/duck045.png"
+                    },
+                    {
+    "id": "duck046",
+    "name": "Cryogigouin",
+    "rarity": "Épique",
+    "image": "assets/duck046.png"
+                    }
 ]
