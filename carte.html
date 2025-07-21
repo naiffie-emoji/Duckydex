@@ -85,7 +85,6 @@
       transform: scaleX(-1);
     }
 
-    /* === Bouton Timer Fixe === */
     .timer-button {
       position: fixed;
       bottom: 16px;
@@ -112,7 +111,7 @@
 <body>
   <div class="viewport" id="viewport">
     <div class="map-container" id="mapContainer">
-      <img id="map" class="map-image" src="carte/carte1.png" alt="Carte">
+      <img id="map" class="map-image" alt="Carte">
       <div id="grid" class="grid-overlay"></div>
     </div>
   </div>
@@ -142,6 +141,11 @@
     let originX = 0, originY = 0;
     let isDragging = false, startX = 0, startY = 0;
     let mapWidth = 0, mapHeight = 0;
+
+    // Choix aléatoire de la carte
+    const availableMaps = ["carte1.png", "carte2.png", "carte3.png"];
+    const chosenMap = availableMaps[Math.floor(Math.random() * availableMaps.length)];
+    map.src = `carte/${chosenMap}`;
 
     map.onload = async () => {
       mapWidth = map.naturalWidth;
@@ -309,7 +313,7 @@
       setTimeout(() => performAction(zoion), duration);
     }
 
-    // Souris
+    // Drag souris
     viewport.addEventListener('mousedown', (e) => {
       isDragging = true;
       startX = e.clientX;
