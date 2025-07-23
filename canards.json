@@ -298,5 +298,101 @@
     "name": "Cryogigouin",
     "rarity": "Épique",
     "image": "assets/duck046.png"
+                    },
+                    {
+    "id": "duck047",
+    "name": "Dormanx",
+    "rarity": "Commun",
+    "image": "assets/duck047.png"
+                    },
+                    {
+    "id": "duck048",
+    "name": "Paresskar",
+    "rarity": "Épique",
+    "image": "assets/duck048.png"
+                    },
+                    {
+    "id": "duck049",
+    "name": "Feuiléphant",
+    "rarity": "Rare",
+    "image": "assets/duck049.png"
+                    },
+                    {
+    "id": "duck050",
+    "name": "Terraphant",
+    "rarity": "Rare",
+    "image": "assets/duck050.png"
+                    },
+                    {
+    "id": "duck051",
+    "name": "Titanobosque",
+    "rarity": "Rare",
+    "image": "assets/duck051.png"
+                    },
+                    {
+    "id": "duck052",
+    "name": "Tigrenox",
+    "rarity": "Épique",
+    "image": "assets/duck052.png"
+                    },
+                    {
+    "id": "duck053",
+    "name": "Mékatigris",
+    "rarity": "Épique",
+    "image": "assets/duck053.png"
+                    },
+                    {
+    "id": "duck054",
+    "name": "Fauclin",
+    "rarity": "Commun",
+    "image": "assets/duck054.png"
+                    },
+                    {
+    "id": "duck055",
+    "name": "Fulgoryn",
+    "rarity": "Commun",
+    "image": "assets/duck055.png"
+                    },
+                    {
+    "id": "duck056",
+    "name": "Girabou",
+    "rarity": "Commun",
+    "image": "assets/duck056.png"
+                    },
+                    {
+    "id": "duck057",
+    "name": "Psyrafe",
+    "rarity": "Rare",
+    "image": "assets/duck057.png"
+                    },
+                    {
+    "id": "duck058",
+    "name": "Giralume",
+    "rarity": "Épique",
+    "image": "assets/duck058.png"
+                    },
+                    {
+    "id": "duck059",
+    "name": "Florillox",
+    "rarity": "Commun",
+    "image": "assets/duck059.png"
+                    },
+                    {
+    "id": "duck060",
+    "name": "Cryogigouin",
+    "rarity": "Épique",
+    "image": "assets/duck060.png"
+                    }
+                    {
+    "id": "duck061",
+    "name": "Ténéroctis",
+    "rarity": "Rare",
+    "image": "assets/duck061.png"
+                    },
+                    {
+    "id": "duck062",
+    "name": "Pyranda",
+    "rarity": "Commun",
+    "image": "assets/duck062.png"
                     }
 ]
