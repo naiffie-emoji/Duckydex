@@ -6,6 +6,7 @@
   <title>Ma Collection de Zōion</title>
   <link rel="icon" type="image/png" href="filet-canard.png" />
   <style>
+    /* Ton CSS inchangé (déjà copié plus haut, non raccourci ici pour que ce soit complet) */
     body {
       margin: 0;
       font-family: sans-serif;
@@ -291,15 +292,14 @@
     const moreMenu = document.getElementById("moreMenu");
 
     let collection = JSON.parse(localStorage.getItem("collection") || "[]");
+    const zoionLevels = JSON.parse(localStorage.getItem("zoionLevels") || "{}");
 
     if (collection.length && typeof collection[0] === "string") {
-      collection = collection.map(id => ({ uid: crypto.randomUUID(), id, level: 1 }));
+      collection = collection.map(id => ({ uid: crypto.randomUUID(), id }));
       localStorage.setItem("collection", JSON.stringify(collection));
     }
 
     let duckData = [];
-    let selectedUids = [];
-    let selectionMode = false;
 
     fetch("canards.json")
       .then(res => res.json())
@@ -319,12 +319,12 @@
     function renderCollection() {
       collectionContainer.innerHTML = "";
 
-      let ducks = collection
-        .map(obj => {
-          const duck = duckData.find(d => d.id === obj.id);
-          return duck ? { ...duck, uid: obj.uid, level: obj.level || 1 } : null;
-        })
-        .filter(Boolean);
+      let ducks = collection.map(obj => {
+        const duck = duckData.find(d => d.id === obj.id);
+        if (!duck) return null;
+        const progress = zoionLevels[obj.uid] || { level: 1 };
+        return { ...duck, uid: obj.uid, level: progress.level };
+      }).filter(Boolean);
 
       const sortBy = sortSelect.value;
       if (sortBy === "name") {
@@ -337,11 +337,8 @@
       ducks.forEach(duck => {
         const card = document.createElement("div");
         card.className = "card";
-        if (duck.rarity === "Cosmique") {
-          card.classList.add("cosmic");
-        } else if (duck.rarity === "Unicorn") {
-          card.classList.add("unicorn");
-        }
+        if (duck.rarity === "Cosmique") card.classList.add("cosmic");
+        else if (duck.rarity === "Unicorn") card.classList.add("unicorn");
 
         card.dataset.uid = duck.uid;
         card.innerHTML = `
@@ -370,12 +367,8 @@
     });
 
     window.addEventListener("click", (e) => {
-      if (!questBtn.contains(e.target) && !questMenu.contains(e.target)) {
-        questMenu.style.display = "none";
-      }
-      if (!moreBtn.contains(e.target) && !moreMenu.contains(e.target)) {
-        moreMenu.style.display = "none";
-      }
+      if (!questBtn.contains(e.target) && !questMenu.contains(e.target)) questMenu.style.display = "none";
+      if (!moreBtn.contains(e.target) && !moreMenu.contains(e.target)) moreMenu.style.display = "none";
     });
   </script>
 </body>
