@@ -394,5 +394,143 @@
     "name": "Pyranda",
     "rarity": "Commun",
     "image": "assets/duck062.png"
+  },
+  {
+    "id": "duck063",
+    "name": "Floryvola",
+    "rarity": "Rare",
+    "image": "assets/duck063.png"
+  },
+  {
+    "id": "duck064",
+    "name": "Ptirex",
+    "rarity": "Commun",
+    "image": "assets/duck064.png"
+  },
+  {
+    "id": "duck065",
+    "name": "Rocarex",
+    "rarity": "Commun",
+    "image": "assets/duck065.png"
+  },
+  {
+    "id": "duck066",
+    "name": "Glaciorex",
+    "rarity": "Commun",
+    "image": "assets/duck066.png"
+  },
+  {
+    "id": "duck067",
+    "name": "Feuillicorne",
+    "rarity": "Rare",
+    "image": "assets/duck067.png"
+  },
+  {
+    "id": "duck068",
+    "name": "Florakorne",
+    "rarity": "Rare",
+    "image": "assets/duck068.png"
+  },
+  {
+    "id": "duck069",
+    "name": "Obscyranta",
+    "rarity": "Rare",
+    "image": "assets/duck069.png"
+  },
+  {
+    "id": "duck070",
+    "name": "Spectrodactyl",
+    "rarity": "Épique",
+    "image": "assets/duck070.png"
+  },
+  {
+    "id": "duck071",
+    "name": "Ossétafantôme",
+    "rarity": "Épique",
+    "image": "assets/duck071.png"
+  },
+  {
+    "id": "duck072",
+    "name": "Voltéronome",
+    "rarity": "Épique",
+    "image": "assets/duck072.png"
+  },
+  {
+    "id": "duck073",
+    "name": "Naulume",
+    "rarity": "Épique",
+    "image": "assets/duck073.png"
+  },
+  {
+    "id": "duck074",
+    "name": "Cépharêve",
+    "rarity": "Épique",
+    "image": "assets/duck074.png"
+  },
+  {
+    "id": "duck075",
+    "name": "Abyssothys",
+    "rarity": "Épique",
+    "image": "assets/duck075.png"
+  },
+  {
+    "id": "duck076",
+    "name": "Hydropti",
+    "rarity": "Commun",
+    "image": "assets/duck076.png"
+  },
+  {
+    "id": "duck077",
+    "name": "Spiraqua",
+    "rarity": "Commun",
+    "image": "assets/duck077.png"
+  },
+  {
+    "id": "duck078",
+    "name": "Toxispino",
+    "rarity": "Commun",
+    "image": "assets/duck078.png"
+  },
+  {
+    "id": "duck079",
+    "name": "Koalumi",
+    "rarity": "Légendaire",
+    "image": "assets/duck079.png"
+  },
+  {
+    "id": "duck080",
+    "name": "Psychaloo",
+    "rarity": "Légendaire",
+    "image": "assets/duck080.png"
+  },
+  {
+    "id": "duck081",
+    "name": "Inarubi",
+    "rarity": "Légendaire",
+    "image": "assets/duck081.png"
+  },
+  {
+    "id": "duck082",
+    "name": "Ignox",
+    "rarity": "Légendaire",
+    "image": "assets/duck082.png"
+  },
+  {
+    "id": "duck083",
+    "name": "Vulpyros",
+    "rarity": "Légendaire",
+    "image": "assets/duck083.png"
+  }, 
+  {
+    "id": "duck084",
+    "name": "Algousse",
+    "rarity": "Rare",
+    "image": "assets/duck084.png"
+  },
+  {
+    "id": "duck085",
+    "name": "Hydralgue",
+    "rarity": "Rare",
+    "image": "assets/duck085.png"
   }
 ]
