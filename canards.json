@@ -532,5 +532,11 @@
     "name": "Hydralgue",
     "rarity": "Rare",
     "image": "assets/duck085.png"
+  },
+  {
+    "id": "duck086",
+    "name": "Flamendo",
+    "rarity": "Commun",
+    "image": "assets/duck086.png"
   }
 ]
